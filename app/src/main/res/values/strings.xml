@@ -9,4 +9,5 @@
     <string name="add_recipe">add recipe</string>
     <string name="save_new_recipe">save</string>
     <string name="add_photo_new_recipe">add photo</string>
+    <string name="title_activity_main2">Main2Activity</string>
 </resources>

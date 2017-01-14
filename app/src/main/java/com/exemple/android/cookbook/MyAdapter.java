@@ -59,7 +59,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.CustomViewHolder> 
         holder.mTextView.setText(item.getName());
         Glide.with(mContext).load(item.getPhotoUrl()).into(holder.mImageView);
 
-
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -70,7 +69,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.CustomViewHolder> 
 
     }
 
-    // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
         return (null != items ? items.size() : 0);

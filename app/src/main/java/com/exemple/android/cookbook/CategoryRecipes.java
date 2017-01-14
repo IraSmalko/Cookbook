@@ -28,4 +28,5 @@ public class CategoryRecipes {
     public void setPhotoUrl(String photoUrl) {
         this.photoUrl = photoUrl;
     }
+
 }
