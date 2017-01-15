@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -16,7 +15,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.google.firebase.database.ChildEventListener;
+import com.exemple.android.cookbook.supporting.CategoryRecipes;
+import com.exemple.android.cookbook.supporting.OnItemClickListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,17 +33,15 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView recyclerView;
     private MyAdapter myAdapter;
 
-    private FirebaseDatabase firebaseDatabase;
-    private DatabaseReference databaseReference;
-    private ChildEventListener childEventListener;
     private List<CategoryRecipes> categoryRecipesList = new ArrayList<>();
-    private String RECIPE = "recipe";
+    private String RECIPE_LIST = "recipeList";
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -51,7 +49,7 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), AddRecipe.class));
+                startActivity(new Intent(getApplicationContext(), AddRecipeActivity.class));
             }
         });
 
@@ -64,8 +62,9 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference("Сategory_Recipes");
+
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference databaseReference = firebaseDatabase.getReference("Сategory_Recipes");
 
 
         recyclerView = (RecyclerView) findViewById(R.id.messageRecyclerView);
@@ -92,8 +91,8 @@ public class MainActivity extends AppCompatActivity
         myAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(CategoryRecipes categoryRecipes) {
-                Intent intent = new Intent(getApplicationContext(), RecipeActivity.class);
-                intent.putExtra(RECIPE, categoryRecipes.getName());
+                Intent intent = new Intent(getApplicationContext(), RecipeListActivity.class);
+                intent.putExtra(RECIPE_LIST, categoryRecipes.getName());
                 startActivity(intent);
             }
         });

@@ -10,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.exemple.android.cookbook.supporting.CategoryRecipes;
+import com.exemple.android.cookbook.supporting.OnItemClickListener;
 
 import java.util.List;
 

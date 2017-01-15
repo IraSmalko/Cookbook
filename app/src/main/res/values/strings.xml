@@ -10,4 +10,6 @@
     <string name="save_new_recipe">save</string>
     <string name="add_photo_new_recipe">add photo</string>
     <string name="title_activity_main2">Main2Activity</string>
+    <string name="btn_save_recipe">Зберегти</string>
+    <string name="btn_detail_recipe">Детально</string>
 </resources>
