@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.supporting.CategoryRecipes;
 import com.exemple.android.cookbook.supporting.OnItemClickListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.CustomViewHolder> {
@@ -74,5 +75,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.CustomViewHolder> 
     @Override
     public int getItemCount() {
         return (null != items ? items.size() : 0);
+    }
+
+    public void setFilter(ArrayList<CategoryRecipes> newList) {
+        items = new ArrayList<>();
+        items.addAll(newList);
+        notifyDataSetChanged();
     }
 }

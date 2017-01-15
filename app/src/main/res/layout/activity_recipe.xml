@@ -19,51 +19,6 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/save_comments" />
 
-    <Button
-        android:text="Надіслати"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/save_comments"
-        android:layout_below="@+id/editText"
-        android:layout_alignParentEnd="true" />
-
-    <Button
-        android:text="Детально"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btn_detail_recipe"
-        android:layout_below="@+id/textView"
-        android:layout_alignStart="@+id/save_comments"
-        android:layout_marginTop="35dp" />
-
-    <RatingBar
-        android:layout_width="290dp"
-        android:layout_height="40dp"
-        android:id="@+id/ratingBar"
-        android:layout_below="@+id/btn_detail_recipe"
-        android:layout_centerHorizontal="true" />
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="46dp"
-        android:inputType="textAutoCorrect"
-        android:text="Залиште коментар"
-        android:ems="10"
-        android:id="@+id/editText"
-        android:layout_marginTop="11dp"
-        android:layout_below="@+id/ratingBar"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"/>
-
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@android:drawable/ic_menu_save"
-        android:id="@+id/imageButton2"
-        android:layout_alignParentTop="true"
-        android:layout_alignEnd="@+id/textView" />
-
     <TextView
         android:text="Короткий опис"
         android:layout_width="match_parent"
@@ -74,5 +29,41 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:textColor="#000"/>
+
+    <Button
+        android:text="Детально"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_detail_recipe"
+        android:layout_below="@+id/textView"
+        android:layout_alignStart="@+id/save_comments" />
+
+    <RatingBar
+        android:layout_width="290dp"
+        android:layout_height="40dp"
+        android:id="@+id/ratingBar"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:inputType="textAutoCorrect"
+        android:ems="10"
+        android:id="@+id/editTextComent"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_below="@+id/btn_detail_recipe"
+        android:layout_centerHorizontal="true"
+        android:hint="@string/editTextComent"
+        android:focusable="false"/>
+
+    <Button
+        android:text="Надіслати"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/save_comments"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>
