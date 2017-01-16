@@ -1,9 +1,18 @@
 package com.exemple.android.cookbook;
 
+import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -16,6 +25,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 import com.exemple.android.cookbook.supporting.CategoryRecipes;
 import com.exemple.android.cookbook.supporting.OnItemClickListener;
@@ -29,20 +40,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, SearchView.OnQueryTextListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        SearchView.OnQueryTextListener,
+        SensorEventListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private String RECIPE_LIST = "recipeList";
+    private static final int REQUEST_CODE = 1234;
+
     private RecyclerView recyclerView;
     private MyAdapter myAdapter;
-
     private List<CategoryRecipes> categoryRecipesList = new ArrayList<>();
-    private String RECIPE_LIST = "recipeList";
-
+    private SensorManager mSensorManager;
+    private Sensor mSensor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -69,7 +89,7 @@ public class MainActivity extends AppCompatActivity
         DatabaseReference databaseReference = firebaseDatabase.getReference("Сategory_Recipes");
 
 
-        recyclerView = (RecyclerView) findViewById(R.id.messageRecyclerView);
+        recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         myAdapter = new MyAdapter(this, categoryRecipesList);
@@ -173,5 +193,54 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(this, mSensor,
+                SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    protected void onPause() {
+        super.onPause();
+        mSensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if (sensorEvent.values[0] == 0) {
+            startVoiceRecognitionActivity();
+            // near
+        } else {
+
+        }
+    }
+
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
+    private void startVoiceRecognitionActivity() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+                "AndroidBite Voice Recognition...");
+        startActivityForResult(intent, REQUEST_CODE);
+    }
+
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
+            ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            Toast.makeText(getApplicationContext(), matches.get(0),
+                    Toast.LENGTH_LONG).show();
+            if (matches.contains("супи")){
+                Intent intent = new Intent(getApplicationContext(), RecipeListActivity.class);
+                intent.putExtra(RECIPE_LIST, "Супи");
+                startActivity(intent);}
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

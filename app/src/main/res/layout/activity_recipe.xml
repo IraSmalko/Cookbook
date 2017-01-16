@@ -30,19 +30,19 @@
         android:layout_marginRight="16dp"
         android:textColor="#000"/>
 
-    <Button
-        android:text="Детально"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btn_detail_recipe"
-        android:layout_below="@+id/textView"
-        android:layout_alignStart="@+id/save_comments" />
-
     <RatingBar
         android:layout_width="290dp"
         android:layout_height="40dp"
         android:id="@+id/ratingBar"
         android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:text="Детально"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_detail_recipe"
+        android:layout_above="@+id/textView"
         android:layout_alignParentEnd="true" />
 
     <EditText
@@ -53,17 +53,18 @@
         android:id="@+id/editTextComent"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_below="@+id/btn_detail_recipe"
-        android:layout_centerHorizontal="true"
         android:hint="@string/editTextComent"
-        android:focusable="false"/>
+        android:focusable="false"
+        android:layout_below="@+id/textView"
+        android:layout_alignStart="@+id/textView" />
 
     <Button
         android:text="Надіслати"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/save_comments"
-        android:layout_centerVertical="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_below="@+id/textView"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="35dp" />
 
 </RelativeLayout>

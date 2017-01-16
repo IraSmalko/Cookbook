@@ -3,4 +3,7 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="starFullySelected">#FFC107</color>
+    <color name="starPartiallySelected">#FFC107</color>
+    <color name="starNotSelected">#DCEDC8</color>
 </resources>

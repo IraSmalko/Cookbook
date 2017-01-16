@@ -14,9 +14,10 @@
         app:popupTheme="@style/AppTheme.PopupOverlay"
         />
 
+
     <android.support.v7.widget.RecyclerView
         android:layout_marginTop="62dp"
-        android:id="@+id/messageRecyclerView"
+        android:id="@+id/recipeListRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/fab"
