@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook;
+package com.exemple.android.cookbook.adapters;
 
 
 import android.content.Context;
@@ -10,19 +10,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.supporting.CategoryRecipes;
-import com.exemple.android.cookbook.supporting.OnItemClickListener;
+import com.exemple.android.cookbook.supporting.OnItemClickListenerCategoryRecipes;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyAdapter extends RecyclerView.Adapter<MyAdapter.CustomViewHolder> {
+public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<CategoryRecipeRecyclerAdapter.CustomViewHolder> {
 
     private Context mContext;
     private List<CategoryRecipes> items;
-    private OnItemClickListener onItemClickListener;
+    private OnItemClickListenerCategoryRecipes onItemClickListener;
 
-    class CustomViewHolder extends RecyclerView.ViewHolder {
+    public class CustomViewHolder extends RecyclerView.ViewHolder {
         protected TextView mTextView;
         public ImageView mImageView;
 
@@ -33,16 +34,16 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.CustomViewHolder> 
         }
     }
 
-    public MyAdapter(Context mContext, List<CategoryRecipes> items) {
+    public CategoryRecipeRecyclerAdapter(Context mContext, List<CategoryRecipes> items) {
         this.mContext = mContext;
         this.items = items;
     }
 
-    public OnItemClickListener getOnItemClickListener() {
+    public OnItemClickListenerCategoryRecipes getOnItemClickListener() {
         return onItemClickListener;
     }
 
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+    public void setOnItemClickListener(OnItemClickListenerCategoryRecipes onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
     }
 

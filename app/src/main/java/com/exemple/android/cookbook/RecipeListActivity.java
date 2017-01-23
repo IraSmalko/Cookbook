@@ -14,8 +14,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.exemple.android.cookbook.supporting.CategoryRecipes;
-import com.exemple.android.cookbook.supporting.OnItemClickListener;
+import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
+import com.exemple.android.cookbook.supporting.OnItemClickListenerRecipes;
+import com.exemple.android.cookbook.supporting.Recipes;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,9 +32,10 @@ public class RecipeListActivity extends AppCompatActivity
     private String RECIPE_LIST = "recipeList";
     private String RECIPE = "recipe";
     private String PHOTO_URL = "photo";
+    private String DESCRIPTION = "description";
 
-    private List<CategoryRecipes> categoryRecipesList = new ArrayList<>();
-    MyAdapter myAdapter;
+    private List<Recipes> recipesList = new ArrayList<>();
+    RecipeRecyclerListAdapter recipeRecyclerAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,15 +58,15 @@ public class RecipeListActivity extends AppCompatActivity
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
 
-        myAdapter = new MyAdapter(this, categoryRecipesList);
-        recyclerView.setAdapter(myAdapter);
+        recipeRecyclerAdapter = new RecipeRecyclerListAdapter(this, recipesList);
+        recyclerView.setAdapter(recipeRecyclerAdapter);
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
+                    Recipes recipes = postSnapshot.getValue(Recipes.class);
 
-                    categoryRecipesList.add(categoryRecipes);
+                    recipesList.add(recipes);
                 }
             }
 
@@ -73,12 +75,13 @@ public class RecipeListActivity extends AppCompatActivity
             }
         });
 
-        myAdapter.setOnItemClickListener(new OnItemClickListener() {
+        recipeRecyclerAdapter.setOnItemClickListener(new OnItemClickListenerRecipes() {
             @Override
-            public void onItemClick(CategoryRecipes categoryRecipes) {
+            public void onItemClick(Recipes recipes) {
                 Intent intent = new Intent(getApplicationContext(), RecipeActivity.class);
-                intent.putExtra(RECIPE, categoryRecipes.getName());
-                intent.putExtra(PHOTO_URL, categoryRecipes.photoUrl);
+                intent.putExtra(RECIPE, recipes.getName());
+                intent.putExtra(PHOTO_URL, recipes.photoUrl);
+                intent.putExtra(DESCRIPTION, recipes.description);
                 startActivity(intent);
             }
         });
@@ -113,14 +116,14 @@ public class RecipeListActivity extends AppCompatActivity
     @Override
     public boolean onQueryTextChange(String newText) {
         newText = newText.toLowerCase();
-        ArrayList<CategoryRecipes> newList = new ArrayList<>();
+        ArrayList<Recipes> newList = new ArrayList<>();
 
-        for (CategoryRecipes categoryRecipes : categoryRecipesList) {
-            String name = categoryRecipes.getName().toLowerCase();
+        for (Recipes recipes : recipesList) {
+            String name = recipes.getName().toLowerCase();
             if (name.contains(newText))
-                newList.add(categoryRecipes);
+                newList.add(recipes);
         }
-        myAdapter.setFilter(newList);
+        recipeRecyclerAdapter.setFilter(newList);
         return true;
     }
 

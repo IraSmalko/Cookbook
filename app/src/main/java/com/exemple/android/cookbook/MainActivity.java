@@ -1,9 +1,6 @@
 package com.exemple.android.cookbook;
 
-import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -25,11 +22,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
 import com.exemple.android.cookbook.supporting.CategoryRecipes;
-import com.exemple.android.cookbook.supporting.OnItemClickListener;
+import com.exemple.android.cookbook.supporting.OnItemClickListenerCategoryRecipes;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -49,7 +46,7 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_CODE = 1234;
 
     private RecyclerView recyclerView;
-    private MyAdapter myAdapter;
+    private CategoryRecipeRecyclerAdapter myAdapter;
     private List<CategoryRecipes> categoryRecipesList = new ArrayList<>();
     private SensorManager mSensorManager;
     private Sensor mSensor;
@@ -71,7 +68,7 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), AddRecipeActivity.class));
+                startActivity(new Intent(getApplicationContext(), OnItemClickListenerCategoryRecipes.AddCategoryRecipeActivity.class));
             }
         });
 
@@ -92,7 +89,7 @@ public class MainActivity extends AppCompatActivity
         recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        myAdapter = new MyAdapter(this, categoryRecipesList);
+        myAdapter = new CategoryRecipeRecyclerAdapter(this, categoryRecipesList);
         recyclerView.setAdapter(myAdapter);
 
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -110,7 +107,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        myAdapter.setOnItemClickListener(new OnItemClickListener() {
+        myAdapter.setOnItemClickListener(new OnItemClickListenerCategoryRecipes() {
             @Override
             public void onItemClick(CategoryRecipes categoryRecipes) {
                 Intent intent = new Intent(getApplicationContext(), RecipeListActivity.class);

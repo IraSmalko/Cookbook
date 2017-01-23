@@ -6,6 +6,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.supporting.Recipes;
@@ -43,7 +45,6 @@ public class RecipeActivity extends AppCompatActivity {
 
         descriptionRecipe = (TextView) findViewById(R.id.textView);
         ImageView imageView = (ImageView) findViewById(R.id.imageView);
-        Button btnSaveRecipe = (Button) findViewById(R.id.btn_save_recipe);
         Button btnDetailRecipe = (Button) findViewById(R.id.btn_detail_recipe);
         ListView comments = (ListView) findViewById(R.id.list_view);
         RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar);
@@ -52,9 +53,20 @@ public class RecipeActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
 
         LayerDrawable stars = (LayerDrawable) ratingBar.getProgressDrawable();
-        stars.getDrawable(2).setColorFilter(getResources().getColor(R.color.starFullySelected), PorterDuff.Mode.SRC_ATOP);
-        stars.getDrawable(1).setColorFilter(getResources().getColor(R.color.starPartiallySelected), PorterDuff.Mode.SRC_ATOP);
-        stars.getDrawable(0).setColorFilter(getResources().getColor(R.color.starNotSelected), PorterDuff.Mode.SRC_ATOP);
+        stars.getDrawable(2).setColorFilter(ContextCompat.getColor(this, R.color.starFullySelected), PorterDuff.Mode.SRC_ATOP);
+        stars.getDrawable(1).setColorFilter(ContextCompat.getColor(this, R.color.starPartiallySelected), PorterDuff.Mode.SRC_ATOP);
+        stars.getDrawable(0).setColorFilter(ContextCompat.getColor(this,R.color.starNotSelected), PorterDuff.Mode.SRC_ATOP);
+
+        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float rating,
+                                        boolean fromUser) {
+
+                Toast.makeText(getApplicationContext(), "рейтинг: " + String.valueOf(rating),
+                        Toast.LENGTH_LONG).show();
+            }
+        });
 
         Intent intent = getIntent();
 

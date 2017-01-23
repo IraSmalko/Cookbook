@@ -1,14 +1,16 @@
 package com.exemple.android.cookbook.supporting;
 
 
-public class Recipes {
+public class Recipes extends CategoryRecipes {
 
     public String description;
 
     public Recipes() {
     }
 
-    public Recipes(String description) {
+    public Recipes(String name, String photoUrl, String description) {
+        this.name = name;
+        this.photoUrl = photoUrl;
         this.description = description;
     }
 

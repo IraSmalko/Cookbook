@@ -3,7 +3,7 @@ package com.exemple.android.cookbook.supporting;
 
 public class CategoryRecipes {
     public String name;
-    public String  photoUrl;
+    public String photoUrl;
 
     public CategoryRecipes() {
     }

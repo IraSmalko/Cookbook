@@ -22,7 +22,7 @@ public class AddRecipeActivity extends AppCompatActivity{
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private TextView txtDetails;
-    private EditText inputName, inputPhotoUrl;
+    private EditText inputName, inputPhotoUrl, inputIngredients;
     private Button btnSave;
     private DatabaseReference mFirebaseDatabase;
     private FirebaseDatabase mFirebaseInstance;
@@ -34,9 +34,10 @@ public class AddRecipeActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_recipe);
 
-        txtDetails = (TextView) findViewById(R.id.txt_user);
+        txtDetails = (TextView) findViewById(R.id.txt_category_recipe);
         inputName = (EditText) findViewById(R.id.name);
         inputPhotoUrl = (EditText) findViewById(R.id.photoUrl);
+        inputIngredients = (EditText) findViewById(R.id.ingredients);
         btnSave = (Button) findViewById(R.id.btn_save);
 
         mFirebaseInstance = FirebaseDatabase.getInstance();
@@ -66,6 +67,7 @@ public class AddRecipeActivity extends AppCompatActivity{
             public void onClick(View view) {
                 String recipe = inputName.getText().toString();
                 String photoUrl = inputPhotoUrl.getText().toString();
+                String description = inputIngredients.getText().toString();
 
                 if (TextUtils.isEmpty(recipeId)) {
                     createUser(recipe, photoUrl);

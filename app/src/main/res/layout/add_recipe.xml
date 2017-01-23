@@ -13,7 +13,7 @@
     tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/txt_user"
+        android:id="@+id/txt_category_recipe"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingBottom="@dimen/activity_horizontal_margin"
@@ -33,7 +33,21 @@
                 android:id="@+id/name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/add_recipe"
+                android:hint="@string/add_name_recipe"
+                android:inputType="textCapWords"
+                android:maxLines="1" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/ingredients"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/add_ingredients"
                 android:inputType="textCapWords"
                 android:maxLines="1" />
 
@@ -47,8 +61,8 @@
                 android:id="@+id/photoUrl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/add_ingredients"
-                android:inputType="textEmailAddress"
+                android:hint="@string/add_description"
+                android:inputType="text"
                 android:maxLines="1" />
 
         </android.support.design.widget.TextInputLayout>
