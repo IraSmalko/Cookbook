@@ -80,8 +80,8 @@ public class RecipeListActivity extends AppCompatActivity
             public void onItemClick(Recipes recipes) {
                 Intent intent = new Intent(getApplicationContext(), RecipeActivity.class);
                 intent.putExtra(RECIPE, recipes.getName());
-                intent.putExtra(PHOTO_URL, recipes.photoUrl);
-                intent.putExtra(DESCRIPTION, recipes.description);
+                intent.putExtra(PHOTO_URL, recipes.getPhotoUrl());
+                intent.putExtra(DESCRIPTION, recipes.getDescription());
                 startActivity(intent);
             }
         });

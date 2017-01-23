@@ -3,7 +3,7 @@ package com.exemple.android.cookbook.supporting;
 
 public class Recipes extends CategoryRecipes {
 
-    public String description;
+    private String description;
 
     public Recipes() {
     }

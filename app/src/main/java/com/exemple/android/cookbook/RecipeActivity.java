@@ -12,6 +12,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -35,7 +36,8 @@ public class RecipeActivity extends AppCompatActivity {
 
     private String RECIPE = "recipe";
     private String PHOTO_URL = "photo";
-    private List<Recipes> recipesData = new ArrayList<>();
+    private String DESCRIPTION = "description";
+
     TextView descriptionRecipe;
 
     @Override
@@ -68,29 +70,21 @@ public class RecipeActivity extends AppCompatActivity {
             }
         });
 
-        Intent intent = getIntent();
+        final Intent intent = getIntent();
 
         actionBar.setTitle(intent.getStringExtra(RECIPE));
         Glide.with(this).load(intent.getStringExtra(PHOTO_URL)).into(imageView);
+        descriptionRecipe.setText(intent.getStringExtra(DESCRIPTION));
 
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference databaseReference = firebaseDatabase.getReference(intent.getStringExtra(RECIPE));
-
-        databaseReference.addValueEventListener(new ValueEventListener() {
+        btnDetailRecipe.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    Recipes recipes = postSnapshot.getValue(Recipes.class);
-
-                    descriptionRecipe.setText(recipes.description);
-                    recipesData.add(recipes);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onClick(View view) {
+                Intent intentStepRecipeActivity = new Intent(getApplicationContext(), StepRecipeActivity.class);
+                intentStepRecipeActivity.putExtra(RECIPE, intent.getStringExtra(RECIPE));
+                startActivity(new Intent(intentStepRecipeActivity));
             }
         });
+
 
     }
 
