@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), OnItemClickListenerCategoryRecipes.AddCategoryRecipeActivity.class));
+                startActivity(new Intent(getApplicationContext(), AddCategoryRecipeActivity.class));
             }
         });
 

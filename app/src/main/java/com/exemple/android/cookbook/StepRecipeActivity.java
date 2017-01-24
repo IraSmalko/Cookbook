@@ -25,24 +25,27 @@ import java.util.List;
 public class StepRecipeActivity extends AppCompatActivity {
 
     private String RECIPE = "recipe";
+    private String PHOTO_URL = "photo";
+    private String DESCRIPTION = "description";
 
-    DatabaseReference databaseReference;
+    private Intent intent;
+    private DatabaseReference databaseReference;
     private List<StepRecipe> stepRecipe = new ArrayList<>();
-    TextView txtStepRecipe;
-    ImageView imgStepRecipe;
-    ActionBar actionBar;
-    int index = 0;
+    private TextView txtStepRecipe;
+    private ImageView imgStepRecipe;
+    private ActionBar actionBar;
+    private int index = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.step_recipe);
+        setContentView(R.layout.step_recipe_activity);
 
         txtStepRecipe = (TextView) findViewById(R.id.txt_step_recipe);
         imgStepRecipe = (ImageView) findViewById(R.id.img_step_recipe);
         actionBar = getSupportActionBar();
 
-        Intent intent = getIntent();
+        intent = getIntent();
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference(intent.getStringExtra(RECIPE));
@@ -82,7 +85,11 @@ public class StepRecipeActivity extends AppCompatActivity {
             txtStepRecipe.setText(stepRecipe.get(i).getTextStep());
             Glide.with(getApplicationContext()).load(stepRecipe.get(i).getPhotoUrlStep()).into(imgStepRecipe);
         } else {
-            startActivity(new Intent(getApplicationContext(), RecipeActivity.class));
+            Intent intentRecipeActivity = new Intent(getApplicationContext(), RecipeActivity.class);
+            intentRecipeActivity.putExtra(RECIPE, intent.getStringExtra(RECIPE));
+            intentRecipeActivity.putExtra(PHOTO_URL, intent.getStringExtra(PHOTO_URL));
+            intentRecipeActivity.putExtra(DESCRIPTION, intent.getStringExtra(DESCRIPTION));
+            startActivity(new Intent(intentRecipeActivity));
         }
     }
 }

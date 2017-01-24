@@ -112,9 +112,9 @@ public class AddRecipeActivity extends AppCompatActivity{
                     return;
                 }
 
-                Log.e(TAG, "User data is changed!" + сategoryRecipes.name + ", " + сategoryRecipes.photoUrl);
+                Log.e(TAG, "User data is changed!" + сategoryRecipes.getName() + ", " + сategoryRecipes.getPhotoUrl());
 
-                txtDetails.setText(сategoryRecipes.name + ", " + сategoryRecipes.photoUrl);
+                txtDetails.setText(сategoryRecipes.getName() + ", " + сategoryRecipes.getPhotoUrl());
 
                 inputPhotoUrl.setText("");
                 inputName.setText("");

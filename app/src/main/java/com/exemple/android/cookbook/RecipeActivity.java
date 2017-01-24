@@ -81,6 +81,8 @@ public class RecipeActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intentStepRecipeActivity = new Intent(getApplicationContext(), StepRecipeActivity.class);
                 intentStepRecipeActivity.putExtra(RECIPE, intent.getStringExtra(RECIPE));
+                intentStepRecipeActivity.putExtra(PHOTO_URL, intent.getStringExtra(PHOTO_URL));
+                intentStepRecipeActivity.putExtra(DESCRIPTION, intent.getStringExtra(DESCRIPTION));
                 startActivity(new Intent(intentStepRecipeActivity));
             }
         });

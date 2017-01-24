@@ -35,7 +35,7 @@ public class RecipeListActivity extends AppCompatActivity
     private String DESCRIPTION = "description";
 
     private List<Recipes> recipesList = new ArrayList<>();
-    RecipeRecyclerListAdapter recipeRecyclerAdapter;
+    private RecipeRecyclerListAdapter recipeRecyclerAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
