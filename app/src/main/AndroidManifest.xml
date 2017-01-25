@@ -20,10 +20,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".AddRecipeActivity" />
-        <activity android:name=".supporting.OnItemClickListenerCategoryRecipes$AddCategoryRecipeActivity"/>
+        <activity android:name=".AddCategoryRecipeActivity"/>
         <activity android:name=".RecipeListActivity" />
         <activity android:name=".RecipeActivity"/>
         <activity android:name=".StepRecipeActivity"/>
+
     </application>
 
 </manifest>

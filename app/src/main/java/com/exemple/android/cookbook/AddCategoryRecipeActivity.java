@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -18,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.exemple.android.cookbook.supporting.CategoryRecipes;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -28,9 +30,11 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Random;
 
-class AddCategoryRecipeActivity extends AppCompatActivity {
+public class AddCategoryRecipeActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     static final int GALLERY_REQUEST = 1;
@@ -108,7 +112,7 @@ class AddCategoryRecipeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String recipe = inputCategoryName.getText().toString();
-                createUser(categoryRecipes);
+                //createUser(categoryRecipes);
                 if (TextUtils.isEmpty(recipeId)) {
 
                 } else {
@@ -129,17 +133,17 @@ class AddCategoryRecipeActivity extends AppCompatActivity {
         }
     }
 
-    private void createUser(CategoryRecipes categoryRecipes) {
-        recipeId = databaseReference.push().getKey();
+    // private void createUser(CategoryRecipes categoryRecipes) {
+    //recipeId = databaseReference.push().getKey();
 
 
-        //  CategoryRecipes categoryRecipes = new CategoryRecipes(name, photoUrl);
+    //  CategoryRecipes categoryRecipes = new CategoryRecipes(name, photoUrl);
 
-        databaseReference.child(recipeId).setValue(categoryRecipes);
-
-        addUserChangeListener();
-        inputCategoryName.setText("");
-    }
+//        databaseReference.child(recipeId).setValue(categoryRecipes);
+//
+//        addUserChangeListener();
+//        inputCategoryName.setText("");
+//    }
 
     private void addUserChangeListener() {
         databaseReference.child(recipeId).addValueEventListener(new ValueEventListener() {
@@ -189,15 +193,43 @@ class AddCategoryRecipeActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             downloadUrl = taskSnapshot.getDownloadUrl();
-                            categoryRecipes = new CategoryRecipes(recipe, downloadUrl.toString());
-                            databaseReference.push().setValue(categoryRecipes);
+                            categoryRecipes = new CategoryRecipes(inputCategoryName.getText().toString(), downloadUrl.toString());
+                            recipeId = databaseReference.push().getKey();
+                            databaseReference.child(recipeId).setValue(categoryRecipes);
                         }
                     });
                     try {
                         bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
+                        imageView.setImageBitmap(bitmap);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                }
+            case CAMERA_RESULT:
+                if (requestCode == CAMERA_RESULT) {
+                    Bitmap thumbnailBitmap = (Bitmap) imageReturnedIntent.getExtras().get("data");
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    thumbnailBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                    byte[] data = baos.toByteArray();
+                    final Random random = new Random();
+
+                    UploadTask uploadTask = storageReference.child(String.valueOf(random.nextInt())).putBytes(data);
+                    uploadTask.addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Uri downloadUrlCamera = taskSnapshot.getDownloadUrl();
+                            categoryRecipes = new CategoryRecipes(inputCategoryName.getText().toString(), downloadUrlCamera.toString());
+                            recipeId = databaseReference.push().getKey();
+                            databaseReference.child(recipeId).setValue(categoryRecipes);
+                        }
+                    });
+                    imageView.setImageBitmap(thumbnailBitmap);
                 }
         }
     }
