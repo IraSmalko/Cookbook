@@ -3,8 +3,10 @@ package com.exemple.android.cookbook;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -31,6 +33,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
@@ -47,7 +50,6 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     private String recipeId;
     private Bitmap bitmap = null;
     private ImageView imageView;
-    private Bitmap restoreBitmap;
 
     private DatabaseReference databaseReference;
     private FirebaseDatabase firebaseDatabase;
@@ -55,6 +57,17 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     private StorageReference storageReference;
     private Uri downloadUrl;
     private CategoryRecipes categoryRecipes;
+    private String pictureImagePath = Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/n" + ".jpg";
+
+    public void openBackCamera() {
+        File file = new File(pictureImagePath);
+        Uri outputFileUri = Uri.fromFile(file);
+        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
+        startActivityForResult(cameraIntent, CAMERA_RESULT);
+    }
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,8 +93,7 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(cameraIntent, CAMERA_RESULT);
+                openBackCamera();
             }
         });
 
@@ -111,8 +123,7 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String recipe = inputCategoryName.getText().toString();
-                //createUser(categoryRecipes);
+
                 if (TextUtils.isEmpty(recipeId)) {
 
                 } else {
@@ -124,7 +135,6 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         toggleButton();
     }
 
-    // Changing button text
     private void toggleButton() {
         if (TextUtils.isEmpty(recipeId)) {
             btnSave.setText("Save");
@@ -133,17 +143,6 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         }
     }
 
-    // private void createUser(CategoryRecipes categoryRecipes) {
-    //recipeId = databaseReference.push().getKey();
-
-
-    //  CategoryRecipes categoryRecipes = new CategoryRecipes(name, photoUrl);
-
-//        databaseReference.child(recipeId).setValue(categoryRecipes);
-//
-//        addUserChangeListener();
-//        inputCategoryName.setText("");
-//    }
 
     private void addUserChangeListener() {
         databaseReference.child(recipeId).addValueEventListener(new ValueEventListener() {
@@ -152,11 +151,11 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
                 CategoryRecipes сategoryRecipes = dataSnapshot.getValue(CategoryRecipes.class);
 
                 if (сategoryRecipes == null) {
-                    Log.e(TAG, "User data is null!");
+                    Log.e(TAG, "data is null!");
                     return;
                 }
 
-                Log.e(TAG, "User data is changed!" + сategoryRecipes.getName() + ", " + сategoryRecipes.getPhotoUrl());
+                Log.e(TAG, "data is changed!" + сategoryRecipes.getName() + ", " + сategoryRecipes.getPhotoUrl());
                 txtDetails.setText(сategoryRecipes.getName() + ", " + сategoryRecipes.getPhotoUrl());
                 inputCategoryName.setText("");
                 toggleButton();
@@ -169,13 +168,8 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         });
     }
 
-    private void updateCategoryRecipes(String name, String photoUrl) {
-        // updating the user via child nodes
-        if (!TextUtils.isEmpty(name))
-            databaseReference.child(recipeId).child("name").setValue(name);
-
-        //        if (!TextUtils.isEmpty(photoUrl))
-        //            databaseReference.child(userId).child("photoUrl").setValue(photoUrl);
+    public Bitmap getBitmapfromByteArray(byte[] bitmap) {
+        return BitmapFactory.decodeByteArray(bitmap , 0, bitmap.length);
     }
 
     @Override
@@ -206,15 +200,17 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
                     }
                 }
             case CAMERA_RESULT:
+
                 if (requestCode == CAMERA_RESULT) {
-                    Bitmap thumbnailBitmap = (Bitmap) imageReturnedIntent.getExtras().get("data");
+                    File imgFile = new  File(pictureImagePath);
+                        Bitmap cameraBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
 
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    thumbnailBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                    cameraBitmap.compress(Bitmap.CompressFormat.PNG, 0, baos);
                     byte[] data = baos.toByteArray();
                     final Random random = new Random();
 
-                    UploadTask uploadTask = storageReference.child(String.valueOf(random.nextInt())).putBytes(data);
+                    UploadTask uploadTask = storageReference.child("Photo_Сategory_Recipes" + String.valueOf(random.nextInt())).putBytes(data);
                     uploadTask.addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception exception) {
@@ -229,8 +225,9 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
                             databaseReference.child(recipeId).setValue(categoryRecipes);
                         }
                     });
-                    imageView.setImageBitmap(thumbnailBitmap);
+                    imageView.setImageBitmap(cameraBitmap);
                 }
         }
     }
+
 }
