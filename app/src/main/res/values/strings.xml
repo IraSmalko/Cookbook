@@ -5,8 +5,8 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
-    <string name="add_ingredients">add ingredients</string>
-    <string name="add_name_recipe">Додайте ім\'я категорії</string>
+    <string name="add_name_category_recipe">Додайте назву категорії</string>
+    <string name="add_name_recipe">Додайте назву рецепта</string>
     <string name="save_new_recipe">save</string>
     <string name="add_photo_new_recipe">add photo</string>
     <string name="title_activity_main2">Main2Activity</string>
@@ -15,4 +15,7 @@
     <string name="editTextComent">Залиште коментар</string>
     <string name="save">Save</string>
     <string name="add_description">add description</string>
+    <string name="content_description_add_сategory">Додане фото категорії</string>
+    <string name="add_main_photo_recipe">Додайте головне фото \n рецепта</string>
+    <string name="add_ingredients">Додайте інгридієнти</string>
 </resources>
