@@ -22,7 +22,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".AddRecipeActivity" />
-        <activity android:name=".AddCategoryRecipeActivity"/>
+        <activity android:name=".AddCategoryRecipeActivity"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="userPortrait"/>
         <activity android:name=".RecipeListActivity" />
         <activity android:name=".RecipeActivity"/>
         <activity android:name=".StepRecipeActivity"/>

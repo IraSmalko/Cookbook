@@ -16,22 +16,16 @@
         android:id="@+id/photo_imageView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="17"
-        />
+        android:layout_weight="20"
+        ads:srcCompat="@drawable/dishes" />
 
-    <TextView
-        android:id="@+id/txt_category_recipe"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingBottom="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_horizontal_margin"
-        android:textSize="20sp"
-        android:layout_weight="0.5"/>
+
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:textColorHint="#000">
 
         <EditText
             android:id="@+id/name"
@@ -75,6 +69,6 @@
         android:text="@string/save_new_recipe"
         android:textColor="@android:color/white"
         android:textStyle="bold"
-        android:layout_weight="1"/>
+        android:layout_weight="0.1"/>
 
 </LinearLayout>

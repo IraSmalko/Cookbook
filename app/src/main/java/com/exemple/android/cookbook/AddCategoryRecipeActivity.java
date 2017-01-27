@@ -1,6 +1,7 @@
 package com.exemple.android.cookbook;
 
 
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -26,6 +27,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -39,8 +41,9 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     private static final int CAMERA_RESULT = 0;
     private static final int PIC_CROP = 2;
 
-    private TextView txtDetails;
     private EditText inputCategoryName;
+    private ImageView imageView;
+    private ProgressDialog progressDialog;
 
     private DatabaseReference databaseReference;
     private StorageReference storageReference;
@@ -53,11 +56,14 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_category_recipe);
 
-        txtDetails = (TextView) findViewById(R.id.txt_category_recipe);
+        imageView = (ImageView) findViewById(R.id.photo_imageView);
         inputCategoryName = (EditText) findViewById(R.id.name);
         ImageButton btnPhoto_fromGallery = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlGallery);
         ImageButton btnPhoto_fromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrl);
         Button btnSave = (Button) findViewById(R.id.btn_save);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Завантаження");
 
         btnPhoto_fromGallery.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,7 +75,6 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         });
 
         btnPhoto_fromCamera.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 photoFromCamera();
@@ -104,7 +109,7 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
             cropIntent.putExtra("crop", true);
             cropIntent.putExtra("aspectX", 1);
             cropIntent.putExtra("aspectY", 1);
-            cropIntent.putExtra("outputX", 660);
+            cropIntent.putExtra("outputX", 670);
             cropIntent.putExtra("outputY", 480);
             cropIntent.putExtra("return-data", true);
             cropIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
@@ -118,23 +123,26 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     View.OnClickListener oclBtnSave = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (downloadUrlCamera != null) {
-                CategoryRecipes categoryRecipes = new CategoryRecipes(inputCategoryName.getText().toString(), downloadUrlCamera.toString());
-                String recipeId = databaseReference.push().getKey();
-                databaseReference.child(recipeId).setValue(categoryRecipes);
-                Toast.makeText(getApplicationContext(), "Дані збережено.", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getApplicationContext(), "Щось ви робите неправильно, зробіть нормально!", Toast.LENGTH_LONG).show();
+            if (inputCategoryName.getText().toString().equals("")) {
+                Toast.makeText(getApplicationContext(), "Додайте ім'я категорії!", Toast.LENGTH_SHORT).show();
+            }else {
+                if (downloadUrlCamera != null) {
+                    CategoryRecipes categoryRecipes = new CategoryRecipes(inputCategoryName.getText().toString(), downloadUrlCamera.toString());
+                    String recipeId = databaseReference.push().getKey();
+                    databaseReference.child(recipeId).setValue(categoryRecipes);
+                    Toast.makeText(getApplicationContext(), "Дані збережено.", Toast.LENGTH_SHORT).show();
+                    imageView.setImageResource(R.drawable.dishes);
+                    inputCategoryName.setText("");
+                } else {
+                    Toast.makeText(getApplicationContext(), "Щось ви робите неправильно, \n зробіть нормально!", Toast.LENGTH_LONG).show();
+                }
             }
-            txtDetails.setText(inputCategoryName.getText().toString());
-            inputCategoryName.setText("");
         }
     };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-        ImageView imageView = (ImageView) findViewById(R.id.photo_imageView);
 
         switch (requestCode) {
             case GALLERY_REQUEST:
@@ -150,24 +158,32 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
             case PIC_CROP:
                 if (requestCode == PIC_CROP) {
                     if (imageReturnedIntent != null) {
-                        File imgFile = new  File(Environment.getExternalStoragePublicDirectory(
+
+                        File imgFile = new File(Environment.getExternalStoragePublicDirectory(
                                 Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/4" + ".jpg");
                         Bitmap selectedBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         selectedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                         byte[] data = baos.toByteArray();
                         final Random random = new Random();
+                        progressDialog.show();
 
                         UploadTask uploadTask = storageReference.child("Photo_Сategory_Recipes" + String.valueOf(random.nextInt())).putBytes(data);
                         uploadTask.addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception exception) {
-
+                                progressDialog.dismiss();
                             }
                         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                 downloadUrlCamera = taskSnapshot.getDownloadUrl();
+                                progressDialog.dismiss();
+                            }
+                        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                                progressDialog.setMessage("Зачекайте, будь ласка" );
                             }
                         });
                         imageView.setImageBitmap(selectedBitmap);

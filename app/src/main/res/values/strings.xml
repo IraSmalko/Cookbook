@@ -6,7 +6,7 @@
 
     <string name="action_settings">Settings</string>
     <string name="add_ingredients">add ingredients</string>
-    <string name="add_name_recipe">add name of recipe</string>
+    <string name="add_name_recipe">Додайте ім\'я категорії</string>
     <string name="save_new_recipe">save</string>
     <string name="add_photo_new_recipe">add photo</string>
     <string name="title_activity_main2">Main2Activity</string>
