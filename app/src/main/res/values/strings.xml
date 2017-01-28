@@ -14,8 +14,9 @@
     <string name="btn_detail_recipe">Детально</string>
     <string name="editTextComent">Залиште коментар</string>
     <string name="save">Save</string>
-    <string name="add_description">add description</string>
+    <string name="add_description">Додайте опис кроку</string>
     <string name="content_description_add_сategory">Додане фото категорії</string>
     <string name="add_main_photo_recipe">Додайте головне фото \n рецепта</string>
     <string name="add_ingredients">Додайте інгридієнти</string>
+    <string name="add_photo_step">Додайте фото кроку</string>
 </resources>

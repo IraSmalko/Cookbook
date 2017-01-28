@@ -12,6 +12,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -20,7 +21,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.exemple.android.cookbook.supporting.Recipes;
+import com.exemple.android.cookbook.supporting.StepRecipe;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
@@ -34,43 +35,50 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Random;
 
-public class AddRecipeActivity extends AppCompatActivity {
+public class AddStepActivity extends AppCompatActivity {
 
     private static final int GALLERY_REQUEST = 1;
     private static final int CAMERA_RESULT = 0;
     private static final int PIC_CROP = 2;
 
-    private EditText inputNameRecipe, inputIngredients;
+    private EditText inputNameRecipe;
     private ImageView imageView;
     private ProgressDialog progressDialog;
+    private ActionBar actionBar;
 
     private DatabaseReference databaseReference;
     private StorageReference storageReference;
     private Uri downloadUrlCamera;
+    private int numberStep = 1;
     private String pictureImagePath = Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/n" + ".jpg";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.add_recipe);
+        setContentView(R.layout.add_step_activity);
 
         imageView = (ImageView) findViewById(R.id.photo_imageView);
         inputNameRecipe = (EditText) findViewById(R.id.name);
-        inputIngredients = (EditText) findViewById(R.id.add_ingredients);
         ImageButton btnPhoto_fromGallery = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlGallery);
         ImageButton btnPhoto_fromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrl);
         Button btnSave = (Button) findViewById(R.id.btn_save);
-
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
 
         Intent intent = getIntent();
-        databaseReference = firebaseDatabase.getReference(intent.getStringExtra("recipe"));
+        databaseReference = firebaseDatabase.getReference(intent.getStringExtra("name_recipe"));
 
-        storageReference = firebaseStorage.getReference().child("Photo_Recipes");
+        storageReference = firebaseStorage.getReference().child("Step_Recipes");
         firebaseDatabase.getReference("app_title").setValue("Cookbook");
+
+        actionBar = getSupportActionBar();
+
+        if (savedInstanceState != null && savedInstanceState.containsKey("numberStep")) {
+            numberStep = savedInstanceState.getInt("numberStep");
+        }
+        actionBar.setTitle("Крок " + numberStep);
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Завантаження");
@@ -93,7 +101,6 @@ public class AddRecipeActivity extends AppCompatActivity {
 
         btnSave.setOnClickListener(oclBtnSave);
     }
-
 
     public void photoFromCamera() {
         File file = new File(pictureImagePath);
@@ -128,22 +135,20 @@ public class AddRecipeActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             if (inputNameRecipe.getText().toString().equals("")) {
-                Toast.makeText(getApplicationContext(), "Додайте ім'я рецепта!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Додайте опис кроку!", Toast.LENGTH_SHORT).show();
             } else {
                 if (downloadUrlCamera != null) {
-                    Recipes recipes = new Recipes(inputNameRecipe.getText().toString(), downloadUrlCamera.toString(), inputIngredients.getText().toString());
+                    StepRecipe stepRecipe = new StepRecipe("Крок " + numberStep, inputNameRecipe.getText().toString(), downloadUrlCamera.toString());
                     String recipeId = databaseReference.push().getKey();
-                    databaseReference.child(recipeId).setValue(recipes);
+                    databaseReference.child(recipeId).setValue(stepRecipe);
 
                     Toast.makeText(getApplicationContext(), "Дані збережено.", Toast.LENGTH_SHORT).show();
+                    numberStep = ++numberStep;
+                    actionBar.setTitle("Крок " + numberStep);
                     imageView.setImageResource(R.drawable.dishes);
                     inputNameRecipe.setText("");
-                    inputIngredients.setText("");
-                    Intent intent = new Intent(getApplicationContext(), AddStepActivity.class);
-                    intent.putExtra("name_recipe", inputNameRecipe.getText().toString());
-                    startActivity(intent);
                 } else {
-                    Toast.makeText(getApplicationContext(), "Додайтефото!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Додайте фото!", Toast.LENGTH_LONG).show();
                 }
             }
         }
@@ -177,7 +182,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                         final Random random = new Random();
                         progressDialog.show();
 
-                        UploadTask uploadTask = storageReference.child("Photo_Recipes" + String.valueOf(random.nextInt())).putBytes(data);
+                        UploadTask uploadTask = storageReference.child("Photo_Step" + String.valueOf(random.nextInt())).putBytes(data);
                         uploadTask.addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception exception) {
@@ -198,6 +203,14 @@ public class AddRecipeActivity extends AppCompatActivity {
                         imageView.setImageBitmap(selectedBitmap);
                     }
                 }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (numberStep > 1) {
+            outState.putInt("numberStep", numberStep);
         }
     }
 }

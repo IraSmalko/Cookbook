@@ -21,10 +21,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddRecipeActivity" />
+        <activity android:name=".AddRecipeActivity"
+            android:screenOrientation="userPortrait"/>
         <activity android:name=".AddCategoryRecipeActivity"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="userPortrait"/>
+        <activity android:name=".AddStepActivity"
+            android:screenOrientation="userPortrait"
+            android:parentActivityName=".RecipeListActivity"/>
+
         <activity android:name=".RecipeListActivity" />
         <activity android:name=".RecipeActivity"/>
         <activity android:name=".StepRecipeActivity"/>
