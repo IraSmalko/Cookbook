@@ -12,6 +12,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -19,9 +20,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.exemple.android.cookbook.supporting.CategoryRecipes;
+import com.exemple.android.cookbook.supporting.Recipes;
+import com.exemple.android.cookbook.supporting.StepRecipe;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
@@ -35,23 +38,28 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Random;
 
-public class AddRecipeActivity extends AppCompatActivity{
+public class AddRecipeActivity extends AppCompatActivity {
 
     private static final int GALLERY_REQUEST = 1;
     private static final int CAMERA_RESULT = 0;
     private static final int PIC_CROP = 2;
+    private String RECIPE = "recipe";
 
     private EditText inputNameRecipe, inputIngredients;
+    private TextInputLayout textInputLayout1, textInputLayout2;
     private ImageView imageView;
+    private TextView photoHint;
     private ProgressDialog progressDialog;
     private ActionBar actionBar;
 
+    private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
     private StorageReference storageReference;
     private Uri downloadUrlCamera;
     private int i = 1;
+    private String q;
     private String pictureImagePath = Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/" + i + ".jpg";
+            Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/n" + ".jpg";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,6 +72,31 @@ public class AddRecipeActivity extends AppCompatActivity{
         ImageButton btnPhoto_fromGallery = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlGallery);
         ImageButton btnPhoto_fromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrl);
         Button btnSave = (Button) findViewById(R.id.btn_save);
+        textInputLayout1 = (TextInputLayout) findViewById(R.id.textInputLayout1);
+        textInputLayout2 = (TextInputLayout) findViewById(R.id.textInputLayout2);
+        photoHint = (TextView) findViewById(R.id.photo_hint);
+
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+
+        if (savedInstanceState != null && savedInstanceState.containsKey("i")) {
+            i = savedInstanceState.getInt("i");
+            databaseReference = firebaseDatabase.getReference(savedInstanceState.getString(q));
+            textInputLayout2.setVisibility(View.GONE);
+            textInputLayout1.setHint("Опис кроку № " + i);
+            actionBar.setTitle("Крок " + i);
+            photoHint.setText("Додайте фото кроку №" + i);
+//        }else if (savedInstanceState != null && savedInstanceState.containsKey("q") ) {
+//            q = savedInstanceState.getString(q);
+//            Intent intent = getIntent();
+//            databaseReference = firebaseDatabase.getReference(intent.getStringExtra(RECIPE));
+        } else {
+            Intent intent = getIntent();
+            databaseReference = firebaseDatabase.getReference(intent.getStringExtra(RECIPE));
+        }
+
+        storageReference = firebaseStorage.getReference().child("Photo_Recipes");
+        firebaseDatabase.getReference("app_title").setValue("Cookbook");
 
         actionBar = getSupportActionBar();
         progressDialog = new ProgressDialog(this);
@@ -84,13 +117,6 @@ public class AddRecipeActivity extends AppCompatActivity{
                 photoFromCamera();
             }
         });
-
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
-
-        databaseReference = firebaseDatabase.getReference("Сategory_Recipes");
-        storageReference = firebaseStorage.getReference().child("Photo_Сategory_Recipes");
-        firebaseDatabase.getReference("app_title").setValue("Cookbook");
 
         btnSave.setOnClickListener(oclBtnSave);
     }
@@ -130,24 +156,42 @@ public class AddRecipeActivity extends AppCompatActivity{
         public void onClick(View v) {
             if (inputNameRecipe.getText().toString().equals("")) {
                 Toast.makeText(getApplicationContext(), "Додайте ім'я категорії!", Toast.LENGTH_SHORT).show();
-            }else {
+            } else {
                 if (downloadUrlCamera != null) {
-                    CategoryRecipes categoryRecipes = new CategoryRecipes(inputNameRecipe.getText().toString(), downloadUrlCamera.toString());
+                    Recipes recipes = new Recipes(inputNameRecipe.getText().toString(), downloadUrlCamera.toString(), inputIngredients.getText().toString());
+                    StepRecipe stepRecipe = new StepRecipe("Крок " + i, inputNameRecipe.getText().toString(), downloadUrlCamera.toString());
                     String recipeId = databaseReference.push().getKey();
-                    databaseReference.child(recipeId).setValue(categoryRecipes);
+
+                    if (i == 1) {
+                        databaseReference.child(recipeId).setValue(recipes);
+                        q = inputNameRecipe.getText().toString();
+                    } else {
+                        databaseReference.child(recipeId).setValue(stepRecipe);
+                    }
                     Toast.makeText(getApplicationContext(), "Дані збережено.", Toast.LENGTH_SHORT).show();
                     imageView.setImageResource(R.drawable.dishes);
                     inputNameRecipe.setText("");
                     inputIngredients.setText("");
-                    inputIngredients.setVisibility(View.GONE);
-                    inputNameRecipe.setHint("Опис кроку № " + i);
+                    textInputLayout2.setVisibility(View.GONE);
+                    textInputLayout1.setHint("Опис кроку № " + i);
                     actionBar.setTitle("Крок " + i);
+                    photoHint.setText("Додайте фото кроку №" + i);
+                    i = ++i;
                 } else {
                     Toast.makeText(getApplicationContext(), "Щось ви робите неправильно, \n зробіть нормально!", Toast.LENGTH_LONG).show();
                 }
             }
         }
     };
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (i > 1) {
+            outState.putInt("i", i);
+            outState.putString("q", q);
+        }
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
@@ -177,7 +221,7 @@ public class AddRecipeActivity extends AppCompatActivity{
                         final Random random = new Random();
                         progressDialog.show();
 
-                        UploadTask uploadTask = storageReference.child("Photo_Сategory_Recipes" + String.valueOf(random.nextInt())).putBytes(data);
+                        UploadTask uploadTask = storageReference.child("Photo_Recipes" + String.valueOf(random.nextInt())).putBytes(data);
                         uploadTask.addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception exception) {
@@ -192,7 +236,7 @@ public class AddRecipeActivity extends AppCompatActivity{
                         }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                                progressDialog.setMessage("Зачекайте, будь ласка" );
+                                progressDialog.setMessage("Зачекайте, будь ласка");
                             }
                         });
                         imageView.setImageBitmap(selectedBitmap);
