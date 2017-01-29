@@ -48,8 +48,6 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private StorageReference storageReference;
     private Uri downloadUrlCamera;
-    private String pictureImagePath = Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/n" + ".jpg";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -92,7 +90,8 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     }
 
     public void photoFromCamera() {
-        File file = new File(pictureImagePath);
+        File file = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/n" + ".jpg");
         Uri outputFileUri = Uri.fromFile(file);
         Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
@@ -107,9 +106,9 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
             cropIntent.setDataAndType(picUri, "image/*");
             cropIntent.putExtra("crop", true);
-            cropIntent.putExtra("aspectX", 1);
-            cropIntent.putExtra("aspectY", 1);
-            cropIntent.putExtra("outputX", 670);
+            cropIntent.putExtra("aspectX", 33);
+            cropIntent.putExtra("aspectY", 24);
+            cropIntent.putExtra("outputX", 660);
             cropIntent.putExtra("outputY", 480);
             cropIntent.putExtra("return-data", true);
             cropIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
@@ -153,7 +152,8 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
             case CAMERA_RESULT:
 
                 if (requestCode == CAMERA_RESULT) {
-                    performCrop(Uri.fromFile(new File(pictureImagePath)));
+                    performCrop(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/n" + ".jpg")));
                 }
             case PIC_CROP:
                 if (requestCode == PIC_CROP) {

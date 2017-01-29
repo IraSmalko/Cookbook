@@ -118,9 +118,9 @@ public class AddStepActivity extends AppCompatActivity {
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
             cropIntent.setDataAndType(picUri, "image/*");
             cropIntent.putExtra("crop", true);
-            cropIntent.putExtra("aspectX", 1);
-            cropIntent.putExtra("aspectY", 1);
-            cropIntent.putExtra("outputX", 670);
+            cropIntent.putExtra("aspectX", 33);
+            cropIntent.putExtra("aspectY", 24);
+            cropIntent.putExtra("outputX", 660);
             cropIntent.putExtra("outputY", 480);
             cropIntent.putExtra("return-data", true);
             cropIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);

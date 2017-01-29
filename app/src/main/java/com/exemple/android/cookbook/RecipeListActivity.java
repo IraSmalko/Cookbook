@@ -47,8 +47,13 @@ public class RecipeListActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                ArrayList<String> nameRecipesList = new ArrayList<>();
+                for (int i = 0; i < recipesList.size(); i++){
+                    nameRecipesList.add(recipesList.get(i).getName());
+                }
                 Intent intentAddRecipeActivity = new Intent(getApplicationContext(), AddRecipeActivity.class);
                 intentAddRecipeActivity.putExtra(RECIPE, intent.getStringExtra(RECIPE_LIST));
+                intentAddRecipeActivity.putStringArrayListExtra("ArrayListRecipe", nameRecipesList);
                 startActivity(intentAddRecipeActivity);
             }
         });
@@ -59,7 +64,6 @@ public class RecipeListActivity extends AppCompatActivity
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
 
         recipeRecyclerAdapter = new RecipeRecyclerListAdapter(this, recipesList);
         recyclerView.setAdapter(recipeRecyclerAdapter);

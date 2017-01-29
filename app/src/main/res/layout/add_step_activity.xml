@@ -15,13 +15,12 @@
         android:layout_height="0dp"
         android:layout_weight="10"
         android:contentDescription="@string/content_description_add_сategory"
-        ads:srcCompat="@drawable/dishes" />
+        ads:srcCompat="@drawable/step" />
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:id="@+id/textInputLayout1">
+        android:layout_weight="1">
 
         <EditText
             android:id="@+id/name"

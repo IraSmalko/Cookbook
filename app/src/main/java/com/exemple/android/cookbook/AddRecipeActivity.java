@@ -32,6 +32,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class AddRecipeActivity extends AppCompatActivity {
@@ -49,6 +50,7 @@ public class AddRecipeActivity extends AppCompatActivity {
     private Uri downloadUrlCamera;
     private String pictureImagePath = Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/n" + ".jpg";
+    private ArrayList<String> nameRecipesList = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,6 +69,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
 
         Intent intent = getIntent();
+        nameRecipesList = intent.getStringArrayListExtra("ArrayListRecipe");
         databaseReference = firebaseDatabase.getReference(intent.getStringExtra("recipe"));
 
         storageReference = firebaseStorage.getReference().child("Photo_Recipes");
@@ -111,9 +114,9 @@ public class AddRecipeActivity extends AppCompatActivity {
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
             cropIntent.setDataAndType(picUri, "image/*");
             cropIntent.putExtra("crop", true);
-            cropIntent.putExtra("aspectX", 1);
-            cropIntent.putExtra("aspectY", 1);
-            cropIntent.putExtra("outputX", 670);
+            cropIntent.putExtra("aspectX", 33);
+            cropIntent.putExtra("aspectY", 24);
+            cropIntent.putExtra("outputX", 660);
             cropIntent.putExtra("outputY", 480);
             cropIntent.putExtra("return-data", true);
             cropIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
@@ -129,7 +132,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         public void onClick(View v) {
             if (inputNameRecipe.getText().toString().equals("")) {
                 Toast.makeText(getApplicationContext(), "Додайте ім'я рецепта!", Toast.LENGTH_SHORT).show();
-            } else {
+            } else if (!nameRecipesList.contains(inputNameRecipe.getText().toString())){
                 if (downloadUrlCamera != null) {
                     Recipes recipes = new Recipes(inputNameRecipe.getText().toString(), downloadUrlCamera.toString(), inputIngredients.getText().toString());
                     String recipeId = databaseReference.push().getKey();
@@ -145,6 +148,8 @@ public class AddRecipeActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(getApplicationContext(), "Додайтефото!", Toast.LENGTH_LONG).show();
                 }
+            }else {
+                Toast.makeText(getApplicationContext(), "Iм'я рецепта вже існує!", Toast.LENGTH_SHORT).show();
             }
         }
     };
