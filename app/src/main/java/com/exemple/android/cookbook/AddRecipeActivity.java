@@ -51,6 +51,7 @@ public class AddRecipeActivity extends AppCompatActivity {
     private String pictureImagePath = Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/n" + ".jpg";
     private ArrayList<String> nameRecipesList = new ArrayList<>();
+    private int backPressed = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -132,7 +133,9 @@ public class AddRecipeActivity extends AppCompatActivity {
         public void onClick(View v) {
             if (inputNameRecipe.getText().toString().equals("")) {
                 Toast.makeText(getApplicationContext(), "Додайте ім'я рецепта!", Toast.LENGTH_SHORT).show();
-            } else if (!nameRecipesList.contains(inputNameRecipe.getText().toString())){
+            } else if (!inputIngredients.getText().toString().equals("")) {
+                Toast.makeText(getApplicationContext(), "Додайте інгридієнти!", Toast.LENGTH_SHORT).show();
+            } else if (!nameRecipesList.contains(inputNameRecipe.getText().toString())) {
                 if (downloadUrlCamera != null) {
                     Recipes recipes = new Recipes(inputNameRecipe.getText().toString(), downloadUrlCamera.toString(), inputIngredients.getText().toString());
                     String recipeId = databaseReference.push().getKey();
@@ -140,15 +143,15 @@ public class AddRecipeActivity extends AppCompatActivity {
 
                     Toast.makeText(getApplicationContext(), "Дані збережено.", Toast.LENGTH_SHORT).show();
                     imageView.setImageResource(R.drawable.dishes);
-                    inputNameRecipe.setText("");
-                    inputIngredients.setText("");
                     Intent intent = new Intent(getApplicationContext(), AddStepActivity.class);
                     intent.putExtra("name_recipe", inputNameRecipe.getText().toString());
+                    inputNameRecipe.setText("");
+                    inputIngredients.setText("");
                     startActivity(intent);
                 } else {
-                    Toast.makeText(getApplicationContext(), "Додайтефото!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Додайте фото!", Toast.LENGTH_LONG).show();
                 }
-            }else {
+            } else {
                 Toast.makeText(getApplicationContext(), "Iм'я рецепта вже існує!", Toast.LENGTH_SHORT).show();
             }
         }
@@ -205,4 +208,20 @@ public class AddRecipeActivity extends AppCompatActivity {
                 }
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        if ((!inputNameRecipe.getText().toString().equals("") || downloadUrlCamera != null
+                || !inputIngredients.getText().toString().equals(""))) {
+            if (backPressed == 1){
+                super.onBackPressed();
+            }else {
+                Toast.makeText(getApplicationContext(), "Введені дані буде втрачено!", Toast.LENGTH_SHORT).show();
+                backPressed = 1;
+            }
+        }else {
+            super.onBackPressed();
+        }
+    }
 }
+

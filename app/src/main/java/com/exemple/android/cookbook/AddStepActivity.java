@@ -12,6 +12,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -72,6 +74,7 @@ public class AddStepActivity extends AppCompatActivity {
 
         storageReference = firebaseStorage.getReference().child("Step_Recipes");
         firebaseDatabase.getReference("app_title").setValue("Cookbook");
+
 
         actionBar = getSupportActionBar();
 
@@ -147,6 +150,7 @@ public class AddStepActivity extends AppCompatActivity {
                     actionBar.setTitle("Крок " + numberStep);
                     imageView.setImageResource(R.drawable.dishes);
                     inputNameRecipe.setText("");
+                    downloadUrlCamera = null;
                 } else {
                     Toast.makeText(getApplicationContext(), "Додайте фото!", Toast.LENGTH_LONG).show();
                 }
@@ -212,5 +216,10 @@ public class AddStepActivity extends AppCompatActivity {
         if (numberStep > 1) {
             outState.putInt("numberStep", numberStep);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(getApplicationContext(), RecipeListActivity.class));
     }
 }
