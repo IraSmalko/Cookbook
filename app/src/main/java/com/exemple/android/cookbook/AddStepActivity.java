@@ -3,9 +3,12 @@ package com.exemple.android.cookbook;
 
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -100,7 +103,11 @@ public class AddStepActivity extends AppCompatActivity {
             }
         });
 
-        btnSave.setOnClickListener(oclBtnSave);
+        if (isOnline()){
+            btnSave.setOnClickListener(oclBtnSave);
+        }else {
+            Toast.makeText(getApplicationContext(), "Відсутній доступ до інтернету!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void photoFromCamera() {
@@ -220,5 +227,11 @@ public class AddStepActivity extends AppCompatActivity {
     public void onBackPressed() {
         Toast.makeText(getApplicationContext(), "Введені дані буде втрачено!", Toast.LENGTH_SHORT).show();
 
+    }
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

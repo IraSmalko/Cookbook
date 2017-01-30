@@ -3,9 +3,12 @@ package com.exemple.android.cookbook;
 
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -48,6 +51,7 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private StorageReference storageReference;
     private Uri downloadUrlCamera;
+    private int backPressed = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -86,7 +90,11 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         storageReference = firebaseStorage.getReference().child("Photo_Сategory_Recipes");
         firebaseDatabase.getReference("app_title").setValue("Cookbook");
 
+        if (isOnline()){
         btnSave.setOnClickListener(oclBtnSave);
+        }else {
+            Toast.makeText(getApplicationContext(), "Відсутній доступ до інтернету!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void photoFromCamera() {
@@ -190,5 +198,26 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
                     }
                 }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!inputCategoryName.getText().toString().equals("") || downloadUrlCamera != null) {
+            if (backPressed == 1){
+                super.onBackPressed();
+            }else if (backPressed == 0){
+                Toast.makeText(getApplicationContext(), "Введені дані буде втрачено!", Toast.LENGTH_SHORT).show();
+                backPressed = 1;
+            }
+        }else {
+            super.onBackPressed();
+        }
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }
