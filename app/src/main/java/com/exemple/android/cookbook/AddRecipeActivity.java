@@ -133,7 +133,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         public void onClick(View v) {
             if (inputNameRecipe.getText().toString().equals("")) {
                 Toast.makeText(getApplicationContext(), "Додайте ім'я рецепта!", Toast.LENGTH_SHORT).show();
-            } else if (!inputIngredients.getText().toString().equals("")) {
+            } else if (inputIngredients.getText().toString().equals("")) {
                 Toast.makeText(getApplicationContext(), "Додайте інгридієнти!", Toast.LENGTH_SHORT).show();
             } else if (!nameRecipesList.contains(inputNameRecipe.getText().toString())) {
                 if (downloadUrlCamera != null) {
@@ -215,7 +215,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                 || !inputIngredients.getText().toString().equals(""))) {
             if (backPressed == 1){
                 super.onBackPressed();
-            }else {
+            }else if (backPressed == 0){
                 Toast.makeText(getApplicationContext(), "Введені дані буде втрачено!", Toast.LENGTH_SHORT).show();
                 backPressed = 1;
             }

@@ -27,8 +27,7 @@
             android:parentActivityName=".MainActivity"
             android:screenOrientation="userPortrait"/>
         <activity android:name=".AddStepActivity"
-            android:screenOrientation="userPortrait"
-            android:parentActivityName=".RecipeListActivity"/>
+            android:screenOrientation="userPortrait"/>
 
         <activity android:name=".RecipeListActivity" />
         <activity android:name=".RecipeActivity"/>
