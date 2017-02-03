@@ -8,4 +8,9 @@
         android:icon="@drawable/ic_menu_save"
         yourapp:showAsAction="always"
         android:title="@string/save" />
+    <item
+        android:id="@+id/menu_item_share"
+        yourapp:showAsAction="always"
+        android:title="Share"
+        yourapp:actionProviderClass="android.support.v7.widget.ShareActionProvider"/>
 </menu>
