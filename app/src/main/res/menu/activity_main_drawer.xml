@@ -33,4 +33,17 @@
         </menu>
     </item>
 
+    <item android:title="Authentication">
+        <menu>
+            <item
+                android:id="@+id/nav_sign_in"
+                android:icon="@drawable/ic_menu_share"
+                android:title="Sign In" />
+            <item
+                android:id="@+id/nav_sign_out"
+                android:icon="@drawable/ic_menu_send"
+                android:title="Sign Out" />
+        </menu>
+    </item>
+
 </menu>

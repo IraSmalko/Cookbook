@@ -1,12 +1,14 @@
 package com.exemple.android.cookbook;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 
@@ -19,14 +21,24 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
 import com.exemple.android.cookbook.supporting.CategoryRecipes;
 import com.exemple.android.cookbook.supporting.OnItemClickListenerCategoryRecipes;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -36,10 +48,22 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         SearchView.OnQueryTextListener,
-        SensorEventListener {
+        SensorEventListener,
+        GoogleApiClient.OnConnectionFailedListener {
+
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseUser mFirebaseUser;
+
+    public static final String ANONYMOUS = "anonymous";
+
+    private String mUsername;
+    private String mPhotoUrl;
+    private GoogleApiClient mGoogleApiClient;
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private String RECIPE_LIST = "recipeList";
@@ -50,6 +74,10 @@ public class MainActivity extends AppCompatActivity
     private List<CategoryRecipes> categoryRecipesList = new ArrayList<>();
     private SensorManager mSensorManager;
     private Sensor mSensor;
+
+    private NavigationView navigationView;
+    TextView userNameTV;
+    CircleImageView userPhotoIV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,11 +103,28 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //        AUTHENTICATION
+        View headerLayout = navigationView.getHeaderView(0);
+        userNameTV = (TextView) headerLayout.findViewById(R.id.textViewForUserName);
+        userPhotoIV = (CircleImageView) headerLayout.findViewById(R.id.imageViewForUserPhoto);
+
+        mUsername = ANONYMOUS;
+
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .addApi(Auth.GOOGLE_SIGN_IN_API)
+                .build();
+
+        userRefresh();
 
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
@@ -167,6 +212,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -185,6 +231,17 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_send) {
 
+        } else if (id == R.id.nav_sign_in) {
+            Intent intent = new Intent(MainActivity.this, AuthenticationActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_sign_out) {
+            if (mFirebaseUser != null) {
+                mFirebaseAuth.signOut();
+                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+                mUsername = ANONYMOUS;
+                mFirebaseUser = null;
+                userRefresh();
+            }
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -196,6 +253,7 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         mSensorManager.registerListener(this, mSensor,
                 SensorManager.SENSOR_DELAY_NORMAL);
+
     }
 
     protected void onPause() {
@@ -226,18 +284,45 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
             ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             Toast.makeText(getApplicationContext(), matches.get(0),
                     Toast.LENGTH_LONG).show();
-            if (matches.contains("супи")){
+            if (matches.contains("супи")) {
                 Intent intent = new Intent(getApplicationContext(), RecipeListActivity.class);
                 intent.putExtra(RECIPE_LIST, "Супи");
-                startActivity(intent);}
+                startActivity(intent);
+            }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        // An unresolvable error has occurred and Google APIs (including Sign-In) will not
+        // be available.
+        Log.d(TAG, "onConnectionFailed:" + connectionResult);
+        Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
+    }
+
+    public void userRefresh() {
+        if (mFirebaseUser == null) {
+            navigationView.getMenu().findItem(R.id.nav_sign_in).setVisible(true);
+            navigationView.getMenu().findItem(R.id.nav_sign_out).setVisible(false);
+            mUsername = ANONYMOUS;
+            userNameTV.setText(mUsername);
+            userPhotoIV.setImageDrawable(getResources().getDrawable(R.drawable.anonymous));
+        } else {
+            navigationView.getMenu().findItem(R.id.nav_sign_in).setVisible(false);
+            navigationView.getMenu().findItem(R.id.nav_sign_out).setVisible(true);
+            mUsername = mFirebaseUser.getDisplayName();
+            if (mFirebaseUser.getPhotoUrl() != null) {
+                mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
+            }
+            userNameTV.setText(mUsername);
+            Glide.with(this).load(mPhotoUrl).into(userPhotoIV);
+        }
     }
 }

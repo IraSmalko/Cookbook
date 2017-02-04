@@ -7,12 +7,12 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
+        android:name=".supporting.MyFirebaseApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:name=".supporting.MyFirebaseApp">
+        android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -23,18 +23,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddRecipeActivity"
-            android:screenOrientation="userPortrait"/>
-        <activity android:name=".AddCategoryRecipeActivity"
+        <activity
+            android:name=".AddRecipeActivity"
+            android:screenOrientation="userPortrait" />
+        <activity
+            android:name=".AddCategoryRecipeActivity"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="userPortrait"/>
-        <activity android:name=".AddStepActivity"
-            android:screenOrientation="userPortrait"/>
-
+            android:screenOrientation="userPortrait" />
+        <activity
+            android:name=".AddStepActivity"
+            android:screenOrientation="userPortrait" />
         <activity android:name=".RecipeListActivity" />
-        <activity android:name=".RecipeActivity"/>
-        <activity android:name=".StepRecipeActivity"/>
-
+        <activity android:name=".RecipeActivity" />
+        <activity android:name=".StepRecipeActivity" />
+        <activity android:name=".AuthenticationActivity"></activity>
     </application>
 
 </manifest>

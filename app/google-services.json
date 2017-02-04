@@ -15,21 +15,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "199129303652-7eo261ds220bk00hoeo9p8d9t7rauv9r.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.exemple.android.cookbook",
-            "certificate_hash": "F8FE50DEC3F2FBF35ECA84CDA8ACBFAC4EC97B6D"
-          }
-        },
-        {
           "client_id": "199129303652-12bo00rb4l009a38rh1m5at5hauhk9ia.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
-      "api_key": [{
-        "current_key": "AIzaSyAE9r9xCKfkc8Fm7pj0Ig4jPkm57XioYhk"
-      }],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvYhJUhWQNknDVkTcNwyimiF4y4HeLsXM"
+        }
+      ],
       "services": {
         "analytics_service": {
           "status": 1
