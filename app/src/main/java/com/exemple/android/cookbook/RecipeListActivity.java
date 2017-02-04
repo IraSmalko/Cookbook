@@ -43,6 +43,8 @@ public class RecipeListActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.recipe_list_activity);
         intent = getIntent();
+        final String recipeCategory = intent.getStringExtra(RECIPE_LIST);
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab1);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,6 +91,7 @@ public class RecipeListActivity extends AppCompatActivity
                 intent.putExtra(RECIPE, recipes.getName());
                 intent.putExtra(PHOTO_URL, recipes.getPhotoUrl());
                 intent.putExtra(DESCRIPTION, recipes.getDescription());
+                intent.putExtra(RECIPE_LIST, recipeCategory);
                 startActivity(intent);
             }
         });

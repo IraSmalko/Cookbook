@@ -13,8 +13,8 @@
         android:id="@+id/imageView"
         android:scaleType="fitXY"/>
 
-    <ListView
-        android:id="@+id/list_view"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/commentsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/save_comments" />
@@ -49,13 +49,11 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="46dp"
-        android:inputType="textAutoCorrect"
         android:ems="10"
         android:id="@+id/editTextComent"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:hint="@string/editTextComent"
-        android:focusable="false"
         android:layout_below="@+id/textView"
         android:layout_alignStart="@+id/textView" />
 
