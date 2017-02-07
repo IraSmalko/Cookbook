@@ -29,11 +29,6 @@ import java.util.List;
 public class RecipeListActivity extends AppCompatActivity
         implements SearchView.OnQueryTextListener {
 
-    private String RECIPE_LIST = "recipeList";
-    private String RECIPE = "recipe";
-    private String PHOTO_URL = "photo";
-    private String DESCRIPTION = "description";
-
     private List<Recipes> recipesList = new ArrayList<>();
     private RecipeRecyclerListAdapter recipeRecyclerAdapter;
     private Intent intent;
@@ -48,19 +43,18 @@ public class RecipeListActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 ArrayList<String> nameRecipesList = new ArrayList<>();
-                for (int i = 0; i < recipesList.size(); i++){
+                for (int i = 0; i < recipesList.size(); i++) {
                     nameRecipesList.add(recipesList.get(i).getName());
                 }
                 Intent intentAddRecipeActivity = new Intent(getApplicationContext(), AddRecipeActivity.class);
-                intentAddRecipeActivity.putExtra(RECIPE, intent.getStringExtra(RECIPE_LIST));
+                intentAddRecipeActivity.putExtra("recipe", intent.getStringExtra("recipeList"));
                 intentAddRecipeActivity.putStringArrayListExtra("ArrayListRecipe", nameRecipesList);
                 startActivity(intentAddRecipeActivity);
             }
         });
 
-
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference databaseReference = firebaseDatabase.getReference(intent.getStringExtra(RECIPE_LIST));
+        DatabaseReference databaseReference = firebaseDatabase.getReference(intent.getStringExtra("recipeList"));
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -72,7 +66,6 @@ public class RecipeListActivity extends AppCompatActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Recipes recipes = postSnapshot.getValue(Recipes.class);
-
                     recipesList.add(recipes);
                 }
             }
@@ -86,9 +79,9 @@ public class RecipeListActivity extends AppCompatActivity
             @Override
             public void onItemClick(Recipes recipes) {
                 Intent intent = new Intent(getApplicationContext(), RecipeActivity.class);
-                intent.putExtra(RECIPE, recipes.getName());
-                intent.putExtra(PHOTO_URL, recipes.getPhotoUrl());
-                intent.putExtra(DESCRIPTION, recipes.getDescription());
+                intent.putExtra("recipe", recipes.getName());
+                intent.putExtra("photo", recipes.getPhotoUrl());
+                intent.putExtra("description", recipes.getDescription());
                 startActivity(intent);
             }
         });
@@ -110,8 +103,6 @@ public class RecipeListActivity extends AppCompatActivity
             case R.id.action_search:
                 return true;
         }
-        int id = item.getItemId();
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -133,5 +124,4 @@ public class RecipeListActivity extends AppCompatActivity
         recipeRecyclerAdapter.setFilter(newList);
         return true;
     }
-
 }

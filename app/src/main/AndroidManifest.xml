@@ -38,6 +38,7 @@
         <activity android:name=".StepRecipeActivity" />
         <activity android:name=".AuthenticationActivity"></activity>
         <activity android:name=".SelectedActivity"/>
+        <activity android:name=".SelectedListActivity"/>
     </application>
 
 </manifest>

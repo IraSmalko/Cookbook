@@ -24,12 +24,7 @@ import java.util.List;
 
 public class StepRecipeActivity extends AppCompatActivity {
 
-    private String RECIPE = "recipe";
-    private String PHOTO_URL = "photo";
-    private String DESCRIPTION = "description";
-
     private Intent intent;
-    private DatabaseReference databaseReference;
     private List<StepRecipe> stepRecipe = new ArrayList<>();
     private TextView txtStepRecipe;
     private ImageView imgStepRecipe;
@@ -48,14 +43,13 @@ public class StepRecipeActivity extends AppCompatActivity {
         intent = getIntent();
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference(intent.getStringExtra(RECIPE));
+        DatabaseReference databaseReference = firebaseDatabase.getReference(intent.getStringExtra("recipe"));
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     StepRecipe step = postSnapshot.getValue(StepRecipe.class);
-
                     stepRecipe.add(step);
                 }
                 updateData(index);
@@ -66,7 +60,6 @@ public class StepRecipeActivity extends AppCompatActivity {
             }
         });
 
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_step);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,8 +68,6 @@ public class StepRecipeActivity extends AppCompatActivity {
                 updateData(index);
             }
         });
-
-
     }
 
     public void updateData(int i) {
@@ -86,9 +77,9 @@ public class StepRecipeActivity extends AppCompatActivity {
             Glide.with(getApplicationContext()).load(stepRecipe.get(i).getPhotoUrlStep()).into(imgStepRecipe);
         } else {
             Intent intentRecipeActivity = new Intent(getApplicationContext(), RecipeActivity.class);
-            intentRecipeActivity.putExtra(RECIPE, intent.getStringExtra(RECIPE));
-            intentRecipeActivity.putExtra(PHOTO_URL, intent.getStringExtra(PHOTO_URL));
-            intentRecipeActivity.putExtra(DESCRIPTION, intent.getStringExtra(DESCRIPTION));
+            intentRecipeActivity.putExtra("recipe", intent.getStringExtra("recipe"));
+            intentRecipeActivity.putExtra("photo", intent.getStringExtra("photo"));
+            intentRecipeActivity.putExtra("description", intent.getStringExtra("description"));
             startActivity(new Intent(intentRecipeActivity));
         }
     }

@@ -7,7 +7,7 @@
         <item
             android:id="@+id/selected"
             android:icon="@drawable/ic_menu_save"
-            android:title="Вибраний рецепт" />
+            android:title="Збережені" />
         </menu>
         </item>
     </group>

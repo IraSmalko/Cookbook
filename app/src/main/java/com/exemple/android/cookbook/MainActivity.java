@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.selected) {
-            startActivity(new Intent(this, SelectedActivity.class));
+            startActivity(new Intent(this, SelectedListActivity.class));
 
         } else if (id == R.id.nav_sign_in) {
             Intent intent = new Intent(MainActivity.this, AuthenticationActivity.class);

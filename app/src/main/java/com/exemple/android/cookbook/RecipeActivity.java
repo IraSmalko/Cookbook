@@ -2,7 +2,6 @@ package com.exemple.android.cookbook;
 
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.LayerDrawable;
@@ -30,23 +29,17 @@ import com.exemple.android.cookbook.supporting.DBHelper;
 
 public class RecipeActivity extends AppCompatActivity {
 
-    private String RECIPE = "recipe";
-    private String PHOTO_URL = "photo";
-    private String DESCRIPTION = "description";
-
-    TextView descriptionRecipe;
-    ImageView imageView;
     private DBHelper dbHelper;
     private Intent intent;
-    Bitmap theBitmap;
-
+    private ImageView imageView;
+    private Bitmap theBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe);
-        dbHelper = new DBHelper(this);
-        descriptionRecipe = (TextView) findViewById(R.id.textView);
+
+        TextView descriptionRecipe = (TextView) findViewById(R.id.textView);
         imageView = (ImageView) findViewById(R.id.imageView);
         Button btnDetailRecipe = (Button) findViewById(R.id.btn_detail_recipe);
         ListView comments = (ListView) findViewById(R.id.list_view);
@@ -54,6 +47,7 @@ public class RecipeActivity extends AppCompatActivity {
         EditText editText = (EditText) findViewById(R.id.editTextComent);
         Button saveComments = (Button) findViewById(R.id.save_comments);
         ActionBar actionBar = getSupportActionBar();
+        dbHelper = new DBHelper(this);
 
         LayerDrawable stars = (LayerDrawable) ratingBar.getProgressDrawable();
         stars.getDrawable(2).setColorFilter(ContextCompat.getColor(this, R.color.starFullySelected), PorterDuff.Mode.SRC_ATOP);
@@ -73,10 +67,9 @@ public class RecipeActivity extends AppCompatActivity {
 
         intent = getIntent();
 
-        actionBar.setTitle(intent.getStringExtra(RECIPE));
-
+        actionBar.setTitle(intent.getStringExtra("recipe"));
         Glide.with(this)
-                .load(intent.getStringExtra(PHOTO_URL))
+                .load(intent.getStringExtra("photo"))
                 .asBitmap()
                 .into(new SimpleTarget<Bitmap>(660, 480) {
                     @Override
@@ -86,15 +79,15 @@ public class RecipeActivity extends AppCompatActivity {
                     }
                 });
 
-        descriptionRecipe.setText(intent.getStringExtra(DESCRIPTION));
+        descriptionRecipe.setText(intent.getStringExtra("description"));
 
         btnDetailRecipe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intentStepRecipeActivity = new Intent(getApplicationContext(), StepRecipeActivity.class);
-                intentStepRecipeActivity.putExtra(RECIPE, intent.getStringExtra(RECIPE));
-                intentStepRecipeActivity.putExtra(PHOTO_URL, intent.getStringExtra(PHOTO_URL));
-                intentStepRecipeActivity.putExtra(DESCRIPTION, intent.getStringExtra(DESCRIPTION));
+                intentStepRecipeActivity.putExtra("recipe", intent.getStringExtra("recipe"));
+                intentStepRecipeActivity.putExtra("photo", intent.getStringExtra("photo"));
+                intentStepRecipeActivity.putExtra("description", intent.getStringExtra("description"));
                 startActivity(new Intent(intentStepRecipeActivity));
             }
         });
@@ -112,26 +105,19 @@ public class RecipeActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_save) {
-
             ContentValues cv = new ContentValues();
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
 
             String path = MediaStore.Images.Media.insertImage(getContentResolver(),
                     theBitmap, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
 
-            cv.put(RECIPE, intent.getStringExtra(RECIPE));
-            cv.put(PHOTO_URL, path);
-            cv.put(DESCRIPTION, intent.getStringExtra(DESCRIPTION));
-
-            long rowID = db.insert("recipeActivityTable", null, cv);
+            cv.put("recipe", intent.getStringExtra("recipe"));
+            cv.put("photo", path);
+            cv.put("description", intent.getStringExtra("description"));
 
             dbHelper.close();
-
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
-
 
 }

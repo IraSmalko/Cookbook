@@ -140,6 +140,7 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Дані збережено.", Toast.LENGTH_SHORT).show();
                     imageView.setImageResource(R.drawable.dishes);
                     inputCategoryName.setText("");
+                    downloadUrlCamera = null;
                 } else {
                     Toast.makeText(getApplicationContext(), "Щось ви робите неправильно, \n зробіть нормально!", Toast.LENGTH_LONG).show();
                 }
