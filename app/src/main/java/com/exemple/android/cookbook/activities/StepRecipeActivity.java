@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook;
+package com.exemple.android.cookbook.activities;
 
 
 import android.content.Intent;
@@ -12,7 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.exemple.android.cookbook.supporting.StepRecipe;
+import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.entity.StepRecipe;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;

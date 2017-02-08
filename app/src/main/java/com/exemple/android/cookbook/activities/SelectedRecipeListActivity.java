@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook;
+package com.exemple.android.cookbook.activities;
 
 
 import android.content.Intent;
@@ -10,25 +10,26 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
+import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.adapters.OnItemClickListenerSelectedRecipe;
+import com.exemple.android.cookbook.adapters.SelectedRecipeRecyclerListAdapter;
+import com.exemple.android.cookbook.entity.SelectedRecipe;
 import com.exemple.android.cookbook.supporting.DBHelper;
-import com.exemple.android.cookbook.supporting.OnItemClickListenerRecipes;
-import com.exemple.android.cookbook.supporting.Recipes;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SelectedListActivity extends AppCompatActivity {
+public class SelectedRecipeListActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.selected_list_activity);
 
-        List<Recipes> recipesList = new ArrayList<>();
+        List<SelectedRecipe> recipesList = new ArrayList<>();
         DBHelper dbHelper = new DBHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor c = db.query("recipeActivityTable", null, null, null, null, null, null);
+        Cursor c = db.query("recipe", null, null, null, null, null, null);
 
         if (c.moveToFirst()) {
             do {
@@ -37,7 +38,7 @@ public class SelectedListActivity extends AppCompatActivity {
                 int photoColIndex = c.getColumnIndex("photo");
                 int descriptionColIndex = c.getColumnIndex("description");
 
-                recipesList.add(new Recipes(c.getString(recipeColIndex), c.getString(photoColIndex), c.getString(descriptionColIndex)));
+                recipesList.add(new SelectedRecipe(c.getString(recipeColIndex), c.getString(photoColIndex), c.getString(descriptionColIndex), c.getInt(idColIndex)));
             } while (c.moveToNext());
         } else {
             c.close();
@@ -46,16 +47,17 @@ public class SelectedListActivity extends AppCompatActivity {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        RecipeRecyclerListAdapter recipeRecyclerAdapter = new RecipeRecyclerListAdapter(this, recipesList);
+        SelectedRecipeRecyclerListAdapter recipeRecyclerAdapter = new SelectedRecipeRecyclerListAdapter(this, recipesList);
         recyclerView.setAdapter(recipeRecyclerAdapter);
 
-        recipeRecyclerAdapter.setOnItemClickListener(new OnItemClickListenerRecipes() {
+        recipeRecyclerAdapter.setOnItemClickListener(new OnItemClickListenerSelectedRecipe() {
             @Override
-            public void onItemClick(Recipes recipes) {
-                Intent intent = new Intent(getApplicationContext(), SelectedActivity.class);
-                intent.putExtra("recipe", recipes.getName());
-                intent.putExtra("photo", recipes.getPhotoUrl());
-                intent.putExtra("description", recipes.getDescription());
+            public void onItemClick(SelectedRecipe selectedRecipe) {
+                Intent intent = new Intent(getApplicationContext(), SelectedRecipeActivity.class);
+                intent.putExtra("recipe", selectedRecipe.getName());
+                intent.putExtra("photo", selectedRecipe.getPhotoUrl());
+                intent.putExtra("description", selectedRecipe.getDescription());
+                intent.putExtra("id_recipe", selectedRecipe.getIdRecipe());
                 startActivity(intent);
             }
         });

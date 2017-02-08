@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook;
+package com.exemple.android.cookbook.activities;
 
 
 import android.app.ProgressDialog;
@@ -24,7 +24,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.exemple.android.cookbook.supporting.StepRecipe;
+import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.entity.StepRecipe;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;

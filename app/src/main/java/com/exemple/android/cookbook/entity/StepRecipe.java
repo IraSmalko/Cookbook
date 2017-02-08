@@ -1,12 +1,12 @@
-package com.exemple.android.cookbook.supporting;
+package com.exemple.android.cookbook.entity;
 
 
 
 public class StepRecipe {
 
-    private String numberStep;
-    private String textStep;
-    private String photoUrlStep;
+    protected String numberStep;
+    protected String textStep;
+    protected String photoUrlStep;
 
     public StepRecipe(){}
 

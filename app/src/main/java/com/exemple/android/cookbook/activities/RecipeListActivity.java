@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook;
+package com.exemple.android.cookbook.activities;
 
 
 import android.content.Intent;
@@ -14,9 +14,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
-import com.exemple.android.cookbook.supporting.OnItemClickListenerRecipes;
-import com.exemple.android.cookbook.supporting.Recipes;
+import com.exemple.android.cookbook.adapters.OnItemClickListenerRecipes;
+import com.exemple.android.cookbook.entity.Recipe;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -29,7 +30,7 @@ import java.util.List;
 public class RecipeListActivity extends AppCompatActivity
         implements SearchView.OnQueryTextListener {
 
-    private List<Recipes> recipesList = new ArrayList<>();
+    private List<Recipe> recipesList = new ArrayList<>();
     private RecipeRecyclerListAdapter recipeRecyclerAdapter;
     private Intent intent;
 
@@ -65,7 +66,7 @@ public class RecipeListActivity extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    Recipes recipes = postSnapshot.getValue(Recipes.class);
+                    Recipe recipes = postSnapshot.getValue(Recipe.class);
                     recipesList.add(recipes);
                 }
             }
@@ -77,7 +78,7 @@ public class RecipeListActivity extends AppCompatActivity
 
         recipeRecyclerAdapter.setOnItemClickListener(new OnItemClickListenerRecipes() {
             @Override
-            public void onItemClick(Recipes recipes) {
+            public void onItemClick(Recipe recipes) {
                 Intent intent = new Intent(getApplicationContext(), RecipeActivity.class);
                 intent.putExtra("recipe", recipes.getName());
                 intent.putExtra("photo", recipes.getPhotoUrl());
@@ -114,9 +115,9 @@ public class RecipeListActivity extends AppCompatActivity
     @Override
     public boolean onQueryTextChange(String newText) {
         newText = newText.toLowerCase();
-        ArrayList<Recipes> newList = new ArrayList<>();
+        ArrayList<Recipe> newList = new ArrayList<>();
 
-        for (Recipes recipes : recipesList) {
+        for (Recipe recipes : recipesList) {
             String name = recipes.getName().toLowerCase();
             if (name.contains(newText))
                 newList.add(recipes);

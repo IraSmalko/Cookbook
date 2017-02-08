@@ -11,8 +11,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.supporting.OnItemClickListenerRecipes;
-import com.exemple.android.cookbook.supporting.Recipes;
+import com.exemple.android.cookbook.entity.Recipe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +19,7 @@ import java.util.List;
 public class RecipeRecyclerListAdapter extends RecyclerView.Adapter<RecipeRecyclerListAdapter.CustomViewHolder> {
 
     private Context mContext;
-    private List<Recipes> items;
+    private List<Recipe> items;
     private OnItemClickListenerRecipes onItemClickListener;
 
     class CustomViewHolder extends RecyclerView.ViewHolder {
@@ -34,7 +33,7 @@ public class RecipeRecyclerListAdapter extends RecyclerView.Adapter<RecipeRecycl
         }
     }
 
-    public RecipeRecyclerListAdapter(Context mContext, List<Recipes> items) {
+    public RecipeRecyclerListAdapter(Context mContext, List<Recipe> items) {
         this.mContext = mContext;
         this.items = items;
     }
@@ -58,7 +57,7 @@ public class RecipeRecyclerListAdapter extends RecyclerView.Adapter<RecipeRecycl
 
     @Override
     public void onBindViewHolder(RecipeRecyclerListAdapter.CustomViewHolder holder, int position) {
-        final Recipes item = items.get(position);
+        final Recipe item = items.get(position);
 
         holder.mTextView.setText(item.getName());
         Glide.with(mContext).load(item.getPhotoUrl()).into(holder.mImageView);
@@ -70,7 +69,7 @@ public class RecipeRecyclerListAdapter extends RecyclerView.Adapter<RecipeRecycl
             }
         };
         holder.mTextView.setOnClickListener(listener);
-
+        holder.mImageView.setOnClickListener(listener);
     }
 
     @Override
@@ -78,7 +77,7 @@ public class RecipeRecyclerListAdapter extends RecyclerView.Adapter<RecipeRecycl
         return (null != items ? items.size() : 0);
     }
 
-    public void setFilter(ArrayList<Recipes> newList) {
+    public void setFilter(ArrayList<Recipe> newList) {
         items = new ArrayList<>();
         items.addAll(newList);
         notifyDataSetChanged();

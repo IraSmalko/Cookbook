@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook.supporting;
+package com.exemple.android.cookbook.entity;
 
 
 public class CategoryRecipes {

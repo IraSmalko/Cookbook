@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook;
+package com.exemple.android.cookbook.activities;
 
 
 import android.app.ProgressDialog;
@@ -23,7 +23,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.exemple.android.cookbook.supporting.Recipes;
+import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.entity.Recipe;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
@@ -144,7 +145,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Додайте інгридієнти!", Toast.LENGTH_SHORT).show();
             } else if (!nameRecipesList.contains(inputNameRecipe.getText().toString())) {
                 if (downloadUrlCamera != null) {
-                    Recipes recipes = new Recipes(inputNameRecipe.getText().toString(), downloadUrlCamera.toString(), inputIngredients.getText().toString());
+                    Recipe recipes = new Recipe(inputNameRecipe.getText().toString(), downloadUrlCamera.toString(), inputIngredients.getText().toString());
                     String recipeId = databaseReference.push().getKey();
                     databaseReference.child(recipeId).setValue(recipes);
 
@@ -225,6 +226,8 @@ public class AddRecipeActivity extends AppCompatActivity {
             }else if (backPressed == 0){
                 Toast.makeText(getApplicationContext(), "Введені дані буде втрачено!", Toast.LENGTH_SHORT).show();
                 backPressed = 1;
+            }else {
+                super.onBackPressed();
             }
         }else {
             super.onBackPressed();

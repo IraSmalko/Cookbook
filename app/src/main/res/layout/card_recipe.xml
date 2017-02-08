@@ -16,6 +16,11 @@
         <TextView
             android:id="@+id/info_text"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textColor="@color/cardview_light_background"/>
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:textSize="20sp"
+            android:textColor="#F5F5F5"
+            android:background="#99616161"
+            android:paddingLeft="8dp"
+            android:paddingBottom="16dp"/>
     </android.support.v7.widget.CardView>

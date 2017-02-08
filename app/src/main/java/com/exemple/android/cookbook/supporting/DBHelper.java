@@ -13,11 +13,18 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table recipeActivityTable ("
+        db.execSQL("create table recipe ("
                 + "id integer primary key autoincrement,"
                 + "recipe text,"
                 + "photo text,"
                 + "description text" + ");");
+
+        db.execSQL("create table step_recipe ("
+                + "id integer primary key autoincrement,"
+                + "id_recipe integer,"
+                + "number_step text,"
+                + "text_step text,"
+                + "photo_step text" + ");");
     }
 
     @Override

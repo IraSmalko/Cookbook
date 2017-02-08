@@ -1,14 +1,16 @@
-package com.exemple.android.cookbook.supporting;
+package com.exemple.android.cookbook.entity;
 
 
-public class Recipes extends CategoryRecipes {
+import com.exemple.android.cookbook.entity.CategoryRecipes;
 
-    private String description;
+public class Recipe extends CategoryRecipes {
 
-    public Recipes() {
+    protected String description;
+
+    public Recipe() {
     }
 
-    public Recipes(String name, String photoUrl, String description) {
+    public Recipe(String name, String photoUrl, String description) {
         this.name = name;
         this.photoUrl = photoUrl;
         this.description = description;

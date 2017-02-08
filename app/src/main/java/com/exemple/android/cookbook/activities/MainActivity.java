@@ -1,7 +1,6 @@
-package com.exemple.android.cookbook;
+package com.exemple.android.cookbook.activities;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -11,7 +10,7 @@ import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -25,15 +24,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
-import com.exemple.android.cookbook.supporting.CategoryRecipes;
-import com.exemple.android.cookbook.supporting.OnItemClickListenerCategoryRecipes;
+import com.exemple.android.cookbook.adapters.OnItemClickListenerCategoryRecipes;
+import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -84,10 +82,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -130,7 +126,6 @@ public class MainActivity extends AppCompatActivity
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = firebaseDatabase.getReference("Сategory_Recipes");
 
-
         recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -142,7 +137,6 @@ public class MainActivity extends AppCompatActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
-
                     categoryRecipesList.add(categoryRecipes);
                 }
             }
@@ -220,7 +214,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.selected) {
-            startActivity(new Intent(this, SelectedListActivity.class));
+            startActivity(new Intent(this, SelectedRecipeListActivity.class));
 
         } else if (id == R.id.nav_sign_in) {
             Intent intent = new Intent(MainActivity.this, AuthenticationActivity.class);
@@ -304,7 +298,7 @@ public class MainActivity extends AppCompatActivity
             navigationView.getMenu().findItem(R.id.nav_sign_out).setVisible(false);
             mUsername = ANONYMOUS;
             userNameTV.setText(mUsername);
-            userPhotoIV.setImageDrawable(getResources().getDrawable(R.drawable.anonymous));
+            userPhotoIV.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.a));
         } else {
             navigationView.getMenu().findItem(R.id.nav_sign_in).setVisible(false);
             navigationView.getMenu().findItem(R.id.nav_sign_out).setVisible(true);

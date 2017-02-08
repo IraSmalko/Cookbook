@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook;
+package com.exemple.android.cookbook.activities;
 
 
 import android.content.Intent;
@@ -12,9 +12,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.exemple.android.cookbook.R;
+
 import java.io.IOException;
 
-public class SelectedActivity extends AppCompatActivity {
+public class SelectedRecipeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +28,7 @@ public class SelectedActivity extends AppCompatActivity {
         Button btnDetailRecipe = (Button) findViewById(R.id.btn_detail_recipe);
         ActionBar actionBar = getSupportActionBar();
 
-        Intent intent = getIntent();
+        final Intent intent = getIntent();
 
         actionBar.setTitle(intent.getStringExtra("recipe"));
         descriptionRecipe.setText(intent.getStringExtra("description"));
@@ -40,7 +42,9 @@ public class SelectedActivity extends AppCompatActivity {
         btnDetailRecipe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), StepRecipeActivity.class));
+                Intent intent1 = new Intent(getApplicationContext(), SelectedStepRecipeActivity.class);
+                intent1.putExtra("id_recipe", intent.getIntExtra("id_recipe", 0));
+                startActivity(intent1);
             }
         });
 
