@@ -43,6 +43,9 @@ public class SelectedRecipeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent1 = new Intent(getApplicationContext(), SelectedStepRecipeActivity.class);
+                intent1.putExtra("recipe", intent.getStringExtra("recipe"));
+                intent1.putExtra("photo", intent.getStringExtra("photo"));
+                intent1.putExtra("description", intent.getStringExtra("description"));
                 intent1.putExtra("id_recipe", intent.getIntExtra("id_recipe", 0));
                 startActivity(intent1);
             }

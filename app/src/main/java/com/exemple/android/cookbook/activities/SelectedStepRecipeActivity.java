@@ -15,12 +15,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.Recipe;
-import com.exemple.android.cookbook.entity.SelectedRecipe;
 import com.exemple.android.cookbook.entity.SelectedStepRecipe;
-import com.exemple.android.cookbook.entity.StepRecipe;
 import com.exemple.android.cookbook.supporting.DBHelper;
 
 import java.io.IOException;
@@ -34,6 +30,7 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
     private ActionBar actionBar;
     private TextView txtStepRecipe;
     private ImageView imgStepRecipe;
+    private Intent intent;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,12 +41,12 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
         imgStepRecipe = (ImageView) findViewById(R.id.img_step_recipe);
         actionBar = getSupportActionBar();
 
-        Intent intent = getIntent();
+        intent = getIntent();
         intent.getIntExtra("id_recipe", 0);
 
         DBHelper dbHelper = new DBHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor c = db.rawQuery( "SELECT * FROM step_recipe WHERE id_recipe"  + " == "+ intent.getIntExtra("id_recipe", 0), null);
+        Cursor c = db.rawQuery("SELECT * FROM step_recipe WHERE id_recipe" + " == " + intent.getIntExtra("id_recipe", 0), null);
 
         if (c.moveToFirst()) {
             do {
@@ -58,12 +55,18 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
                 int textStepColIndex = c.getColumnIndex("text_step");
                 int photoStepColIndex = c.getColumnIndex("photo_step");
 
-                selectedStepRecipes.add(new SelectedStepRecipe(getString(numberStepColIndex), c.getString(textStepColIndex), c.getString(photoStepColIndex), c.getInt(idColIndex)));
+                selectedStepRecipes.add(new SelectedStepRecipe(c.getString(numberStepColIndex), c.getString(textStepColIndex), c.getString(photoStepColIndex), c.getInt(idColIndex)));
             } while (c.moveToNext());
         } else {
             c.close();
         }
-
+        actionBar.setTitle(selectedStepRecipes.get(0).getNumberStep());
+        txtStepRecipe.setText(selectedStepRecipes.get(0).getTextStep());
+        try {
+            imgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(selectedStepRecipes.get(0).getPhotoUrlStep())));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_step);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,12 +82,16 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
             actionBar.setTitle(selectedStepRecipes.get(i).getNumberStep());
             txtStepRecipe.setText(selectedStepRecipes.get(i).getTextStep());
             try {
-            imgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(selectedStepRecipes.get(i).getPhotoUrlStep())));
+                imgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(selectedStepRecipes.get(i).getPhotoUrlStep())));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-
+            Intent intent1 = new Intent(this, SelectedRecipeActivity.class);
+            intent1.putExtra("recipe", intent.getStringExtra("recipe"));
+            intent1.putExtra("photo", intent.getStringExtra("photo"));
+            intent1.putExtra("description", intent.getStringExtra("description"));
+            startActivity(intent1);
         }
     }
 }
