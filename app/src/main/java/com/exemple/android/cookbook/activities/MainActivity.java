@@ -129,16 +129,23 @@ public class MainActivity extends AppCompatActivity
         recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        myAdapter = new CategoryRecipeRecyclerAdapter(this, categoryRecipesList);
-        recyclerView.setAdapter(myAdapter);
-
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
                     categoryRecipesList.add(categoryRecipes);
+                    myAdapter = new CategoryRecipeRecyclerAdapter(getApplicationContext(), categoryRecipesList);
+                    recyclerView.setAdapter(myAdapter);
                 }
+                myAdapter.setOnItemClickListener(new OnItemClickListenerCategoryRecipes() {
+                    @Override
+                    public void onItemClick(CategoryRecipes categoryRecipes) {
+                        Intent intent = new Intent(getApplicationContext(), RecipeListActivity.class);
+                        intent.putExtra(RECIPE_LIST, categoryRecipes.getName());
+                        startActivity(intent);
+                    }
+                });
             }
 
             @Override
@@ -146,14 +153,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        myAdapter.setOnItemClickListener(new OnItemClickListenerCategoryRecipes() {
-            @Override
-            public void onItemClick(CategoryRecipes categoryRecipes) {
-                Intent intent = new Intent(getApplicationContext(), RecipeListActivity.class);
-                intent.putExtra(RECIPE_LIST, categoryRecipes.getName());
-                startActivity(intent);
-            }
-        });
     }
 
     @Override

@@ -33,6 +33,7 @@ public class RecipeListActivity extends AppCompatActivity
     private List<Recipe> recipesList = new ArrayList<>();
     private RecipeRecyclerListAdapter recipeRecyclerAdapter;
     private Intent intent;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,33 +58,32 @@ public class RecipeListActivity extends AppCompatActivity
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = firebaseDatabase.getReference(intent.getStringExtra("recipeList"));
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
+        recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        recipeRecyclerAdapter = new RecipeRecyclerListAdapter(this, recipesList);
-        recyclerView.setAdapter(recipeRecyclerAdapter);
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Recipe recipes = postSnapshot.getValue(Recipe.class);
                     recipesList.add(recipes);
+                    recipeRecyclerAdapter = new RecipeRecyclerListAdapter(getApplicationContext(), recipesList);
+                    recyclerView.setAdapter(recipeRecyclerAdapter);
                 }
+                recipeRecyclerAdapter.setOnItemClickListener(new OnItemClickListenerRecipes() {
+                    @Override
+                    public void onItemClick(Recipe recipes) {
+                        Intent intent = new Intent(getApplicationContext(), RecipeActivity.class);
+                        intent.putExtra("recipe", recipes.getName());
+                        intent.putExtra("photo", recipes.getPhotoUrl());
+                        intent.putExtra("description", recipes.getDescription());
+                        startActivity(intent);
+                    }
+                });
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-
-        recipeRecyclerAdapter.setOnItemClickListener(new OnItemClickListenerRecipes() {
-            @Override
-            public void onItemClick(Recipe recipes) {
-                Intent intent = new Intent(getApplicationContext(), RecipeActivity.class);
-                intent.putExtra("recipe", recipes.getName());
-                intent.putExtra("photo", recipes.getPhotoUrl());
-                intent.putExtra("description", recipes.getDescription());
-                startActivity(intent);
             }
         });
     }
