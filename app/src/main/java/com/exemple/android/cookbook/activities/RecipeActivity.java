@@ -43,9 +43,12 @@ public class RecipeActivity extends AppCompatActivity {
     private DBHelper dbHelper;
     private Intent intent;
     private ImageView imageView;
-    private Bitmap theBitmap;
-    private Bitmap photoStep;
+    private Bitmap loadPhotoStep;
     private List<StepRecipe> stepRecipe = new ArrayList<>();
+    private SQLiteDatabase db;
+    private int idRecipe;
+    private String pathPhotoStep;
+    private int iterator = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,14 +84,14 @@ public class RecipeActivity extends AppCompatActivity {
         intent = getIntent();
 
         actionBar.setTitle(intent.getStringExtra("recipe"));
-        Glide.with(this)
+        Glide.with(getApplicationContext())
                 .load(intent.getStringExtra("photo"))
                 .asBitmap()
                 .into(new SimpleTarget<Bitmap>(660, 480) {
                     @Override
                     public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
-                        imageView.setImageBitmap(resource);
-                        theBitmap = resource;
+                        loadPhotoStep = resource;
+                        imageView.setImageBitmap(loadPhotoStep);
                     }
                 });
 
@@ -104,7 +107,6 @@ public class RecipeActivity extends AppCompatActivity {
                 startActivity(new Intent(intentStepRecipeActivity));
             }
         });
-
     }
 
     @Override
@@ -118,13 +120,18 @@ public class RecipeActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_save) {
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db = dbHelper.getWritableDatabase();
             ContentValues cvRecipe = new ContentValues();
-            ContentValues cvStepRecipe = new ContentValues();
 
             String path = MediaStore.Images.Media.insertImage(getContentResolver(),
-                    theBitmap, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
+                    loadPhotoStep, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
 
+            cvRecipe.put("recipe", intent.getStringExtra("recipe"));
+            cvRecipe.put("photo", path);
+            cvRecipe.put("description", intent.getStringExtra("description"));
+            long rowID = db.insertOrThrow("recipe", null, cvRecipe);
+
+            idRecipe = (int) (long) rowID;
             FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
             DatabaseReference databaseReference = firebaseDatabase.getReference(intent.getStringExtra("recipe"));
 
@@ -135,41 +142,45 @@ public class RecipeActivity extends AppCompatActivity {
                         StepRecipe step = postSnapshot.getValue(StepRecipe.class);
                         stepRecipe.add(step);
                     }
+                    loadPhoto();
                 }
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
                 }
             });
-
-            cvRecipe.put("recipe", intent.getStringExtra("recipe"));
-            cvRecipe.put("photo", path);
-            cvRecipe.put("description", intent.getStringExtra("description"));
-            long rowID = db.insertOrThrow("recipe", null, cvRecipe);
-
-            for (int i = 0; i < stepRecipe.size(); i++) {
-                Glide.with(this)
-                        .load(stepRecipe.get(i).getPhotoUrlStep())
-                        .asBitmap()
-                        .into(new SimpleTarget<Bitmap>(660, 480) {
-                            @Override
-                            public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
-                                photoStep = resource;
-                            }
-                        });
-                String pathPhotoStep = MediaStore.Images.Media.insertImage(getContentResolver(),
-                        photoStep, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
-
-                cvStepRecipe.put("id_recipe", rowID);
-                cvStepRecipe.put("number_step", stepRecipe.get(i).getNumberStep());
-                cvStepRecipe.put("text_step", stepRecipe.get(i).getTextStep());
-                cvStepRecipe.put("photo_step", pathPhotoStep);
-                db.insertOrThrow("step_recipe", null, cvStepRecipe);
-            }
-            dbHelper.close();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    public void loadPhoto() {
+        if (iterator < stepRecipe.size()) {
+            Glide.with(getApplicationContext())
+                    .load(stepRecipe.get(iterator).getPhotoUrlStep())
+                    .asBitmap()
+                    .into(new SimpleTarget<Bitmap>(660, 480) {
+                        @Override
+                        public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
+                            loadPhotoStep = resource;
+                            pathPhotoStep = MediaStore.Images.Media.insertImage(getContentResolver(),
+                                    loadPhotoStep, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
+                            saveSteps(pathPhotoStep);
+                        }
+                    });
+        } else {
+            dbHelper.close();
+        }
+    }
+
+    public void saveSteps(String path) {
+        ContentValues cvStepRecipe = new ContentValues();
+        cvStepRecipe.put("id_recipe", idRecipe);
+        cvStepRecipe.put("number_step", stepRecipe.get(iterator).getNumberStep());
+        cvStepRecipe.put("text_step", stepRecipe.get(iterator).getTextStep());
+        cvStepRecipe.put("photo_step", path);
+        db.insertOrThrow("step_recipe", null, cvStepRecipe);
+        iterator = ++iterator;
+        loadPhoto();
+    }
 }
