@@ -76,7 +76,8 @@ public class AddStepActivity extends AppCompatActivity {
         databaseReference = firebaseDatabase.getReference()
                 .child("Step_recipe/" + intent.getStringExtra("recipeList") + "/" + intent.getStringExtra("recipe"));;
 
-        storageReference = firebaseStorage.getReference().child("Step_Recipes");
+        storageReference = firebaseStorage.getReference().child("Step_Recipes" + "/"
+                + intent.getStringExtra("recipeList") + "/" + intent.getStringExtra("recipe"));
         firebaseDatabase.getReference("app_title").setValue("Cookbook");
 
 

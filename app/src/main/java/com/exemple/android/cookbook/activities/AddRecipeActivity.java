@@ -78,7 +78,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         nameRecipesList = intent.getStringArrayListExtra("ArrayListRecipe");
         databaseReference = firebaseDatabase.getReference().child("Recipe_lists/" + intent.getStringExtra("recipeList"));
 
-        storageReference = firebaseStorage.getReference().child("Photo_Recipes");
+        storageReference = firebaseStorage.getReference().child("Recipe" + "/" + intent.getStringExtra("recipeList"));
         firebaseDatabase.getReference("app_title").setValue("Cookbook");
 
         progressDialog = new ProgressDialog(this);
