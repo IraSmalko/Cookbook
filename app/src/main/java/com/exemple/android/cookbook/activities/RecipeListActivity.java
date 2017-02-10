@@ -49,14 +49,14 @@ public class RecipeListActivity extends AppCompatActivity
                     nameRecipesList.add(recipesList.get(i).getName());
                 }
                 Intent intentAddRecipeActivity = new Intent(getApplicationContext(), AddRecipeActivity.class);
-                intentAddRecipeActivity.putExtra("recipe", intent.getStringExtra("recipeList"));
+                intentAddRecipeActivity.putExtra("recipeList", intent.getStringExtra("recipeList"));
                 intentAddRecipeActivity.putStringArrayListExtra("ArrayListRecipe", nameRecipesList);
                 startActivity(intentAddRecipeActivity);
             }
         });
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference databaseReference = firebaseDatabase.getReference(intent.getStringExtra("recipeList"));
+        DatabaseReference databaseReference = firebaseDatabase.getReference().child("Recipe_lists/" + intent.getStringExtra("recipeList"));
 
         recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

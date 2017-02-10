@@ -86,6 +86,7 @@ public class StepRecipeActivity extends AppCompatActivity {
             intentRecipeActivity.putExtra("recipe", intent.getStringExtra("recipe"));
             intentRecipeActivity.putExtra("photo", intent.getStringExtra("photo"));
             intentRecipeActivity.putExtra("description", intent.getStringExtra("description"));
+            intentRecipeActivity.putExtra("recipeList", intent.getStringExtra("recipeList"));
             startActivity(new Intent(intentRecipeActivity));
         }
     }

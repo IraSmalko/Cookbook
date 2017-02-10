@@ -104,6 +104,7 @@ public class RecipeActivity extends AppCompatActivity {
                 intentStepRecipeActivity.putExtra("recipe", intent.getStringExtra("recipe"));
                 intentStepRecipeActivity.putExtra("photo", intent.getStringExtra("photo"));
                 intentStepRecipeActivity.putExtra("description", intent.getStringExtra("description"));
+                intentStepRecipeActivity.putExtra("recipeList", intent.getStringExtra("recipeList"));
                 startActivity(new Intent(intentStepRecipeActivity));
             }
         });

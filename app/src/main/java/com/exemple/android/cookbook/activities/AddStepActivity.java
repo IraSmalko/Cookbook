@@ -56,6 +56,8 @@ public class AddStepActivity extends AppCompatActivity {
     private int numberStep = 1;
     private String pictureImagePath = Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/n" + ".jpg";
+    private int backPressed = 0;
+    private Intent intent;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,8 +73,8 @@ public class AddStepActivity extends AppCompatActivity {
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
 
-        Intent intent = getIntent();
-        databaseReference = firebaseDatabase.getReference(intent.getStringExtra("name_recipe"));
+        intent = getIntent();
+        databaseReference = firebaseDatabase.getReference(intent.getStringExtra("recipeList"));
 
         storageReference = firebaseStorage.getReference().child("Step_Recipes");
         firebaseDatabase.getReference("app_title").setValue("Cookbook");
@@ -121,8 +123,7 @@ public class AddStepActivity extends AppCompatActivity {
 
     private void performCrop(Uri picUri) {
         try {
-            File file = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/4" + ".jpg");
+            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/4" + ".jpg");
             Uri outputFileUri = Uri.fromFile(file);
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
             cropIntent.setDataAndType(picUri, "image/*");
@@ -183,8 +184,7 @@ public class AddStepActivity extends AppCompatActivity {
                 if (requestCode == PIC_CROP) {
                     if (imageReturnedIntent != null) {
 
-                        File imgFile = new File(Environment.getExternalStoragePublicDirectory(
-                                Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/4" + ".jpg");
+                        File imgFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/4" + ".jpg");
                         Bitmap selectedBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         selectedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -226,8 +226,14 @@ public class AddStepActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Toast.makeText(getApplicationContext(), "Введені дані буде втрачено!", Toast.LENGTH_SHORT).show();
-
+        if(backPressed == 0) {
+            Toast.makeText(getApplicationContext(), "Введені дані буде втрачено!", Toast.LENGTH_SHORT).show();
+            ++backPressed;
+        }else {
+            Intent intent1 = new Intent(this, RecipeListActivity.class);
+            intent1.putExtra("recipeList", intent.getStringExtra("name_recipe"));
+            startActivity(intent1);
+        }
     }
     public boolean isOnline() {
         ConnectivityManager cm =

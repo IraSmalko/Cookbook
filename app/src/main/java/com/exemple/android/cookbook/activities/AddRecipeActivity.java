@@ -56,6 +56,7 @@ public class AddRecipeActivity extends AppCompatActivity {
             Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/n" + ".jpg";
     private ArrayList<String> nameRecipesList = new ArrayList<>();
     private int backPressed = 0;
+    private Intent intent;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,9 +74,9 @@ public class AddRecipeActivity extends AppCompatActivity {
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
 
-        Intent intent = getIntent();
+        intent = getIntent();
         nameRecipesList = intent.getStringArrayListExtra("ArrayListRecipe");
-        databaseReference = firebaseDatabase.getReference(intent.getStringExtra("recipe"));
+        databaseReference = firebaseDatabase.getReference().child("Recipe_lists/" + intent.getStringExtra("recipeList"));
 
         storageReference = firebaseStorage.getReference().child("Photo_Recipes");
         firebaseDatabase.getReference("app_title").setValue("Cookbook");
@@ -99,9 +100,9 @@ public class AddRecipeActivity extends AppCompatActivity {
             }
         });
 
-        if (isOnline()){
+        if (isOnline()) {
             btnSave.setOnClickListener(oclBtnSave);
-        }else {
+        } else {
             Toast.makeText(getApplicationContext(), "Відсутній доступ до інтернету!", Toast.LENGTH_SHORT).show();
         }
     }
@@ -117,8 +118,7 @@ public class AddRecipeActivity extends AppCompatActivity {
 
     private void performCrop(Uri picUri) {
         try {
-            File file = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/4" + ".jpg");
+            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/4" + ".jpg");
             Uri outputFileUri = Uri.fromFile(file);
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
             cropIntent.setDataAndType(picUri, "image/*");
@@ -148,11 +148,10 @@ public class AddRecipeActivity extends AppCompatActivity {
                     Recipe recipes = new Recipe(inputNameRecipe.getText().toString(), downloadUrlCamera.toString(), inputIngredients.getText().toString());
                     String recipeId = databaseReference.push().getKey();
                     databaseReference.child(recipeId).setValue(recipes);
-
                     Toast.makeText(getApplicationContext(), "Дані збережено.", Toast.LENGTH_SHORT).show();
                     imageView.setImageResource(R.drawable.dishes);
                     Intent intent = new Intent(getApplicationContext(), AddStepActivity.class);
-                    intent.putExtra("name_recipe", inputNameRecipe.getText().toString());
+                    intent.putExtra("recipeList", inputNameRecipe.getText().toString());
                     inputNameRecipe.setText("");
                     inputIngredients.setText("");
                     startActivity(intent);
@@ -184,8 +183,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                 if (requestCode == PIC_CROP) {
                     if (imageReturnedIntent != null) {
 
-                        File imgFile = new File(Environment.getExternalStoragePublicDirectory(
-                                Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/4" + ".jpg");
+                        File imgFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/4" + ".jpg");
                         Bitmap selectedBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         selectedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -219,18 +217,20 @@ public class AddRecipeActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        Intent intent1 = new Intent(this, RecipeListActivity.class);
+        intent1.putExtra("recipeList", intent.getStringExtra("recipeList"));
         if (!inputNameRecipe.getText().toString().equals("") || downloadUrlCamera != null
                 || !inputIngredients.getText().toString().equals("")) {
-            if (backPressed == 1){
-                super.onBackPressed();
-            }else if (backPressed == 0){
+            if (backPressed == 1) {
+                startActivity(intent1);
+            } else if (backPressed == 0) {
                 Toast.makeText(getApplicationContext(), "Введені дані буде втрачено!", Toast.LENGTH_SHORT).show();
                 backPressed = 1;
-            }else {
-                super.onBackPressed();
+            } else {
+                startActivity(intent1);
             }
-        }else {
-            super.onBackPressed();
+        } else {
+            startActivity(intent1);
         }
     }
 
