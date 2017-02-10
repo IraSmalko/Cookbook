@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.SelectedStepRecipe;
@@ -42,7 +43,7 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
         actionBar = getSupportActionBar();
 
         intent = getIntent();
-        intent.getIntExtra("id_recipe", 0);
+       int bvb = intent.getIntExtra("id_recipe", 0);
 
         DBHelper dbHelper = new DBHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -57,16 +58,18 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
 
                 selectedStepRecipes.add(new SelectedStepRecipe(c.getString(numberStepColIndex), c.getString(textStepColIndex), c.getString(photoStepColIndex), c.getInt(idColIndex)));
             } while (c.moveToNext());
+            actionBar.setTitle(selectedStepRecipes.get(0).getNumberStep());
+            txtStepRecipe.setText(selectedStepRecipes.get(0).getTextStep());
+            try {
+                imgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(selectedStepRecipes.get(0).getPhotoUrlStep())));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } else {
             c.close();
+            Toast.makeText(getApplicationContext(), "Інформація відсутня", Toast.LENGTH_SHORT).show();
         }
-        actionBar.setTitle(selectedStepRecipes.get(0).getNumberStep());
-        txtStepRecipe.setText(selectedStepRecipes.get(0).getTextStep());
-        try {
-            imgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(selectedStepRecipes.get(0).getPhotoUrlStep())));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_step);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,6 +94,7 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
             intent1.putExtra("recipe", intent.getStringExtra("recipe"));
             intent1.putExtra("photo", intent.getStringExtra("photo"));
             intent1.putExtra("description", intent.getStringExtra("description"));
+            intent1.putExtra("id_recipe", intent.getIntExtra("id_recipe", 0));
             startActivity(intent1);
         }
     }

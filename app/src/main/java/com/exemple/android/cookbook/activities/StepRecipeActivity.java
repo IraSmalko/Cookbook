@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
@@ -53,7 +54,11 @@ public class StepRecipeActivity extends AppCompatActivity {
                     StepRecipe step = postSnapshot.getValue(StepRecipe.class);
                     stepRecipe.add(step);
                 }
-                updateData(index);
+                if(stepRecipe.size() != 0) {
+                    updateData(index);
+                }else {
+                    Toast.makeText(getApplicationContext(), "Інформація відсутня", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
