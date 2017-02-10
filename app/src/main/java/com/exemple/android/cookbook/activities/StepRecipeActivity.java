@@ -45,7 +45,8 @@ public class StepRecipeActivity extends AppCompatActivity {
         intent = getIntent();
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference databaseReference = firebaseDatabase.getReference(intent.getStringExtra("recipe"));
+        DatabaseReference databaseReference = firebaseDatabase.getReference()
+                .child("Step_recipe/" + intent.getStringExtra("recipeList") + "/" + intent.getStringExtra("recipe"));
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -54,9 +55,9 @@ public class StepRecipeActivity extends AppCompatActivity {
                     StepRecipe step = postSnapshot.getValue(StepRecipe.class);
                     stepRecipe.add(step);
                 }
-                if(stepRecipe.size() != 0) {
+                if (stepRecipe.size() != 0) {
                     updateData(index);
-                }else {
+                } else {
                     Toast.makeText(getApplicationContext(), "Інформація відсутня", Toast.LENGTH_SHORT).show();
                 }
             }

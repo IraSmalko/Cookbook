@@ -150,11 +150,12 @@ public class AddRecipeActivity extends AppCompatActivity {
                     databaseReference.child(recipeId).setValue(recipes);
                     Toast.makeText(getApplicationContext(), "Дані збережено.", Toast.LENGTH_SHORT).show();
                     imageView.setImageResource(R.drawable.dishes);
-                    Intent intent = new Intent(getApplicationContext(), AddStepActivity.class);
-                    intent.putExtra("recipeList", inputNameRecipe.getText().toString());
+                    Intent intentAddStepActivity = new Intent(getApplicationContext(), AddStepActivity.class);
+                    intentAddStepActivity.putExtra("recipeList", intent.getStringExtra("recipeList"));
+                    intentAddStepActivity.putExtra("recipe", inputNameRecipe.getText().toString());
                     inputNameRecipe.setText("");
                     inputIngredients.setText("");
-                    startActivity(intent);
+                    startActivity(intentAddStepActivity);
                 } else {
                     Toast.makeText(getApplicationContext(), "Додайте фото!", Toast.LENGTH_LONG).show();
                 }

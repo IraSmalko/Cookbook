@@ -56,7 +56,6 @@ public class AddStepActivity extends AppCompatActivity {
     private int numberStep = 1;
     private String pictureImagePath = Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/n" + ".jpg";
-    private int backPressed = 0;
     private Intent intent;
 
     @Override
@@ -74,7 +73,8 @@ public class AddStepActivity extends AppCompatActivity {
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
 
         intent = getIntent();
-        databaseReference = firebaseDatabase.getReference(intent.getStringExtra("recipeList"));
+        databaseReference = firebaseDatabase.getReference()
+                .child("Step_recipe/" + intent.getStringExtra("recipeList") + "/" + intent.getStringExtra("recipe"));;
 
         storageReference = firebaseStorage.getReference().child("Step_Recipes");
         firebaseDatabase.getReference("app_title").setValue("Cookbook");
@@ -226,14 +226,9 @@ public class AddStepActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(backPressed == 0) {
-            Toast.makeText(getApplicationContext(), "Введені дані буде втрачено!", Toast.LENGTH_SHORT).show();
-            ++backPressed;
-        }else {
-            Intent intent1 = new Intent(this, RecipeListActivity.class);
+            Intent intent1 = new Intent(this, AddRecipeActivity.class);
             intent1.putExtra("recipeList", intent.getStringExtra("name_recipe"));
             startActivity(intent1);
-        }
     }
     public boolean isOnline() {
         ConnectivityManager cm =
