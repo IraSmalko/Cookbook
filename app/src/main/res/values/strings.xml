@@ -19,4 +19,5 @@
     <string name="add_main_photo_recipe">Додайте головне фото \n рецепта</string>
     <string name="add_ingredients">Додайте інгридієнти</string>
     <string name="add_photo_step">Додайте фото кроку</string>
+    <string name="btn_beck">beck</string>
 </resources>

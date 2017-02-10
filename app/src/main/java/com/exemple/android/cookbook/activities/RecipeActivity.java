@@ -150,6 +150,11 @@ public class RecipeActivity extends AppCompatActivity {
                 }
             });
             return true;
+        }else if(id == android.R.id.home) {
+            Intent intent1 = new Intent(this, RecipeListActivity.class);
+            intent1.putExtra("recipeList", intent.getStringExtra("recipeList"));
+            startActivity(intent1);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -182,5 +187,12 @@ public class RecipeActivity extends AppCompatActivity {
         db.insertOrThrow("step_recipe", null, cvStepRecipe);
         iterator = ++iterator;
         loadPhoto();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent1 = new Intent(this, RecipeListActivity.class);
+        intent1.putExtra("recipeList", intent.getStringExtra("recipeList"));
+        startActivity(intent1);
     }
 }

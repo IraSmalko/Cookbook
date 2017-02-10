@@ -34,7 +34,8 @@
             android:name=".activities.AddStepActivity"
             android:screenOrientation="userPortrait" />
         <activity android:name=".activities.RecipeListActivity" />
-        <activity android:name=".activities.RecipeActivity" />
+        <activity android:name=".activities.RecipeActivity"
+            android:parentActivityName=".activities.RecipeListActivity"/>
         <activity android:name=".activities.StepRecipeActivity" />
         <activity android:name=".activities.AuthenticationActivity"></activity>
         <activity android:name=".activities.SelectedRecipeActivity"

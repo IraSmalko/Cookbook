@@ -73,11 +73,12 @@ public class RecipeListActivity extends AppCompatActivity
                 recipeRecyclerAdapter.setOnItemClickListener(new OnItemClickListenerRecipes() {
                     @Override
                     public void onItemClick(Recipe recipes) {
-                        Intent intent = new Intent(getApplicationContext(), RecipeActivity.class);
-                        intent.putExtra("recipe", recipes.getName());
-                        intent.putExtra("photo", recipes.getPhotoUrl());
-                        intent.putExtra("description", recipes.getDescription());
-                        startActivity(intent);
+                        Intent intent1 = new Intent(getApplicationContext(), RecipeActivity.class);
+                        intent1.putExtra("recipe", recipes.getName());
+                        intent1.putExtra("photo", recipes.getPhotoUrl());
+                        intent1.putExtra("description", recipes.getDescription());
+                        intent1.putExtra("recipeList", intent.getStringExtra("recipeList"));
+                        startActivity(intent1);
                     }
                 });
             }

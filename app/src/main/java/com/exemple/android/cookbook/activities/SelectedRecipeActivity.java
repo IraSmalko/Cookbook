@@ -50,7 +50,10 @@ public class SelectedRecipeActivity extends AppCompatActivity {
                 startActivity(intent1);
             }
         });
-
     }
 
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(this, SelectedRecipeListActivity.class));
+    }
 }
