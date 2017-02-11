@@ -52,6 +52,10 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     private StorageReference storageReference;
     private Uri downloadUrlCamera;
     private int backPressed = 0;
+    private String pictureImagePath = Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/n" + ".jpg";
+    private String pictureCropImagePath = Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/4" + ".jpg";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -98,8 +102,7 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     }
 
     public void photoFromCamera() {
-        File file = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/n" + ".jpg");
+        File file = new File(pictureImagePath);
         Uri outputFileUri = Uri.fromFile(file);
         Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
@@ -108,8 +111,7 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
 
     private void performCrop(Uri picUri) {
         try {
-            File file = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/4" + ".jpg");
+            File file = new File(pictureCropImagePath);
             Uri outputFileUri = Uri.fromFile(file);
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
             cropIntent.setDataAndType(picUri, "image/*");
@@ -161,15 +163,13 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
             case CAMERA_RESULT:
 
                 if (requestCode == CAMERA_RESULT) {
-                    performCrop(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(
-                            Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/n" + ".jpg")));
+                    performCrop(Uri.fromFile(new File(pictureImagePath)));
                 }
             case PIC_CROP:
                 if (requestCode == PIC_CROP) {
                     if (imageReturnedIntent != null) {
 
-                        File imgFile = new File(Environment.getExternalStoragePublicDirectory(
-                                Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/4" + ".jpg");
+                        File imgFile = new File(pictureCropImagePath);
                         Bitmap selectedBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         selectedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -205,13 +205,13 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (!inputCategoryName.getText().toString().equals("") || downloadUrlCamera != null) {
             if (backPressed == 1){
-                super.onBackPressed();
+                startActivity(new Intent(this, MainActivity.class));
             }else if (backPressed == 0){
                 Toast.makeText(getApplicationContext(), "Введені дані буде втрачено!", Toast.LENGTH_SHORT).show();
                 backPressed = 1;
             }
         }else {
-            super.onBackPressed();
+            startActivity(new Intent(this, MainActivity.class));
         }
     }
 

@@ -54,9 +54,11 @@ public class AddStepActivity extends AppCompatActivity {
     private StorageReference storageReference;
     private Uri downloadUrlCamera;
     private int numberStep = 1;
+    private Intent intent;
     private String pictureImagePath = Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/n" + ".jpg";
-    private Intent intent;
+    private String pictureCropImagePath = Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/4" + ".jpg";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -124,7 +126,7 @@ public class AddStepActivity extends AppCompatActivity {
 
     private void performCrop(Uri picUri) {
         try {
-            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/4" + ".jpg");
+            File file = new File(pictureCropImagePath);
             Uri outputFileUri = Uri.fromFile(file);
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
             cropIntent.setDataAndType(picUri, "image/*");
@@ -185,7 +187,7 @@ public class AddStepActivity extends AppCompatActivity {
                 if (requestCode == PIC_CROP) {
                     if (imageReturnedIntent != null) {
 
-                        File imgFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/4" + ".jpg");
+                        File imgFile = new File(pictureCropImagePath);
                         Bitmap selectedBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         selectedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -228,7 +230,7 @@ public class AddStepActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
             Intent intent1 = new Intent(this, AddRecipeActivity.class);
-            intent1.putExtra("recipeList", intent.getStringExtra("name_recipe"));
+            intent1.putExtra("recipeList", intent.getStringExtra("recipeList"));
             startActivity(intent1);
     }
     public boolean isOnline() {

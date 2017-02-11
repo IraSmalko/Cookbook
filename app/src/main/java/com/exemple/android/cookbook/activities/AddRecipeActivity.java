@@ -54,6 +54,8 @@ public class AddRecipeActivity extends AppCompatActivity {
     private Uri downloadUrlCamera;
     private String pictureImagePath = Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/n" + ".jpg";
+    private String pictureCropImagePath = Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/4" + ".jpg";
     private ArrayList<String> nameRecipesList = new ArrayList<>();
     private int backPressed = 0;
     private Intent intent;
@@ -118,7 +120,7 @@ public class AddRecipeActivity extends AppCompatActivity {
 
     private void performCrop(Uri picUri) {
         try {
-            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/4" + ".jpg");
+            File file = new File(pictureCropImagePath);
             Uri outputFileUri = Uri.fromFile(file);
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
             cropIntent.setDataAndType(picUri, "image/*");
@@ -184,7 +186,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                 if (requestCode == PIC_CROP) {
                     if (imageReturnedIntent != null) {
 
-                        File imgFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/4" + ".jpg");
+                        File imgFile = new File(pictureCropImagePath);
                         Bitmap selectedBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         selectedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
