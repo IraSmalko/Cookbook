@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                categoryRecipesList.clear();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
                     categoryRecipesList.add(categoryRecipes);

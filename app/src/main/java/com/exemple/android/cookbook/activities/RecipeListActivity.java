@@ -64,6 +64,7 @@ public class RecipeListActivity extends AppCompatActivity
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                recipesList.clear();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Recipe recipes = postSnapshot.getValue(Recipe.class);
                     recipesList.add(recipes);
