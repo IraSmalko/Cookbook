@@ -12,7 +12,7 @@ apply plugin: 'com.android.application'
 
 apply plugin: 'io.fabric'
 repositories {
-    maven { url 'https://maven.fabric.io/public'}
+    maven { url 'https://maven.fabric.io/public' }
 }
 
 android {
@@ -27,7 +27,14 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
-
+    signingConfigs {
+        debug {
+        storeFile file("C:/Users/Ira/Desktop/Cookbook/app/app-release.keystore")
+        storePassword "cookbook"
+        keyAlias "cookbook"
+        keyPassword "cookbook"
+        }
+    }
 
     buildTypes {
         release {
