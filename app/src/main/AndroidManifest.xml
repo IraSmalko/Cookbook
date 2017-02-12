@@ -44,6 +44,10 @@
         <activity android:name=".activities.SelectedRecipeListActivity"
             android:parentActivityName=".activities.MainActivity"/>
         <activity android:name=".activities.SelectedStepRecipeActivity"/>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="49038910b9ef574b84a5121e68a07e8b94810ed3"
+            />
     </application>
 
 </manifest>
