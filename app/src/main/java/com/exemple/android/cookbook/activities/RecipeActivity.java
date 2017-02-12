@@ -1,5 +1,6 @@
 package com.exemple.android.cookbook.activities;
 
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -49,6 +50,7 @@ public class RecipeActivity extends AppCompatActivity {
     private int idRecipe;
     private String pathPhotoStep;
     private int iterator = 0;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,9 @@ public class RecipeActivity extends AppCompatActivity {
         Button saveComments = (Button) findViewById(R.id.save_comments);
         ActionBar actionBar = getSupportActionBar();
         dbHelper = new DBHelper(this);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Завантаження");
 
         LayerDrawable stars = (LayerDrawable) ratingBar.getProgressDrawable();
         stars.getDrawable(2).setColorFilter(ContextCompat.getColor(this, R.color.starFullySelected), PorterDuff.Mode.SRC_ATOP);
@@ -121,6 +126,8 @@ public class RecipeActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_save) {
+            progressDialog.show();
+            progressDialog.setMessage("Зачекайте, будь ласка" );
             db = dbHelper.getWritableDatabase();
             ContentValues cvRecipe = new ContentValues();
 
@@ -134,7 +141,8 @@ public class RecipeActivity extends AppCompatActivity {
 
             idRecipe = (int) (long) rowID;
             FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-            DatabaseReference databaseReference = firebaseDatabase.getReference(intent.getStringExtra("recipe"));
+            DatabaseReference databaseReference = firebaseDatabase.getReference()
+                    .child("Step_recipe/" + intent.getStringExtra("recipeList") + "/" + intent.getStringExtra("recipe"));
 
             databaseReference.addValueEventListener(new ValueEventListener() {
                 @Override
@@ -176,6 +184,7 @@ public class RecipeActivity extends AppCompatActivity {
                     });
         } else {
             dbHelper.close();
+            progressDialog.dismiss();
         }
     }
 
