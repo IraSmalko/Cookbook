@@ -28,11 +28,11 @@ android {
         multiDexEnabled true
     }
     signingConfigs {
-        debug {
-        storeFile file("C:/Users/Ira/Desktop/Cookbook/app/app-release.keystore")
-        storePassword "cookbook"
-        keyAlias "cookbook"
-        keyPassword "cookbook"
+        release{
+            storeFile file("C:/Users/Ira/Desktop/Cookbook/app_apk.keystore")
+            storePassword "cookbook"
+            keyAlias "cookbook"
+            keyPassword "cookbook"
         }
     }
 
