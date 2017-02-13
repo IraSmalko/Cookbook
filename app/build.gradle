@@ -29,7 +29,7 @@ android {
     }
     signingConfigs {
         release{
-            storeFile file("C:/Users/Ira/Desktop/Cookbook/app_apk.keystore")
+            storeFile file("app_apk.keystore")
             storePassword "cookbook"
             keyAlias "cookbook"
             keyPassword "cookbook"
