@@ -56,14 +56,14 @@ public class MainActivity extends AppCompatActivity
         SensorEventListener,
         GoogleApiClient.OnConnectionFailedListener {
 
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseUser mFirebaseUser;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseUser firebaseUser;
 
     public static final String ANONYMOUS = "anonymous";
 
-    private String mUsername;
-    private String mPhotoUrl;
-    private GoogleApiClient mGoogleApiClient;
+    private String username;
+    private String photoUrl;
+    private GoogleApiClient googleApiClient;
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private String RECIPE_LIST = "recipeList";
@@ -72,12 +72,12 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView recyclerView;
     private CategoryRecipeRecyclerAdapter myAdapter;
     private List<CategoryRecipes> categoryRecipesList = new ArrayList<>();
-    private SensorManager mSensorManager;
-    private Sensor mSensor;
+    private SensorManager sensorManager;
+    private Sensor sensor;
 
     private NavigationView navigationView;
-    TextView userNameTV;
-    CircleImageView userPhotoIV;
+    private TextView userNameTV;
+    private CircleImageView userPhotoIV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,8 +85,8 @@ public class MainActivity extends AppCompatActivity
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
 
-        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -108,17 +108,18 @@ public class MainActivity extends AppCompatActivity
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
         //        AUTHENTICATION
         View headerLayout = navigationView.getHeaderView(0);
         userNameTV = (TextView) headerLayout.findViewById(R.id.textViewForUserName);
         userPhotoIV = (CircleImageView) headerLayout.findViewById(R.id.imageViewForUserPhoto);
 
-        mUsername = ANONYMOUS;
+        username = ANONYMOUS;
 
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
+        googleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API)
                 .build();
@@ -161,7 +162,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -223,30 +224,30 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(MainActivity.this, AuthenticationActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_sign_out) {
-            if (mFirebaseUser != null) {
-                mFirebaseAuth.signOut();
-                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
-                mUsername = ANONYMOUS;
-                mFirebaseUser = null;
+            if (firebaseUser != null) {
+                firebaseAuth.signOut();
+                Auth.GoogleSignInApi.signOut(googleApiClient);
+                username = ANONYMOUS;
+                firebaseUser = null;
                 userRefresh();
             }
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
     protected void onResume() {
         super.onResume();
-        mSensorManager.registerListener(this, mSensor,
+        sensorManager.registerListener(this, sensor,
                 SensorManager.SENSOR_DELAY_NORMAL);
 
     }
 
     protected void onPause() {
         super.onPause();
-        mSensorManager.unregisterListener(this);
+        sensorManager.unregisterListener(this);
     }
 
     @Override
@@ -278,9 +279,9 @@ public class MainActivity extends AppCompatActivity
             ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             Toast.makeText(getApplicationContext(), matches.get(0),
                     Toast.LENGTH_LONG).show();
-            if (matches.contains("супи")) {
+            if (matches.contains(getResources().getString(R.string.example_voice_recognition))) {
                 Intent intent = new Intent(getApplicationContext(), RecipeListActivity.class);
-                intent.putExtra(RECIPE_LIST, "Супи");
+                intent.putExtra(RECIPE_LIST, getResources().getString(R.string.example_voice_recognition));
                 startActivity(intent);
             }
         }
@@ -296,21 +297,21 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void userRefresh() {
-        if (mFirebaseUser == null) {
+        if (firebaseUser == null) {
             navigationView.getMenu().findItem(R.id.nav_sign_in).setVisible(true);
             navigationView.getMenu().findItem(R.id.nav_sign_out).setVisible(false);
-            mUsername = ANONYMOUS;
-            userNameTV.setText(mUsername);
+            username = ANONYMOUS;
+            userNameTV.setText(username);
             userPhotoIV.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.a));
         } else {
             navigationView.getMenu().findItem(R.id.nav_sign_in).setVisible(false);
             navigationView.getMenu().findItem(R.id.nav_sign_out).setVisible(true);
-            mUsername = mFirebaseUser.getDisplayName();
-            if (mFirebaseUser.getPhotoUrl() != null) {
-                mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
+            username = firebaseUser.getDisplayName();
+            if (firebaseUser.getPhotoUrl() != null) {
+                photoUrl = firebaseUser.getPhotoUrl().toString();
             }
-            userNameTV.setText(mUsername);
-            Glide.with(this).load(mPhotoUrl).into(userPhotoIV);
+            userNameTV.setText(username);
+            Glide.with(this).load(photoUrl).into(userPhotoIV);
         }
     }
 }

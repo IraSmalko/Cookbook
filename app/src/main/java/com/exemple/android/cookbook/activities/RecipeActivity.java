@@ -59,16 +59,13 @@ public class RecipeActivity extends AppCompatActivity {
 
         TextView descriptionRecipe = (TextView) findViewById(R.id.textView);
         imageView = (ImageView) findViewById(R.id.imageView);
-        Button btnDetailRecipe = (Button) findViewById(R.id.btn_detail_recipe);
-        ListView comments = (ListView) findViewById(R.id.list_view);
+        Button btnDetailRecipe = (Button) findViewById(R.id.btnDetailRecipe);
         RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar);
-        EditText editText = (EditText) findViewById(R.id.editTextComent);
-        Button saveComments = (Button) findViewById(R.id.save_comments);
         ActionBar actionBar = getSupportActionBar();
         dbHelper = new DBHelper(this);
 
         progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Завантаження");
+        progressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
 
         LayerDrawable stars = (LayerDrawable) ratingBar.getProgressDrawable();
         stars.getDrawable(2).setColorFilter(ContextCompat.getColor(this, R.color.starFullySelected), PorterDuff.Mode.SRC_ATOP);
@@ -81,7 +78,7 @@ public class RecipeActivity extends AppCompatActivity {
             public void onRatingChanged(RatingBar ratingBar, float rating,
                                         boolean fromUser) {
 
-                Toast.makeText(getApplicationContext(), "рейтинг: " + String.valueOf(rating),
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.rating) + String.valueOf(rating),
                         Toast.LENGTH_LONG).show();
             }
         });
@@ -127,7 +124,7 @@ public class RecipeActivity extends AppCompatActivity {
 
         if (id == R.id.action_save) {
             progressDialog.show();
-            progressDialog.setMessage("Зачекайте, будь ласка" );
+            progressDialog.setMessage(getResources().getString(R.string.progress_vait));
             db = dbHelper.getWritableDatabase();
             ContentValues cvRecipe = new ContentValues();
 
@@ -139,7 +136,7 @@ public class RecipeActivity extends AppCompatActivity {
             cvRecipe.put("description", intent.getStringExtra("description"));
             long rowID = db.insertOrThrow("recipe", null, cvRecipe);
 
-            idRecipe = (int) (long) rowID;
+            idRecipe = (int) rowID;
             FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
             DatabaseReference databaseReference = firebaseDatabase.getReference()
                     .child("Step_recipe/" + intent.getStringExtra("recipeList") + "/" + intent.getStringExtra("recipe"));

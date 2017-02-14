@@ -18,7 +18,7 @@
             app:srcCompat="@drawable/ic_launcher" />
 
         <Button
-            android:id="@+id/btn_detail_recipe"
+            android:id="@+id/btnDetailRecipe"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
@@ -30,7 +30,7 @@
             android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/btn_detail_recipe"
+            android:layout_below="@+id/btnDetailRecipe"
             android:layout_centerHorizontal="true"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"

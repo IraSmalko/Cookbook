@@ -42,7 +42,7 @@ public class AuthenticationActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_authentication);
 
         // Assign fields
-        mSignInButton = (SignInButton) findViewById(R.id.sign_in_button);
+        mSignInButton = (SignInButton) findViewById(R.id.signInButton);
 
         // Set click listeners
         mSignInButton.setOnClickListener(this);
@@ -64,7 +64,7 @@ public class AuthenticationActivity extends AppCompatActivity implements
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.sign_in_button:
+            case R.id.signInButton:
                 signIn();
                 break;
         }

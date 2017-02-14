@@ -25,7 +25,7 @@ public class SelectedRecipeActivity extends AppCompatActivity {
 
         TextView descriptionRecipe = (TextView) findViewById(R.id.textView);
         ImageView imageView = (ImageView) findViewById(R.id.imageView);
-        Button btnDetailRecipe = (Button) findViewById(R.id.btn_detail_recipe);
+        Button btnDetailRecipe = (Button) findViewById(R.id.btnDetailRecipe);
         ActionBar actionBar = getSupportActionBar();
 
         final Intent intent = getIntent();

@@ -18,23 +18,23 @@ import java.util.List;
 
 public class RecipeRecyclerListAdapter extends RecyclerView.Adapter<RecipeRecyclerListAdapter.CustomViewHolder> {
 
-    private Context mContext;
+    private Context context;
     private List<Recipe> items;
     private OnItemClickListenerRecipes onItemClickListener;
 
     class CustomViewHolder extends RecyclerView.ViewHolder {
-        protected TextView mTextView;
-        public ImageView mImageView;
+        protected TextView textView;
+        public ImageView imageView;
 
         public CustomViewHolder(View v) {
             super(v);
-            this.mTextView = (TextView) v.findViewById(R.id.info_text);
-            this.mImageView = (ImageView) v.findViewById(R.id.imageView1);
+            this.textView = (TextView) v.findViewById(R.id.infoText);
+            this.imageView = (ImageView) v.findViewById(R.id.imageView);
         }
     }
 
-    public RecipeRecyclerListAdapter(Context mContext, List<Recipe> items) {
-        this.mContext = mContext;
+    public RecipeRecyclerListAdapter(Context context, List<Recipe> items) {
+        this.context = context;
         this.items = items;
     }
 
@@ -59,8 +59,8 @@ public class RecipeRecyclerListAdapter extends RecyclerView.Adapter<RecipeRecycl
     public void onBindViewHolder(RecipeRecyclerListAdapter.CustomViewHolder holder, int position) {
         final Recipe item = items.get(position);
 
-        holder.mTextView.setText(item.getName());
-        Glide.with(mContext).load(item.getPhotoUrl()).into(holder.mImageView);
+        holder.textView.setText(item.getName());
+        Glide.with(context).load(item.getPhotoUrl()).into(holder.imageView);
 
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
@@ -68,8 +68,8 @@ public class RecipeRecyclerListAdapter extends RecyclerView.Adapter<RecipeRecycl
                 onItemClickListener.onItemClick(item);
             }
         };
-        holder.mTextView.setOnClickListener(listener);
-        holder.mImageView.setOnClickListener(listener);
+        holder.textView.setOnClickListener(listener);
+        holder.imageView.setOnClickListener(listener);
     }
 
     @Override

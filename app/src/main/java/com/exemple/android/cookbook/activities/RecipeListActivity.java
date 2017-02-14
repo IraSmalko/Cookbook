@@ -39,7 +39,7 @@ public class RecipeListActivity extends AppCompatActivity
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.recipe_list_activity);
-        intent = getIntent();
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab1);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,6 +54,8 @@ public class RecipeListActivity extends AppCompatActivity
                 startActivity(intentAddRecipeActivity);
             }
         });
+
+        intent = getIntent();
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = firebaseDatabase.getReference().child("Recipe_lists/" + intent.getStringExtra("recipeList"));

@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.entity.SelectedRecipe;
 
 import java.util.ArrayList;
@@ -19,23 +18,23 @@ import java.util.List;
 
 public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<SelectedRecipeRecyclerListAdapter.CustomViewHolder> {
 
-    private Context mContext;
+    private Context context;
     private List<SelectedRecipe> items;
     private OnItemClickListenerSelectedRecipe onItemClickListener;
 
     class CustomViewHolder extends RecyclerView.ViewHolder {
-        protected TextView mTextView;
-        public ImageView mImageView;
+        protected TextView textView;
+        public ImageView imageView;
 
         public CustomViewHolder(View v) {
             super(v);
-            this.mTextView = (TextView) v.findViewById(R.id.info_text);
-            this.mImageView = (ImageView) v.findViewById(R.id.imageView1);
+            this.textView = (TextView) v.findViewById(R.id.infoText);
+            this.imageView = (ImageView) v.findViewById(R.id.imageView);
         }
     }
 
-    public SelectedRecipeRecyclerListAdapter(Context mContext, List<SelectedRecipe> items) {
-        this.mContext = mContext;
+    public SelectedRecipeRecyclerListAdapter(Context context, List<SelectedRecipe> items) {
+        this.context = context;
         this.items = items;
     }
 
@@ -60,8 +59,8 @@ public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<Sele
     public void onBindViewHolder(SelectedRecipeRecyclerListAdapter.CustomViewHolder holder, int position) {
         final SelectedRecipe item = items.get(position);
 
-        holder.mTextView.setText(item.getName());
-        Glide.with(mContext).load(item.getPhotoUrl()).into(holder.mImageView);
+        holder.textView.setText(item.getName());
+        Glide.with(context).load(item.getPhotoUrl()).into(holder.imageView);
 
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
@@ -69,8 +68,8 @@ public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<Sele
                 onItemClickListener.onItemClick(item);
             }
         };
-        holder.mTextView.setOnClickListener(listener);
-        holder.mImageView.setOnClickListener(listener);
+        holder.textView.setOnClickListener(listener);
+        holder.imageView.setOnClickListener(listener);
     }
 
     @Override

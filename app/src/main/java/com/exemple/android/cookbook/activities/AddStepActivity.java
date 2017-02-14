@@ -65,11 +65,11 @@ public class AddStepActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_step_activity);
 
-        imageView = (ImageView) findViewById(R.id.photo_imageView);
+        imageView = (ImageView) findViewById(R.id.photoImageView);
         inputNameRecipe = (EditText) findViewById(R.id.name);
-        ImageButton btnPhoto_fromGallery = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlGallery);
-        ImageButton btnPhoto_fromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrl);
-        Button btnSave = (Button) findViewById(R.id.btn_save);
+        ImageButton btnPhotoFromGallery = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlGallery);
+        ImageButton btnPhotoFromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrl);
+        Button btnSave = (Button) findViewById(R.id.btnSave);
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
@@ -88,12 +88,12 @@ public class AddStepActivity extends AppCompatActivity {
         if (savedInstanceState != null && savedInstanceState.containsKey("numberStep")) {
             numberStep = savedInstanceState.getInt("numberStep");
         }
-        actionBar.setTitle("Крок " + numberStep);
+        actionBar.setTitle(getResources().getString(R.string.step) + numberStep);
 
         progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Завантаження");
+        progressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
 
-        btnPhoto_fromGallery.setOnClickListener(new View.OnClickListener() {
+        btnPhotoFromGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
@@ -102,7 +102,7 @@ public class AddStepActivity extends AppCompatActivity {
             }
         });
 
-        btnPhoto_fromCamera.setOnClickListener(new View.OnClickListener() {
+        btnPhotoFromCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 photoFromCamera();
@@ -112,7 +112,7 @@ public class AddStepActivity extends AppCompatActivity {
         if (isOnline()){
             btnSave.setOnClickListener(oclBtnSave);
         }else {
-            Toast.makeText(getApplicationContext(), "Відсутній доступ до інтернету!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.not_online), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -148,21 +148,21 @@ public class AddStepActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             if (inputNameRecipe.getText().toString().equals("")) {
-                Toast.makeText(getApplicationContext(), "Додайте опис кроку!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_description_step), Toast.LENGTH_SHORT).show();
             } else {
                 if (downloadUrlCamera != null) {
-                    StepRecipe stepRecipe = new StepRecipe("Крок " + numberStep, inputNameRecipe.getText().toString(), downloadUrlCamera.toString());
+                    StepRecipe stepRecipe = new StepRecipe(getResources().getString(R.string.step) + numberStep, inputNameRecipe.getText().toString(), downloadUrlCamera.toString());
                     String recipeId = databaseReference.push().getKey();
                     databaseReference.child(recipeId).setValue(stepRecipe);
 
-                    Toast.makeText(getApplicationContext(), "Дані збережено.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.data_save), Toast.LENGTH_SHORT).show();
                     numberStep = ++numberStep;
-                    actionBar.setTitle("Крок " + numberStep);
+                    actionBar.setTitle(getResources().getString(R.string.step) + numberStep);
                     imageView.setImageResource(R.drawable.dishes);
                     inputNameRecipe.setText("");
                     downloadUrlCamera = null;
                 } else {
-                    Toast.makeText(getApplicationContext(), "Додайте фото!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_photo), Toast.LENGTH_LONG).show();
                 }
             }
         }
@@ -210,7 +210,7 @@ public class AddStepActivity extends AppCompatActivity {
                         }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                                progressDialog.setMessage("Зачекайте, будь ласка");
+                                progressDialog.setMessage(getResources().getString(R.string.progress_vait));
                             }
                         });
                         imageView.setImageBitmap(selectedBitmap);

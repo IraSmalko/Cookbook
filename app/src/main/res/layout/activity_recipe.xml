@@ -18,10 +18,10 @@
             app:srcCompat="@drawable/ic_launcher" />
 
         <ListView
-            android:id="@+id/list_view"
+            android:id="@+id/listView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/save_comments" />
+            android:layout_below="@+id/saveComments" />
 
         <RatingBar
             android:id="@+id/ratingBar"
@@ -32,7 +32,7 @@
             android:numStars="5" />
 
         <Button
-            android:id="@+id/btn_detail_recipe"
+            android:id="@+id/btnDetailRecipe"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
@@ -44,7 +44,7 @@
             android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/btn_detail_recipe"
+            android:layout_below="@+id/btnDetailRecipe"
             android:layout_centerHorizontal="true"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"

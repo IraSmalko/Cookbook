@@ -38,8 +38,8 @@ public class StepRecipeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.step_recipe_activity);
 
-        txtStepRecipe = (TextView) findViewById(R.id.txt_step_recipe);
-        imgStepRecipe = (ImageView) findViewById(R.id.img_step_recipe);
+        txtStepRecipe = (TextView) findViewById(R.id.txtStepRecipe);
+        imgStepRecipe = (ImageView) findViewById(R.id.imgStepRecipe);
         actionBar = getSupportActionBar();
 
         intent = getIntent();

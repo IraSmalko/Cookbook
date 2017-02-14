@@ -65,12 +65,12 @@ public class AddRecipeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_recipe);
 
-        imageView = (ImageView) findViewById(R.id.photo_imageView);
+        imageView = (ImageView) findViewById(R.id.photoImageView);
         inputNameRecipe = (EditText) findViewById(R.id.name);
-        inputIngredients = (EditText) findViewById(R.id.add_ingredients);
-        ImageButton btnPhoto_fromGallery = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlGallery);
-        ImageButton btnPhoto_fromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrl);
-        Button btnSave = (Button) findViewById(R.id.btn_save);
+        inputIngredients = (EditText) findViewById(R.id.addIngredients);
+        ImageButton btnPhotoFromGallery = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlGallery);
+        ImageButton btnPhotoFromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrl);
+        Button btnSave = (Button) findViewById(R.id.btnSave);
 
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
@@ -84,9 +84,9 @@ public class AddRecipeActivity extends AppCompatActivity {
         firebaseDatabase.getReference("app_title").setValue("Cookbook");
 
         progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Завантаження");
+        progressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
 
-        btnPhoto_fromGallery.setOnClickListener(new View.OnClickListener() {
+        btnPhotoFromGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
@@ -95,7 +95,7 @@ public class AddRecipeActivity extends AppCompatActivity {
             }
         });
 
-        btnPhoto_fromCamera.setOnClickListener(new View.OnClickListener() {
+        btnPhotoFromCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 photoFromCamera();
@@ -105,7 +105,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         if (isOnline()) {
             btnSave.setOnClickListener(oclBtnSave);
         } else {
-            Toast.makeText(getApplicationContext(), "Відсутній доступ до інтернету!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.not_online), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -142,15 +142,15 @@ public class AddRecipeActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             if (inputNameRecipe.getText().toString().equals("")) {
-                Toast.makeText(getApplicationContext(), "Додайте ім'я рецепта!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_recipe_name), Toast.LENGTH_SHORT).show();
             } else if (inputIngredients.getText().toString().equals("")) {
-                Toast.makeText(getApplicationContext(), "Додайте інгридієнти!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_ingredients), Toast.LENGTH_SHORT).show();
             } else if (!nameRecipesList.contains(inputNameRecipe.getText().toString())) {
                 if (downloadUrlCamera != null) {
                     Recipe recipes = new Recipe(inputNameRecipe.getText().toString(), downloadUrlCamera.toString(), inputIngredients.getText().toString());
                     String recipeId = databaseReference.push().getKey();
                     databaseReference.child(recipeId).setValue(recipes);
-                    Toast.makeText(getApplicationContext(), "Дані збережено.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.data_save), Toast.LENGTH_SHORT).show();
                     imageView.setImageResource(R.drawable.dishes);
                     Intent intentAddStepActivity = new Intent(getApplicationContext(), AddStepActivity.class);
                     intentAddStepActivity.putExtra("recipeList", intent.getStringExtra("recipeList"));
@@ -159,10 +159,10 @@ public class AddRecipeActivity extends AppCompatActivity {
                     inputIngredients.setText("");
                     startActivity(intentAddStepActivity);
                 } else {
-                    Toast.makeText(getApplicationContext(), "Додайте фото!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_photo), Toast.LENGTH_LONG).show();
                 }
             } else {
-                Toast.makeText(getApplicationContext(), "Iм'я рецепта вже існує!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.name_recipe_exists), Toast.LENGTH_SHORT).show();
             }
         }
     };
@@ -209,7 +209,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                         }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                                progressDialog.setMessage("Зачекайте, будь ласка");
+                                progressDialog.setMessage(getResources().getString(R.string.progress_vait));
                             }
                         });
                         imageView.setImageBitmap(selectedBitmap);
@@ -227,7 +227,7 @@ public class AddRecipeActivity extends AppCompatActivity {
             if (backPressed == 1) {
                 startActivity(intent1);
             } else if (backPressed == 0) {
-                Toast.makeText(getApplicationContext(), "Введені дані буде втрачено!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.input_will_lost), Toast.LENGTH_SHORT).show();
                 backPressed = 1;
             } else {
                 startActivity(intent1);
