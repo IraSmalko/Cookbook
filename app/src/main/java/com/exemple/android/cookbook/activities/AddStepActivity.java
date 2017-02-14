@@ -2,7 +2,6 @@ package com.exemple.android.cookbook.activities;
 
 
 import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -76,7 +75,7 @@ public class AddStepActivity extends AppCompatActivity {
 
         intent = getIntent();
         databaseReference = firebaseDatabase.getReference()
-                .child("Step_recipe/" + intent.getStringExtra("recipeList") + "/" + intent.getStringExtra("recipe"));;
+                .child("Step_recipe/" + intent.getStringExtra("recipeList") + "/" + intent.getStringExtra("recipe"));
 
         storageReference = firebaseStorage.getReference().child("Step_Recipes" + "/"
                 + intent.getStringExtra("recipeList") + "/" + intent.getStringExtra("recipe"));
@@ -109,9 +108,9 @@ public class AddStepActivity extends AppCompatActivity {
             }
         });
 
-        if (isOnline()){
+        if (isOnline()) {
             btnSave.setOnClickListener(oclBtnSave);
-        }else {
+        } else {
             Toast.makeText(getApplicationContext(), getResources().getString(R.string.not_online), Toast.LENGTH_SHORT).show();
         }
     }
@@ -125,7 +124,8 @@ public class AddStepActivity extends AppCompatActivity {
     }
 
     private void performCrop(Uri picUri) {
-        try {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (intent.resolveActivity(this.getPackageManager()) != null) {
             File file = new File(pictureCropImagePath);
             Uri outputFileUri = Uri.fromFile(file);
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
@@ -138,9 +138,6 @@ public class AddStepActivity extends AppCompatActivity {
             cropIntent.putExtra("return-data", true);
             cropIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
             startActivityForResult(cropIntent, PIC_CROP);
-        } catch (ActivityNotFoundException anfe) {
-            String errorMessage = "Whoops - your device doesn't support the crop action!";
-            Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -229,13 +226,13 @@ public class AddStepActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-            Intent intent1 = new Intent(this, AddRecipeActivity.class);
-            intent1.putExtra("recipeList", intent.getStringExtra("recipeList"));
-            startActivity(intent1);
+        Intent intent1 = new Intent(this, AddRecipeActivity.class);
+        intent1.putExtra("recipeList", intent.getStringExtra("recipeList"));
+        startActivity(intent1);
     }
+
     public boolean isOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }

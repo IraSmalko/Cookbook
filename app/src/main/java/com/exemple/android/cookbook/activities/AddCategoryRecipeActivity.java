@@ -5,8 +5,6 @@ import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -23,8 +21,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.exemple.android.cookbook.PhotoFromCameraHelper;
+import com.exemple.android.cookbook.ProcessPhotoAsyncTask;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
+import com.exemple.android.cookbook.entity.ImageCard;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
@@ -34,14 +35,11 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Random;
 
 public class AddCategoryRecipeActivity extends AppCompatActivity {
 
-    private static final int GALLERY_REQUEST = 1;
-    private static final int CAMERA_RESULT = 0;
     private static final int PIC_CROP = 2;
 
     private EditText inputCategoryName;
@@ -52,10 +50,9 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     private StorageReference storageReference;
     private Uri downloadUrlCamera;
     private int backPressed = 0;
-    private String pictureImagePath = Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/n" + ".jpg";
     private String pictureCropImagePath = Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/4" + ".jpg";
+    PhotoFromCameraHelper photoFromCameraHelper;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,19 +68,25 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
 
+        photoFromCameraHelper = new PhotoFromCameraHelper(AddCategoryRecipeActivity.this, new PhotoFromCameraHelper.OnPhotoPicked() {
+            @Override
+            public void onPicked(Uri photoUri) {
+                final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(AddCategoryRecipeActivity.this, listener);
+                photoAsyncTask.execute(photoUri);
+            }
+        });
+
         btnPhotFromGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                photoPickerIntent.setType("image/*");
-                startActivityForResult(photoPickerIntent, GALLERY_REQUEST);
+                photoFromCameraHelper.pickPhoto();
             }
         });
 
         btnPhotoFromCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                photoFromCamera();
+                photoFromCameraHelper.takePhoto();
             }
         });
 
@@ -99,14 +102,6 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         } else {
             Toast.makeText(getApplicationContext(), getResources().getString(R.string.not_online), Toast.LENGTH_SHORT).show();
         }
-    }
-
-    public void photoFromCamera() {
-        File file = new File(pictureImagePath);
-        Uri outputFileUri = Uri.fromFile(file);
-        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
-        startActivityForResult(cameraIntent, CAMERA_RESULT);
     }
 
     private void performCrop(Uri picUri) {
@@ -150,56 +145,40 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         }
     };
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-
-        switch (requestCode) {
-            case GALLERY_REQUEST:
-                if (resultCode == RESULT_OK) {
-                    Uri selectedImage = imageReturnedIntent.getData();
-                    performCrop(selectedImage);
-                }
-            case CAMERA_RESULT:
-
-                if (requestCode == CAMERA_RESULT) {
-                    performCrop(Uri.fromFile(new File(pictureImagePath)));
-                }
-            case PIC_CROP:
-                if (requestCode == PIC_CROP) {
-                    if (imageReturnedIntent != null) {
-
-                        File imgFile = new File(pictureCropImagePath);
-                        Bitmap selectedBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        selectedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                        byte[] data = baos.toByteArray();
-                        final Random random = new Random();
-                        progressDialog.show();
-
-                        UploadTask uploadTask = storageReference.child("Photo_Сategory_Recipes" + String.valueOf(random.nextInt())).putBytes(data);
-                        uploadTask.addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception exception) {
-                                progressDialog.dismiss();
-                            }
-                        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                downloadUrlCamera = taskSnapshot.getDownloadUrl();
-                                progressDialog.dismiss();
-                            }
-                        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                                progressDialog.setMessage(getResources().getString(R.string.progress_vait));
-                            }
-                        });
-                        imageView.setImageBitmap(selectedBitmap);
-                    }
-                }
-        }
+        photoFromCameraHelper.onActivityResult(resultCode, requestCode, imageReturnedIntent);
     }
+
+    private final ProcessPhotoAsyncTask.OnPhotoProcessed listener = new ProcessPhotoAsyncTask.OnPhotoProcessed() {
+        @Override
+        public void onDataReady(@Nullable ImageCard imageCard) {
+            final Random random = new Random();
+            progressDialog.show();
+            UploadTask uploadTask = storageReference.child("Photo_Сategory_Recipes"
+                    + String.valueOf(random.nextInt())).putBytes(imageCard.getBytesImage());
+            uploadTask.addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    progressDialog.dismiss();
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    downloadUrlCamera = taskSnapshot.getDownloadUrl();
+                    progressDialog.dismiss();
+                }
+            }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                    progressDialog.setMessage(getResources().getString(R.string.progress_vait));
+                }
+            });
+            imageView.setImageBitmap(imageCard.getImage());
+        }
+    };
 
     @Override
     public void onBackPressed() {
