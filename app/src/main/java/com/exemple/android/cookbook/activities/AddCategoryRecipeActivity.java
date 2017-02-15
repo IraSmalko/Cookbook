@@ -36,6 +36,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 
 public class AddCategoryRecipeActivity extends AppCompatActivity {
@@ -86,7 +87,11 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         btnPhotoFromCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                photoFromCameraHelper.takePhoto();
+                try {
+                    photoFromCameraHelper.takePhoto();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
