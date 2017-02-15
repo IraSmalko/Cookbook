@@ -21,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.android.camera.CropImageIntentBuilder;
 import com.exemple.android.cookbook.PhotoFromCameraHelper;
 import com.exemple.android.cookbook.ProcessPhotoAsyncTask;
 import com.exemple.android.cookbook.R;
@@ -42,7 +43,7 @@ import java.util.Random;
 
 public class AddCategoryRecipeActivity extends AppCompatActivity {
 
-    private static final int PIC_CROP = 2;
+    private static int REQUEST_CROP_PICTURE = 2;
     private static final int REQUEST_IMAGE_CAPTURE = 22;
     private static final int GALLERY_REQUEST = 13;
 
@@ -54,9 +55,8 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     private StorageReference storageReference;
     private Uri downloadUrlCamera;
     private int backPressed = 0;
-    private String pictureCropImagePath = Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/4" + ".jpg";
-    PhotoFromCameraHelper photoFromCameraHelper;
+    private Uri pictureCropImageUri;
+    private PhotoFromCameraHelper photoFromCameraHelper;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,13 +75,12 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         photoFromCameraHelper = new PhotoFromCameraHelper(AddCategoryRecipeActivity.this, new PhotoFromCameraHelper.OnPhotoPicked() {
             @Override
             public void onPicked(Uri photoUri) {
-                CropImage.activity(photoUri)
-                        .setGuidelines(CropImageView.Guidelines.ON)
-                        .setMinCropResultSize(660, 480)
-                        .setMaxCropResultSize(660, 480)
-                     //   .setMinCropWindowSize(480, 660)
-                      //  .setMaxCropResultSize(480, 660)
-                        .start(AddCategoryRecipeActivity.this);
+                pictureCropImageUri = photoFromCameraHelper.createFileUriCrop();
+                CropImageIntentBuilder cropImage = new CropImageIntentBuilder(660, 480, pictureCropImageUri);
+                cropImage.setOutlineColor(0xFF03A9F4);
+                cropImage.setSourceImage(photoUri);
+
+                startActivityForResult(cropImage.getIntent(getApplicationContext()), REQUEST_CROP_PICTURE);
             }
         });
 
@@ -98,26 +97,6 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
             btnPhotoFromGallery.setOnClickListener(onClickListener);
         } else {
             Toast.makeText(getApplicationContext(), getResources().getString(R.string.not_online), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void performCrop(Uri picUri) {
-        try {
-            File file = new File(pictureCropImagePath);
-            Uri outputFileUri = Uri.fromFile(file);
-            Intent cropIntent = new Intent("com.android.camera.action.CROP");
-            cropIntent.setDataAndType(picUri, "image/*");
-            cropIntent.putExtra("crop", true);
-            cropIntent.putExtra("aspectX", 33);
-            cropIntent.putExtra("aspectY", 24);
-            cropIntent.putExtra("outputX", 660);
-            cropIntent.putExtra("outputY", 480);
-            cropIntent.putExtra("return-data", true);
-            cropIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
-            startActivityForResult(cropIntent, PIC_CROP);
-        } catch (ActivityNotFoundException anfe) {
-            String errorMessage = "Whoops - your device doesn't support the crop action!";
-            Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -161,12 +140,10 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
         if (requestCode == REQUEST_IMAGE_CAPTURE || requestCode == GALLERY_REQUEST) {
             photoFromCameraHelper.onActivityResult(resultCode, requestCode, imageReturnedIntent);
-        } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(imageReturnedIntent);
+        } else if (requestCode == REQUEST_CROP_PICTURE) {
             if (resultCode == RESULT_OK) {
-                Uri resultUri = result.getUri();
                 final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(AddCategoryRecipeActivity.this, listener);
-                photoAsyncTask.execute(resultUri);
+                photoAsyncTask.execute(pictureCropImageUri);
             }
         }
     }

@@ -67,6 +67,12 @@ public class PhotoFromCameraHelper {
         return FileProvider.getUriForFile(ctx, "com.exemple.android.cookbook", file);
     }
 
+    public Uri createFileUriCrop()  {
+        File file = new File(ctx.getCacheDir(), "photoCrop.jpg");
+
+        return FileProvider.getUriForFile(ctx, "com.exemple.android.cookbook", file);
+    }
+
     public void pickPhoto() {
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
         photoPickerIntent.setType("image/*");
