@@ -49,6 +49,8 @@
             android:name=".activities.SelectedRecipeListActivity"
             android:parentActivityName=".activities.MainActivity" />
         <activity android:name=".activities.SelectedStepRecipeActivity" />
+        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:theme="@style/Base.Theme.AppCompat"/>
 
         <meta-data
             android:name="io.fabric.ApiKey"

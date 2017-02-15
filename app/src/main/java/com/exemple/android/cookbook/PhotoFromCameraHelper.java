@@ -13,6 +13,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 
+import com.exemple.android.cookbook.activities.AddCategoryRecipeActivity;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -20,7 +24,7 @@ import java.util.List;
 public class PhotoFromCameraHelper {
 
     private static final int REQUEST_IMAGE_CAPTURE = 22;
-    private static final int GALLERY_REQUEST = 1;
+    private static final int GALLERY_REQUEST = 13;
 
     private Context ctx;
     @NonNull

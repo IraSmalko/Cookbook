@@ -34,6 +34,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
 import java.util.Random;
@@ -41,6 +43,8 @@ import java.util.Random;
 public class AddCategoryRecipeActivity extends AppCompatActivity {
 
     private static final int PIC_CROP = 2;
+    private static final int REQUEST_IMAGE_CAPTURE = 22;
+    private static final int GALLERY_REQUEST = 13;
 
     private EditText inputCategoryName;
     private ImageView imageView;
@@ -71,8 +75,13 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         photoFromCameraHelper = new PhotoFromCameraHelper(AddCategoryRecipeActivity.this, new PhotoFromCameraHelper.OnPhotoPicked() {
             @Override
             public void onPicked(Uri photoUri) {
-                final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(AddCategoryRecipeActivity.this, listener);
-                photoAsyncTask.execute(photoUri);
+                CropImage.activity(photoUri)
+                        .setGuidelines(CropImageView.Guidelines.ON)
+                        .setMinCropResultSize(660, 480)
+                        .setMaxCropResultSize(660, 480)
+                     //   .setMinCropWindowSize(480, 660)
+                      //  .setMaxCropResultSize(480, 660)
+                        .start(AddCategoryRecipeActivity.this);
             }
         });
 
@@ -150,12 +159,22 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-        photoFromCameraHelper.onActivityResult(resultCode, requestCode, imageReturnedIntent);
+        if (requestCode == REQUEST_IMAGE_CAPTURE || requestCode == GALLERY_REQUEST) {
+            photoFromCameraHelper.onActivityResult(resultCode, requestCode, imageReturnedIntent);
+        } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(imageReturnedIntent);
+            if (resultCode == RESULT_OK) {
+                Uri resultUri = result.getUri();
+                final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(AddCategoryRecipeActivity.this, listener);
+                photoAsyncTask.execute(resultUri);
+            }
+        }
     }
 
     private final ProcessPhotoAsyncTask.OnPhotoProcessed listener = new ProcessPhotoAsyncTask.OnPhotoProcessed() {
         @Override
         public void onDataReady(@Nullable ImageCard imageCard) {
+
             final Random random = new Random();
             progressDialog.show();
             UploadTask uploadTask = storageReference.child("Photo_Сategory_Recipes"
