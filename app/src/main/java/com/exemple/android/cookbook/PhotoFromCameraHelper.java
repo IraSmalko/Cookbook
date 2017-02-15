@@ -34,18 +34,21 @@ public class PhotoFromCameraHelper {
         this.onPhotoPickedListener = onPhotoPickedListener;
     }
 
-    public void takePhoto() throws IOException {
+    public void takePhoto() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(ctx.getPackageManager()) != null) {
 
-            File file = createFileUri();
+            filePath = createFileUri();
 
-            if (file != null) {
-                filePath = FileProvider.getUriForFile(ctx, "com.exemple.android.cookbook", file);
-                List<ResolveInfo> resInfoList = ctx.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+            if (filePath != null) {
+
+                List<ResolveInfo> resInfoList = ctx.getPackageManager().queryIntentActivities(intent,
+                        PackageManager.MATCH_DEFAULT_ONLY);
+
                 for (ResolveInfo resolveInfo : resInfoList) {
                     String packageName = resolveInfo.activityInfo.packageName;
-                    ctx.grantUriPermission(packageName, filePath, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    ctx.grantUriPermission(packageName, filePath, Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                            | Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 }
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, filePath);
                 ActivityCompat.startActivityForResult(
@@ -54,10 +57,10 @@ public class PhotoFromCameraHelper {
         }
     }
 
-    private File createFileUri() throws IOException {
+    private Uri createFileUri()  {
         File file = new File(ctx.getCacheDir(), "photo.jpg");
 
-        return file;
+        return FileProvider.getUriForFile(ctx, "com.exemple.android.cookbook", file);
     }
 
     public void pickPhoto() {

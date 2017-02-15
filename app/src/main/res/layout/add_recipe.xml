@@ -58,7 +58,7 @@
             ads:srcCompat="@android:drawable/ic_menu_gallery" />
 
         <ImageButton
-            android:id="@+id/categoryRecipesPhotoUrl"
+            android:id="@+id/categoryRecipesPhotoUrlCamera"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

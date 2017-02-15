@@ -69,7 +69,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         inputNameRecipe = (EditText) findViewById(R.id.name);
         inputIngredients = (EditText) findViewById(R.id.addIngredients);
         ImageButton btnPhotoFromGallery = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlGallery);
-        ImageButton btnPhotoFromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrl);
+        ImageButton btnPhotoFromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlCamera);
         Button btnSave = (Button) findViewById(R.id.btnSave);
 
 

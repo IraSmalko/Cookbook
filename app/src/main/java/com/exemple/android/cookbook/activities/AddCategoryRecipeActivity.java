@@ -36,7 +36,6 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Random;
 
 public class AddCategoryRecipeActivity extends AppCompatActivity {
@@ -62,8 +61,8 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
 
         imageView = (ImageView) findViewById(R.id.photoImageView);
         inputCategoryName = (EditText) findViewById(R.id.name);
-        ImageButton btnPhotFromGallery = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlGallery);
-        ImageButton btnPhotoFromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrl);
+        ImageButton btnPhotoFromGallery = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlGallery);
+        ImageButton btnPhotoFromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlCamera);
         Button btnSave = (Button) findViewById(R.id.btnSave);
 
         progressDialog = new ProgressDialog(this);
@@ -77,24 +76,6 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
             }
         });
 
-        btnPhotFromGallery.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                photoFromCameraHelper.pickPhoto();
-            }
-        });
-
-        btnPhotoFromCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    photoFromCameraHelper.takePhoto();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
 
@@ -103,7 +84,9 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         firebaseDatabase.getReference("app_title").setValue("Cookbook");
 
         if (isOnline()) {
-            btnSave.setOnClickListener(oclBtnSave);
+            btnSave.setOnClickListener(onClickListener);
+            btnPhotoFromCamera.setOnClickListener(onClickListener);
+            btnPhotoFromGallery.setOnClickListener(onClickListener);
         } else {
             Toast.makeText(getApplicationContext(), getResources().getString(R.string.not_online), Toast.LENGTH_SHORT).show();
         }
@@ -129,23 +112,36 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         }
     }
 
-    View.OnClickListener oclBtnSave = new View.OnClickListener() {
+    View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (inputCategoryName.getText().toString().equals("")) {
-                Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_category_name), Toast.LENGTH_SHORT).show();
-            } else {
-                if (downloadUrlCamera != null) {
-                    CategoryRecipes categoryRecipes = new CategoryRecipes(inputCategoryName.getText().toString(), downloadUrlCamera.toString());
-                    String recipeId = databaseReference.push().getKey();
-                    databaseReference.child(recipeId).setValue(categoryRecipes);
-                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.data_save), Toast.LENGTH_SHORT).show();
-                    imageView.setImageResource(R.drawable.dishes);
-                    inputCategoryName.setText("");
-                    downloadUrlCamera = null;
-                } else {
-                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.invalid_input), Toast.LENGTH_LONG).show();
-                }
+            switch (v.getId()) {
+
+                case R.id.categoryRecipesPhotoUrlGallery:
+                    photoFromCameraHelper.pickPhoto();
+                    break;
+
+                case R.id.categoryRecipesPhotoUrlCamera:
+                    photoFromCameraHelper.takePhoto();
+                    break;
+
+                case R.id.btnSave:
+                    if (inputCategoryName.getText().toString().equals("")) {
+                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_category_name), Toast.LENGTH_SHORT).show();
+                    } else {
+                        if (downloadUrlCamera != null) {
+                            CategoryRecipes categoryRecipes = new CategoryRecipes(inputCategoryName.getText().toString(), downloadUrlCamera.toString());
+                            String recipeId = databaseReference.push().getKey();
+                            databaseReference.child(recipeId).setValue(categoryRecipes);
+                            Toast.makeText(getApplicationContext(), getResources().getString(R.string.data_save), Toast.LENGTH_SHORT).show();
+                            imageView.setImageResource(R.drawable.dishes);
+                            inputCategoryName.setText("");
+                            downloadUrlCamera = null;
+                        } else {
+                            Toast.makeText(getApplicationContext(), getResources().getString(R.string.invalid_input), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    break;
             }
         }
     };

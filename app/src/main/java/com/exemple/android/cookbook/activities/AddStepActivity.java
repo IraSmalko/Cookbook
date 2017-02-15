@@ -67,7 +67,7 @@ public class AddStepActivity extends AppCompatActivity {
         imageView = (ImageView) findViewById(R.id.photoImageView);
         inputNameRecipe = (EditText) findViewById(R.id.name);
         ImageButton btnPhotoFromGallery = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlGallery);
-        ImageButton btnPhotoFromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrl);
+        ImageButton btnPhotoFromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlCamera);
         Button btnSave = (Button) findViewById(R.id.btnSave);
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();

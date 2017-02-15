@@ -186,8 +186,6 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_search:
                 return true;
         }
-        int id = item.getItemId();
-
         return super.onOptionsItemSelected(item);
     }
 
