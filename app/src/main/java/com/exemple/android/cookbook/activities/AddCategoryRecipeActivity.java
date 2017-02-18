@@ -2,15 +2,12 @@ package com.exemple.android.cookbook.activities;
 
 
 import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -35,15 +32,12 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 
-import java.io.File;
 import java.util.Random;
 
 public class AddCategoryRecipeActivity extends AppCompatActivity {
 
-    private static int REQUEST_CROP_PICTURE = 2;
+    private static final int REQUEST_CROP_PICTURE = 2;
     private static final int REQUEST_IMAGE_CAPTURE = 22;
     private static final int GALLERY_REQUEST = 13;
 
@@ -79,7 +73,6 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
                 CropImageIntentBuilder cropImage = new CropImageIntentBuilder(660, 480, pictureCropImageUri);
                 cropImage.setOutlineColor(0xFF03A9F4);
                 cropImage.setSourceImage(photoUri);
-
                 startActivityForResult(cropImage.getIntent(getApplicationContext()), REQUEST_CROP_PICTURE);
             }
         });
@@ -118,7 +111,8 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_category_name), Toast.LENGTH_SHORT).show();
                     } else {
                         if (downloadUrlCamera != null) {
-                            CategoryRecipes categoryRecipes = new CategoryRecipes(inputCategoryName.getText().toString(), downloadUrlCamera.toString());
+                            CategoryRecipes categoryRecipes = new CategoryRecipes(inputCategoryName.getText().toString(),
+                                    downloadUrlCamera.toString());
                             String recipeId = databaseReference.push().getKey();
                             databaseReference.child(recipeId).setValue(categoryRecipes);
                             Toast.makeText(getApplicationContext(), getResources().getString(R.string.data_save), Toast.LENGTH_SHORT).show();
@@ -126,7 +120,8 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
                             inputCategoryName.setText("");
                             downloadUrlCamera = null;
                         } else {
-                            Toast.makeText(getApplicationContext(), getResources().getString(R.string.invalid_input), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), getResources().getString(R.string.invalid_input),
+                                    Toast.LENGTH_LONG).show();
                         }
                     }
                     break;
@@ -180,14 +175,16 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (!inputCategoryName.getText().toString().equals("") || downloadUrlCamera != null) {
-            if (backPressed == 1) {
-                startActivity(new Intent(this, MainActivity.class));
-            } else if (backPressed == 0) {
+            int backPressedTrue = 1;
+            int backPressedTFalse = 0;
+            if (backPressed == backPressedTrue) {
+                super.onBackPressed();
+            } else if (backPressed == backPressedTFalse) {
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.input_will_lost), Toast.LENGTH_SHORT).show();
-                backPressed = 1;
+                backPressed = backPressedTrue;
             }
         } else {
-            startActivity(new Intent(this, MainActivity.class));
+            super.onBackPressed();
         }
     }
 
