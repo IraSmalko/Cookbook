@@ -140,17 +140,17 @@ public class MainActivity extends AppCompatActivity
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
                     categoryRecipesList.add(categoryRecipes);
-                    myAdapter = new CategoryRecipeRecyclerAdapter(getApplicationContext(), categoryRecipesList);
+                    myAdapter = new CategoryRecipeRecyclerAdapter(getApplicationContext(), categoryRecipesList,
+                            new CategoryRecipeRecyclerAdapter.ItemClickListener() {
+                                @Override
+                                public void onItemClick(CategoryRecipes item) {
+                                    Intent intent = new Intent(getApplicationContext(), RecipeListActivity.class);
+                                    intent.putExtra(RECIPE_LIST, item.getName());
+                                    startActivity(intent);
+                                }
+                            });
                     recyclerView.setAdapter(myAdapter);
                 }
-                myAdapter.setOnItemClickListener(new OnItemClickListenerCategoryRecipes() {
-                    @Override
-                    public void onItemClick(CategoryRecipes categoryRecipes) {
-                        Intent intent = new Intent(getApplicationContext(), RecipeListActivity.class);
-                        intent.putExtra(RECIPE_LIST, categoryRecipes.getName());
-                        startActivity(intent);
-                    }
-                });
             }
 
             @Override
@@ -204,7 +204,7 @@ public class MainActivity extends AppCompatActivity
             if (name.contains(newText))
                 newList.add(categoryRecipes);
         }
-        myAdapter.setFilter(newList);
+        myAdapter.updateAdapter(newList);
         return true;
     }
 
