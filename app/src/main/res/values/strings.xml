@@ -38,4 +38,6 @@
     <string name="example_voice_recognition">Супи</string>
     <string name="rating">рейтинг: </string>
 
+    <string name="voice_recognition_intent">AndroidBite Voice Recognition…</string>
+
 </resources>

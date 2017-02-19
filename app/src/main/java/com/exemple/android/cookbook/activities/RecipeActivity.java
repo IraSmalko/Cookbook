@@ -17,9 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -85,7 +83,9 @@ public class RecipeActivity extends AppCompatActivity {
 
         intent = getIntent();
 
-        actionBar.setTitle(intent.getStringExtra("recipe"));
+        if (actionBar != null) {
+            actionBar.setTitle(intent.getStringExtra("recipe"));
+        }
         Glide.with(getApplicationContext())
                 .load(intent.getStringExtra("photo"))
                 .asBitmap()
