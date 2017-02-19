@@ -44,9 +44,9 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     private StorageReference storageReference;
     private Uri downloadUrlCamera;
     private int backPressed = 0;
-    private Uri pictureCropImageUri;
     private PhotoFromCameraHelper photoFromCameraHelper;
     private FirebaseHelper firebaseHelper;
+    private CropHelper cropHelper;
     private Context context = AddCategoryRecipeActivity.this;
 
     @Override
@@ -63,10 +63,24 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(context);
         progressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
 
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+
+        databaseReference = firebaseDatabase.getReference(REFERENCE);
+        storageReference = firebaseStorage.getReference().child(STORAGE_REFERENCE);
+
+        cropHelper = new CropHelper(context, new CropHelper.OnCrop() {
+            @Override
+            public void onCrop(Uri cropImageUri) {
+                final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(context, listener);
+                photoAsyncTask.execute(cropImageUri);
+            }
+        });
+
         photoFromCameraHelper = new PhotoFromCameraHelper(context, new PhotoFromCameraHelper.OnPhotoPicked() {
             @Override
             public void onPicked(Uri photoUri) {
-                pictureCropImageUri = new CropHelper(context).cropImage(photoUri);
+                cropHelper.cropImage(photoUri);
             }
         });
 
@@ -78,11 +92,7 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
             }
         });
 
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
 
-        databaseReference = firebaseDatabase.getReference(REFERENCE);
-        storageReference = firebaseStorage.getReference().child(STORAGE_REFERENCE);
 
         boolean isOnline = new CheckOnlineHelper(context).isOnline();
         if (isOnline) {
@@ -90,7 +100,7 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
             btnPhotoFromCamera.setOnClickListener(onClickListener);
             btnPhotoFromGallery.setOnClickListener(onClickListener);
         } else {
-            Toast.makeText(getApplicationContext(), getResources()
+            Toast.makeText(context, getResources()
                     .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
         }
     }
@@ -135,8 +145,7 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
             photoFromCameraHelper.onActivityResult(resultCode, requestCode, imageReturnedIntent);
         } else if (requestCode == REQUEST_CROP_PICTURE) {
             if (resultCode == RESULT_OK) {
-                final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(context, listener);
-                photoAsyncTask.execute(pictureCropImageUri);
+                cropHelper.onActivityResult(resultCode, requestCode);
             }
         }
     }

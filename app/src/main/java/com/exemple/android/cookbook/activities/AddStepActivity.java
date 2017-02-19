@@ -16,7 +16,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.android.camera.CropImageIntentBuilder;
 import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.CropHelper;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
@@ -46,9 +45,9 @@ public class AddStepActivity extends AppCompatActivity {
     private Uri downloadUrlCamera;
     private int numberStep = 1;
     private Intent intent;
-    private Uri pictureCropImageUri;
     private PhotoFromCameraHelper photoFromCameraHelper;
     private FirebaseHelper firebaseHelper;
+    private CropHelper cropHelper;
     private Context context = AddStepActivity.this;
 
     @Override
@@ -65,21 +64,6 @@ public class AddStepActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
 
-        photoFromCameraHelper = new PhotoFromCameraHelper(context, new PhotoFromCameraHelper.OnPhotoPicked() {
-            @Override
-            public void onPicked(Uri photoUri) {
-                pictureCropImageUri = new CropHelper(context).cropImage(photoUri);
-            }
-        });
-
-        firebaseHelper = new FirebaseHelper(new FirebaseHelper.OnSaveImage() {
-            @Override
-            public void OnSave(Uri photoUri) {
-                downloadUrlCamera = photoUri;
-                progressDialog.dismiss();
-            }
-        });
-
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
 
@@ -95,6 +79,29 @@ public class AddStepActivity extends AppCompatActivity {
             numberStep = savedInstanceState.getInt("numberStep");
         }
         actionBar.setTitle(getResources().getString(R.string.step) + numberStep);
+
+        photoFromCameraHelper = new PhotoFromCameraHelper(context, new PhotoFromCameraHelper.OnPhotoPicked() {
+            @Override
+            public void onPicked(Uri photoUri) {
+                cropHelper.cropImage(photoUri);
+            }
+        });
+
+        firebaseHelper = new FirebaseHelper(new FirebaseHelper.OnSaveImage() {
+            @Override
+            public void OnSave(Uri photoUri) {
+                downloadUrlCamera = photoUri;
+                progressDialog.dismiss();
+            }
+        });
+
+        cropHelper = new CropHelper(context, new CropHelper.OnCrop() {
+            @Override
+            public void onCrop(Uri cropImageUri) {
+                final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(context, listener);
+                photoAsyncTask.execute(cropImageUri);
+            }
+        });
 
         boolean isOnline = new CheckOnlineHelper(context).isOnline();
         if (isOnline) {
@@ -153,8 +160,7 @@ public class AddStepActivity extends AppCompatActivity {
             photoFromCameraHelper.onActivityResult(resultCode, requestCode, imageReturnedIntent);
         } else if (requestCode == REQUEST_CROP_PICTURE) {
             if (resultCode == RESULT_OK) {
-                final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(context, listener);
-                photoAsyncTask.execute(pictureCropImageUri);
+                cropHelper.onActivityResult(resultCode, requestCode);
             }
         }
     }

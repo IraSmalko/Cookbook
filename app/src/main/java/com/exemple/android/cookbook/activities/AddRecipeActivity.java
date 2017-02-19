@@ -46,9 +46,9 @@ public class AddRecipeActivity extends AppCompatActivity {
     private ArrayList<String> nameRecipesList = new ArrayList<>();
     private int backPressed = 0;
     private Intent intent;
-    private Uri pictureCropImageUri;
     private PhotoFromCameraHelper photoFromCameraHelper;
     private FirebaseHelper firebaseHelper;
+    private CropHelper cropHelper;
     private Context context = AddRecipeActivity.this;
 
     @Override
@@ -69,7 +69,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         photoFromCameraHelper = new PhotoFromCameraHelper(context, new PhotoFromCameraHelper.OnPhotoPicked() {
             @Override
             public void onPicked(Uri photoUri) {
-                pictureCropImageUri = new CropHelper(context).cropImage(photoUri);
+                cropHelper.cropImage(photoUri);
             }
         });
 
@@ -78,6 +78,14 @@ public class AddRecipeActivity extends AppCompatActivity {
             public void OnSave(Uri photoUri) {
                 downloadUrlCamera = photoUri;
                 progressDialog.dismiss();
+            }
+        });
+
+        cropHelper = new CropHelper(context, new CropHelper.OnCrop() {
+            @Override
+            public void onCrop(Uri cropImageUri) {
+                final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(context, listener);
+                photoAsyncTask.execute(cropImageUri);
             }
         });
 
@@ -147,8 +155,7 @@ public class AddRecipeActivity extends AppCompatActivity {
             photoFromCameraHelper.onActivityResult(resultCode, requestCode, imageReturnedIntent);
         } else if (requestCode == REQUEST_CROP_PICTURE) {
             if (resultCode == RESULT_OK) {
-                final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(context, listener);
-                photoAsyncTask.execute(pictureCropImageUri);
+                cropHelper.onActivityResult(resultCode, requestCode);
             }
         }
     }
