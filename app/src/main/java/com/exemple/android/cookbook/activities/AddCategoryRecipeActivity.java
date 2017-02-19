@@ -8,7 +8,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -19,27 +18,24 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.camera.CropImageIntentBuilder;
+import com.exemple.android.cookbook.FirebaseHelper;
 import com.exemple.android.cookbook.PhotoFromCameraHelper;
 import com.exemple.android.cookbook.ProcessPhotoAsyncTask;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.ImageCard;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-
-import java.util.Random;
 
 public class AddCategoryRecipeActivity extends AppCompatActivity {
 
     private static final int REQUEST_CROP_PICTURE = 2;
     private static final int REQUEST_IMAGE_CAPTURE = 22;
     private static final int GALLERY_REQUEST = 13;
+    private static final String REFERENCE = "Сategory_Recipes";
+    private static final String STORAGE_REFERENCE = "Photo_Сategory_Recipes";
 
     private EditText inputCategoryName;
     private ImageView imageView;
@@ -51,6 +47,7 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     private int backPressed = 0;
     private Uri pictureCropImageUri;
     private PhotoFromCameraHelper photoFromCameraHelper;
+    private FirebaseHelper firebaseHelper;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,12 +74,19 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
             }
         });
 
+        firebaseHelper = new FirebaseHelper(new FirebaseHelper.OnSaveImage() {
+            @Override
+            public void OnSave(Uri photoUri) {
+                downloadUrlCamera = photoUri;
+                progressDialog.dismiss();
+            }
+        });
+
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
 
-        databaseReference = firebaseDatabase.getReference("Сategory_Recipes");
-        storageReference = firebaseStorage.getReference().child("Photo_Сategory_Recipes");
-        firebaseDatabase.getReference("app_title").setValue("Cookbook");
+        databaseReference = firebaseDatabase.getReference(REFERENCE);
+        storageReference = firebaseStorage.getReference().child(STORAGE_REFERENCE);
 
         if (isOnline()) {
             btnSave.setOnClickListener(onClickListener);
@@ -101,11 +105,9 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
                 case R.id.categoryRecipesPhotoUrlGallery:
                     photoFromCameraHelper.pickPhoto();
                     break;
-
                 case R.id.categoryRecipesPhotoUrlCamera:
                     photoFromCameraHelper.takePhoto();
                     break;
-
                 case R.id.btnSave:
                     if (inputCategoryName.getText().toString().equals("")) {
                         Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_category_name), Toast.LENGTH_SHORT).show();
@@ -129,7 +131,6 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         }
     };
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
@@ -146,29 +147,12 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     private final ProcessPhotoAsyncTask.OnPhotoProcessed listener = new ProcessPhotoAsyncTask.OnPhotoProcessed() {
         @Override
         public void onDataReady(@Nullable ImageCard imageCard) {
-
-            final Random random = new Random();
+            if (imageCard != null) {
+                imageView.setImageBitmap(imageCard.getImage());
+            }
+            progressDialog.setMessage(getResources().getString(R.string.progress_vait));
             progressDialog.show();
-            UploadTask uploadTask = storageReference.child("Photo_Сategory_Recipes"
-                    + String.valueOf(random.nextInt())).putBytes(imageCard.getBytesImage());
-            uploadTask.addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    progressDialog.dismiss();
-                }
-            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    downloadUrlCamera = taskSnapshot.getDownloadUrl();
-                    progressDialog.dismiss();
-                }
-            }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                    progressDialog.setMessage(getResources().getString(R.string.progress_vait));
-                }
-            });
-            imageView.setImageBitmap(imageCard.getImage());
+            firebaseHelper.saveImage(storageReference, imageCard);
         }
     };
 
