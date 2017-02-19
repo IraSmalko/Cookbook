@@ -15,14 +15,14 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.android.camera.CropImageIntentBuilder;
-import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
-import com.exemple.android.cookbook.helpers.FirebaseHelper;
-import com.exemple.android.cookbook.helpers.PhotoFromCameraHelper;
 import com.exemple.android.cookbook.ProcessPhotoAsyncTask;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.ImageCard;
+import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
+import com.exemple.android.cookbook.helpers.CropHelper;
+import com.exemple.android.cookbook.helpers.FirebaseHelper;
+import com.exemple.android.cookbook.helpers.PhotoFromCameraHelper;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -66,11 +66,7 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         photoFromCameraHelper = new PhotoFromCameraHelper(context, new PhotoFromCameraHelper.OnPhotoPicked() {
             @Override
             public void onPicked(Uri photoUri) {
-                pictureCropImageUri = photoFromCameraHelper.createFileUriCrop();
-                CropImageIntentBuilder cropImage = new CropImageIntentBuilder(660, 480, pictureCropImageUri);
-                cropImage.setOutlineColor(0xFF03A9F4);
-                cropImage.setSourceImage(photoUri);
-                startActivityForResult(cropImage.getIntent(context), REQUEST_CROP_PICTURE);
+                pictureCropImageUri = new CropHelper(context).cropImage(photoUri);
             }
         });
 
@@ -94,7 +90,8 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
             btnPhotoFromCamera.setOnClickListener(onClickListener);
             btnPhotoFromGallery.setOnClickListener(onClickListener);
         } else {
-            Toast.makeText(getApplicationContext(), getResources().getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getResources()
+                    .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -102,7 +99,6 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-
                 case R.id.categoryRecipesPhotoUrlGallery:
                     photoFromCameraHelper.pickPhoto();
                     break;

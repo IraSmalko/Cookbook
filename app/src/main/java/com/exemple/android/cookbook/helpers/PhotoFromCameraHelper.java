@@ -21,58 +21,50 @@ public class PhotoFromCameraHelper {
     private static final int REQUEST_IMAGE_CAPTURE = 22;
     private static final int GALLERY_REQUEST = 13;
 
-    private Context ctx;
+    private Context context;
     @NonNull
     private OnPhotoPicked onPhotoPickedListener;
 
-
     private Uri filePath;
 
-    public PhotoFromCameraHelper(Context ctx, @NonNull OnPhotoPicked onPhotoPickedListener) {
-        this.ctx = ctx;
+    public PhotoFromCameraHelper(Context context, @NonNull OnPhotoPicked onPhotoPickedListener) {
+        this.context = context;
         this.onPhotoPickedListener = onPhotoPickedListener;
     }
 
     public void takePhoto() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (intent.resolveActivity(ctx.getPackageManager()) != null) {
+        if (intent.resolveActivity(context.getPackageManager()) != null) {
 
             filePath = createFileUri();
 
             if (filePath != null) {
-
-                List<ResolveInfo> resInfoList = ctx.getPackageManager().queryIntentActivities(intent,
+                List<ResolveInfo> resInfoList = context.getPackageManager().queryIntentActivities(intent,
                         PackageManager.MATCH_DEFAULT_ONLY);
 
                 for (ResolveInfo resolveInfo : resInfoList) {
                     String packageName = resolveInfo.activityInfo.packageName;
-                    ctx.grantUriPermission(packageName, filePath, Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    context.grantUriPermission(packageName, filePath, Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                             | Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 }
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, filePath);
                 ActivityCompat.startActivityForResult(
-                        (AppCompatActivity) ctx, intent, REQUEST_IMAGE_CAPTURE, null);
+                        (AppCompatActivity) context, intent, REQUEST_IMAGE_CAPTURE, null);
             }
         }
     }
 
     private Uri createFileUri()  {
-        File file = new File(ctx.getCacheDir(), "photo.jpg");
+        File file = new File(context.getCacheDir(), "photo.jpg");
 
-        return FileProvider.getUriForFile(ctx, "com.exemple.android.cookbook", file);
-    }
-
-    public Uri createFileUriCrop()  {
-        File file = new File(ctx.getCacheDir(), "photoCrop.jpg");
-
-        return FileProvider.getUriForFile(ctx, "com.exemple.android.cookbook", file);
+        return FileProvider.getUriForFile(context, "com.exemple.android.cookbook", file);
     }
 
     public void pickPhoto() {
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
         photoPickerIntent.setType("image/*");
         ActivityCompat.startActivityForResult(
-                (AppCompatActivity) ctx, photoPickerIntent, GALLERY_REQUEST, null);
+                (AppCompatActivity) context, photoPickerIntent, GALLERY_REQUEST, null);
     }
 
     public void onActivityResult(int resultCode, int requestCode, Intent data) {
