@@ -4,8 +4,6 @@ package com.exemple.android.cookbook.activities;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -19,8 +17,9 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.camera.CropImageIntentBuilder;
-import com.exemple.android.cookbook.FirebaseHelper;
-import com.exemple.android.cookbook.PhotoFromCameraHelper;
+import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
+import com.exemple.android.cookbook.helpers.FirebaseHelper;
+import com.exemple.android.cookbook.helpers.PhotoFromCameraHelper;
 import com.exemple.android.cookbook.ProcessPhotoAsyncTask;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.ImageCard;
@@ -49,6 +48,7 @@ public class AddStepActivity extends AppCompatActivity {
     private Uri pictureCropImageUri;
     private PhotoFromCameraHelper photoFromCameraHelper;
     private FirebaseHelper firebaseHelper;
+    private Context context = AddStepActivity.this;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,14 +64,14 @@ public class AddStepActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
 
-        photoFromCameraHelper = new PhotoFromCameraHelper(AddStepActivity.this, new PhotoFromCameraHelper.OnPhotoPicked() {
+        photoFromCameraHelper = new PhotoFromCameraHelper(context, new PhotoFromCameraHelper.OnPhotoPicked() {
             @Override
             public void onPicked(Uri photoUri) {
                 pictureCropImageUri = photoFromCameraHelper.createFileUriCrop();
                 CropImageIntentBuilder cropImage = new CropImageIntentBuilder(660, 480, pictureCropImageUri);
                 cropImage.setOutlineColor(0xFF03A9F4);
                 cropImage.setSourceImage(photoUri);
-                startActivityForResult(cropImage.getIntent(getApplicationContext()), REQUEST_CROP_PICTURE);
+                startActivityForResult(cropImage.getIntent(context), REQUEST_CROP_PICTURE);
             }
         });
 
@@ -87,10 +87,10 @@ public class AddStepActivity extends AppCompatActivity {
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
 
         intent = getIntent();
-        databaseReference = firebaseDatabase.getReference()
-                .child("Step_recipe/" + intent.getStringExtra("recipeList") + "/" + intent.getStringExtra("recipe"));
-        storageReference = firebaseStorage.getReference().child("Step_Recipes" + "/"
-                + intent.getStringExtra("recipeList") + "/" + intent.getStringExtra("recipe"));
+        databaseReference = firebaseDatabase.getReference().child("Step_recipe/" + intent
+                .getStringExtra("recipeList") + "/" + intent.getStringExtra("recipe"));
+        storageReference = firebaseStorage.getReference().child("Step_Recipes" + "/" + intent
+                .getStringExtra("recipeList") + "/" + intent.getStringExtra("recipe"));
 
         actionBar = getSupportActionBar();
 
@@ -99,12 +99,14 @@ public class AddStepActivity extends AppCompatActivity {
         }
         actionBar.setTitle(getResources().getString(R.string.step) + numberStep);
 
-        if (isOnline()) {
+        boolean isOnline = new CheckOnlineHelper(context).isOnline();
+        if (isOnline) {
             btnSave.setOnClickListener(onClickListener);
             btnPhotoFromCamera.setOnClickListener(onClickListener);
             btnPhotoFromGallery.setOnClickListener(onClickListener);
         } else {
-            Toast.makeText(getApplicationContext(), getResources().getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, getResources()
+                    .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -112,7 +114,6 @@ public class AddStepActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-
                 case R.id.categoryRecipesPhotoUrlGallery:
                     photoFromCameraHelper.pickPhoto();
                     break;
@@ -121,25 +122,26 @@ public class AddStepActivity extends AppCompatActivity {
                     break;
                 case R.id.btnSave:
                     if (inputNameRecipe.getText().toString().equals("")) {
-                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_description_step),
-                                Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, getResources()
+                                .getString(R.string.no_description_step), Toast.LENGTH_SHORT).show();
                     } else {
                         if (downloadUrlCamera != null) {
-                            StepRecipe stepRecipe = new StepRecipe(getResources().getString(R.string.step) + numberStep,
-                                    inputNameRecipe.getText().toString(), downloadUrlCamera.toString());
+                            StepRecipe stepRecipe = new StepRecipe(getResources()
+                                    .getString(R.string.step) + numberStep, inputNameRecipe
+                                    .getText().toString(), downloadUrlCamera.toString());
                             String recipeId = databaseReference.push().getKey();
                             databaseReference.child(recipeId).setValue(stepRecipe);
 
-                            Toast.makeText(getApplicationContext(), getResources().getString(R.string.data_save),
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, getResources()
+                                    .getString(R.string.data_save), Toast.LENGTH_SHORT).show();
                             numberStep = ++numberStep;
                             actionBar.setTitle(getResources().getString(R.string.step) + numberStep);
                             imageView.setImageResource(R.drawable.dishes);
                             inputNameRecipe.setText("");
                             downloadUrlCamera = null;
                         } else {
-                            Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_photo),
-                                    Toast.LENGTH_LONG).show();
+                            Toast.makeText(context, getResources()
+                                    .getString(R.string.no_photo), Toast.LENGTH_LONG).show();
                         }
                     }
                     break;
@@ -154,7 +156,7 @@ public class AddStepActivity extends AppCompatActivity {
             photoFromCameraHelper.onActivityResult(resultCode, requestCode, imageReturnedIntent);
         } else if (requestCode == REQUEST_CROP_PICTURE) {
             if (resultCode == RESULT_OK) {
-                final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(AddStepActivity.this, listener);
+                final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(context, listener);
                 photoAsyncTask.execute(pictureCropImageUri);
             }
         }
@@ -186,11 +188,5 @@ public class AddStepActivity extends AppCompatActivity {
         Intent intent1 = new Intent(this, AddRecipeActivity.class);
         intent1.putExtra("recipeList", intent.getStringExtra("recipeList"));
         startActivity(intent1);
-    }
-
-    public boolean isOnline() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

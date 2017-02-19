@@ -4,8 +4,6 @@ package com.exemple.android.cookbook.activities;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -18,8 +16,9 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.camera.CropImageIntentBuilder;
-import com.exemple.android.cookbook.FirebaseHelper;
-import com.exemple.android.cookbook.PhotoFromCameraHelper;
+import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
+import com.exemple.android.cookbook.helpers.FirebaseHelper;
+import com.exemple.android.cookbook.helpers.PhotoFromCameraHelper;
 import com.exemple.android.cookbook.ProcessPhotoAsyncTask;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
@@ -48,6 +47,7 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     private Uri pictureCropImageUri;
     private PhotoFromCameraHelper photoFromCameraHelper;
     private FirebaseHelper firebaseHelper;
+    private Context context = AddCategoryRecipeActivity.this;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,17 +60,17 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         ImageButton btnPhotoFromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlCamera);
         Button btnSave = (Button) findViewById(R.id.btnSave);
 
-        progressDialog = new ProgressDialog(this);
+        progressDialog = new ProgressDialog(context);
         progressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
 
-        photoFromCameraHelper = new PhotoFromCameraHelper(AddCategoryRecipeActivity.this, new PhotoFromCameraHelper.OnPhotoPicked() {
+        photoFromCameraHelper = new PhotoFromCameraHelper(context, new PhotoFromCameraHelper.OnPhotoPicked() {
             @Override
             public void onPicked(Uri photoUri) {
                 pictureCropImageUri = photoFromCameraHelper.createFileUriCrop();
                 CropImageIntentBuilder cropImage = new CropImageIntentBuilder(660, 480, pictureCropImageUri);
                 cropImage.setOutlineColor(0xFF03A9F4);
                 cropImage.setSourceImage(photoUri);
-                startActivityForResult(cropImage.getIntent(getApplicationContext()), REQUEST_CROP_PICTURE);
+                startActivityForResult(cropImage.getIntent(context), REQUEST_CROP_PICTURE);
             }
         });
 
@@ -88,7 +88,8 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         databaseReference = firebaseDatabase.getReference(REFERENCE);
         storageReference = firebaseStorage.getReference().child(STORAGE_REFERENCE);
 
-        if (isOnline()) {
+        boolean isOnline = new CheckOnlineHelper(context).isOnline();
+        if (isOnline) {
             btnSave.setOnClickListener(onClickListener);
             btnPhotoFromCamera.setOnClickListener(onClickListener);
             btnPhotoFromGallery.setOnClickListener(onClickListener);
@@ -110,7 +111,7 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
                     break;
                 case R.id.btnSave:
                     if (inputCategoryName.getText().toString().equals("")) {
-                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_category_name), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, getResources().getString(R.string.no_category_name), Toast.LENGTH_SHORT).show();
                     } else {
                         if (downloadUrlCamera != null) {
                             CategoryRecipes categoryRecipes = new CategoryRecipes(inputCategoryName.getText().toString(),
@@ -138,7 +139,7 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
             photoFromCameraHelper.onActivityResult(resultCode, requestCode, imageReturnedIntent);
         } else if (requestCode == REQUEST_CROP_PICTURE) {
             if (resultCode == RESULT_OK) {
-                final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(AddCategoryRecipeActivity.this, listener);
+                final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(context, listener);
                 photoAsyncTask.execute(pictureCropImageUri);
             }
         }
@@ -170,12 +171,5 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         } else {
             super.onBackPressed();
         }
-    }
-
-    public boolean isOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }
