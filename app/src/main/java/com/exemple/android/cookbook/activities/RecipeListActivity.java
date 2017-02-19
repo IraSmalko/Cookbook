@@ -16,7 +16,6 @@ import android.view.View;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
-import com.exemple.android.cookbook.adapters.OnItemClickListenerRecipes;
 import com.exemple.android.cookbook.entity.Recipe;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -70,21 +69,19 @@ public class RecipeListActivity extends AppCompatActivity
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Recipe recipes = postSnapshot.getValue(Recipe.class);
                     recipesList.add(recipes);
-                    recipeRecyclerAdapter = new RecipeRecyclerListAdapter(getApplicationContext(), recipesList);
+                    recipeRecyclerAdapter = new RecipeRecyclerListAdapter(getApplicationContext(), recipesList,
+                            new RecipeRecyclerListAdapter.ItemClickListener() {
+                                @Override
+                                public void onItemClick(Recipe item) {
+                                    Intent intent1 = new Intent(getApplicationContext(), RecipeActivity.class);
+                                    intent1.putExtra("recipe", item.getName());
+                                    intent1.putExtra("photo", item.getPhotoUrl());
+                                    intent1.putExtra("description", item.getDescription());
+                                    intent1.putExtra("recipeList", intent.getStringExtra("recipeList"));
+                                    startActivity(intent1);
+                                }
+                            });
                     recyclerView.setAdapter(recipeRecyclerAdapter);
-                }
-                if (recipesList.size() != 0) {
-                    recipeRecyclerAdapter.setOnItemClickListener(new OnItemClickListenerRecipes() {
-                        @Override
-                        public void onItemClick(Recipe recipes) {
-                            Intent intent1 = new Intent(getApplicationContext(), RecipeActivity.class);
-                            intent1.putExtra("recipe", recipes.getName());
-                            intent1.putExtra("photo", recipes.getPhotoUrl());
-                            intent1.putExtra("description", recipes.getDescription());
-                            intent1.putExtra("recipeList", intent.getStringExtra("recipeList"));
-                            startActivity(intent1);
-                        }
-                    });
                 }
             }
 
@@ -128,7 +125,7 @@ public class RecipeListActivity extends AppCompatActivity
             if (name.contains(newText))
                 newList.add(recipes);
         }
-        recipeRecyclerAdapter.setFilter(newList);
+        recipeRecyclerAdapter.updateAdapter(newList);
         return true;
     }
 }

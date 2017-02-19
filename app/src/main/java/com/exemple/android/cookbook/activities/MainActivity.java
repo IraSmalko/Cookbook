@@ -31,7 +31,6 @@ import com.bumptech.glide.Glide;
 import com.crashlytics.android.Crashlytics;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
-import com.exemple.android.cookbook.adapters.OnItemClickListenerCategoryRecipes;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;

@@ -11,7 +11,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.adapters.OnItemClickListenerSelectedRecipe;
 import com.exemple.android.cookbook.adapters.SelectedRecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.entity.SelectedRecipe;
 import com.exemple.android.cookbook.supporting.DBHelper;
@@ -47,20 +46,19 @@ public class SelectedRecipeListActivity extends AppCompatActivity {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        SelectedRecipeRecyclerListAdapter recipeRecyclerAdapter = new SelectedRecipeRecyclerListAdapter(this, recipesList);
+        SelectedRecipeRecyclerListAdapter recipeRecyclerAdapter =
+                new SelectedRecipeRecyclerListAdapter(this, recipesList, new SelectedRecipeRecyclerListAdapter.ItemClickListener() {
+                    @Override
+                    public void onItemClick(SelectedRecipe item) {
+                        Intent intent = new Intent(getApplicationContext(), SelectedRecipeActivity.class);
+                        intent.putExtra("recipe", item.getName());
+                        intent.putExtra("photo", item.getPhotoUrl());
+                        intent.putExtra("description", item.getDescription());
+                        intent.putExtra("id_recipe", item.getIdRecipe());
+                        startActivity(intent);
+                    }
+                });
         recyclerView.setAdapter(recipeRecyclerAdapter);
-
-        recipeRecyclerAdapter.setOnItemClickListener(new OnItemClickListenerSelectedRecipe() {
-            @Override
-            public void onItemClick(SelectedRecipe selectedRecipe) {
-                Intent intent = new Intent(getApplicationContext(), SelectedRecipeActivity.class);
-                intent.putExtra("recipe", selectedRecipe.getName());
-                intent.putExtra("photo", selectedRecipe.getPhotoUrl());
-                intent.putExtra("description", selectedRecipe.getDescription());
-                intent.putExtra("id_recipe", selectedRecipe.getIdRecipe());
-                startActivity(intent);
-            }
-        });
     }
 
 }
