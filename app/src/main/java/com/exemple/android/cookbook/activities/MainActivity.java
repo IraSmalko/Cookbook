@@ -32,6 +32,7 @@ import com.crashlytics.android.Crashlytics;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
+import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -58,14 +59,14 @@ public class MainActivity extends AppCompatActivity
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
 
-    public static final String ANONYMOUS = "anonymous";
-
     private String username;
     private String photoUrl;
     private GoogleApiClient googleApiClient;
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    public static final String ANONYMOUS = "anonymous";
     private String RECIPE_LIST = "recipeList";
+    private static final String REFERENCE = "Сategory_Recipes";
     private static final int REQUEST_CODE = 1234;
 
     private RecyclerView recyclerView;
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity
 
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference databaseReference = firebaseDatabase.getReference("Сategory_Recipes");
+        DatabaseReference databaseReference = firebaseDatabase.getReference(REFERENCE);
 
         recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -143,9 +144,7 @@ public class MainActivity extends AppCompatActivity
                             new CategoryRecipeRecyclerAdapter.ItemClickListener() {
                                 @Override
                                 public void onItemClick(CategoryRecipes item) {
-                                    Intent intent = new Intent(getApplicationContext(), RecipeListActivity.class);
-                                    intent.putExtra(RECIPE_LIST, item.getName());
-                                    startActivity(intent);
+                                    IntentHelper.intentRecipeListActivity(getApplicationContext(), item.getName());
                                 }
                             });
                     recyclerView.setAdapter(myAdapter);
@@ -250,23 +249,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
 //        if (sensorEvent.values[0] == 0) {
-//            startVoiceRecognitionActivity();
+//            IntentHelper.startVoiceRecognitionActivity(getApplicationContext());
 //            // near
-//
-//
 //        }
     }
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
-
-//    private void startVoiceRecognitionActivity() {
-//        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-//        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getResources().getString(R.string.voice_recognition_intent));
-//        startActivityForResult(intent, REQUEST_CODE);
-//    }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.CropHelper;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
+import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.helpers.PhotoFromCameraHelper;
 import com.exemple.android.cookbook.ProcessPhotoAsyncTask;
 import com.exemple.android.cookbook.R;
@@ -34,6 +35,9 @@ public class AddStepActivity extends AppCompatActivity {
     private static final int REQUEST_CROP_PICTURE = 2;
     private static final int REQUEST_IMAGE_CAPTURE = 22;
     private static final int GALLERY_REQUEST = 13;
+    private static final String RECIPE_LIST = "recipeList";
+    private static final String RECIPE ="recipe";
+    private static final String NUMBER_STEP = "numberStep";
 
     private EditText inputNameRecipe;
     private ImageView imageView;
@@ -69,14 +73,14 @@ public class AddStepActivity extends AppCompatActivity {
 
         intent = getIntent();
         databaseReference = firebaseDatabase.getReference().child("Step_recipe/" + intent
-                .getStringExtra("recipeList") + "/" + intent.getStringExtra("recipe"));
+                .getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE));
         storageReference = firebaseStorage.getReference().child("Step_Recipes" + "/" + intent
-                .getStringExtra("recipeList") + "/" + intent.getStringExtra("recipe"));
+                .getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE));
 
         actionBar = getSupportActionBar();
 
-        if (savedInstanceState != null && savedInstanceState.containsKey("numberStep")) {
-            numberStep = savedInstanceState.getInt("numberStep");
+        if (savedInstanceState != null && savedInstanceState.containsKey(NUMBER_STEP)) {
+            numberStep = savedInstanceState.getInt(NUMBER_STEP);
         }
         actionBar.setTitle(getResources().getString(R.string.step) + numberStep);
 
@@ -182,14 +186,12 @@ public class AddStepActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         int noSaveStepNumber = 1;
         if (numberStep > noSaveStepNumber) {
-            outState.putInt("numberStep", numberStep);
+            outState.putInt(NUMBER_STEP, numberStep);
         }
     }
 
     @Override
     public void onBackPressed() {
-        Intent intent1 = new Intent(this, AddRecipeActivity.class);
-        intent1.putExtra("recipeList", intent.getStringExtra("recipeList"));
-        startActivity(intent1);
+        IntentHelper.intentRecipeListActivity(context, intent.getStringExtra(RECIPE_LIST));
     }
 }

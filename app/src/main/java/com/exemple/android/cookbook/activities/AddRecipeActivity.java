@@ -15,14 +15,15 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
-import com.exemple.android.cookbook.helpers.CropHelper;
-import com.exemple.android.cookbook.helpers.FirebaseHelper;
-import com.exemple.android.cookbook.helpers.PhotoFromCameraHelper;
 import com.exemple.android.cookbook.ProcessPhotoAsyncTask;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.ImageCard;
 import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
+import com.exemple.android.cookbook.helpers.CropHelper;
+import com.exemple.android.cookbook.helpers.FirebaseHelper;
+import com.exemple.android.cookbook.helpers.IntentHelper;
+import com.exemple.android.cookbook.helpers.PhotoFromCameraHelper;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -35,6 +36,8 @@ public class AddRecipeActivity extends AppCompatActivity {
     private static final int REQUEST_CROP_PICTURE = 2;
     private static final int REQUEST_IMAGE_CAPTURE = 22;
     private static final int GALLERY_REQUEST = 13;
+    private static final String RECIPE_LIST = "recipeList";
+    private static final String ARRAY_LIST_RECIPE = "ArrayListRecipe";
 
     private EditText inputNameRecipe, inputIngredients;
     private ImageView imageView;
@@ -93,9 +96,9 @@ public class AddRecipeActivity extends AppCompatActivity {
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
 
         intent = getIntent();
-        nameRecipesList = intent.getStringArrayListExtra("ArrayListRecipe");
-        databaseReference = firebaseDatabase.getReference().child("Recipe_lists/" + intent.getStringExtra("recipeList"));
-        storageReference = firebaseStorage.getReference().child("Recipe" + "/" + intent.getStringExtra("recipeList"));
+        nameRecipesList = intent.getStringArrayListExtra(ARRAY_LIST_RECIPE);
+        databaseReference = firebaseDatabase.getReference().child("Recipe_lists/" + intent.getStringExtra(RECIPE_LIST));
+        storageReference = firebaseStorage.getReference().child("Recipe" + "/" + intent.getStringExtra(RECIPE_LIST));
 
         boolean isOnline = new CheckOnlineHelper(context).isOnline();
         if (isOnline) {
@@ -131,12 +134,8 @@ public class AddRecipeActivity extends AppCompatActivity {
                             databaseReference.child(recipeId).setValue(recipes);
                             Toast.makeText(context, getResources().getString(R.string.data_save), Toast.LENGTH_SHORT).show();
                             imageView.setImageResource(R.drawable.dishes);
-                            Intent intentAddStepActivity = new Intent(context, AddStepActivity.class);
-                            intentAddStepActivity.putExtra("recipeList", intent.getStringExtra("recipeList"));
-                            intentAddStepActivity.putExtra("recipe", inputNameRecipe.getText().toString());
-                            inputNameRecipe.setText("");
-                            inputIngredients.setText("");
-                            startActivity(intentAddStepActivity);
+                            IntentHelper.intentAddStepActivity(context, intent
+                                    .getStringExtra(RECIPE_LIST), inputNameRecipe.getText().toString());
                         } else {
                             Toast.makeText(context, getResources().getString(R.string.no_photo), Toast.LENGTH_LONG).show();
                         }
@@ -174,22 +173,20 @@ public class AddRecipeActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent intent1 = new Intent(this, RecipeListActivity.class);
-        intent1.putExtra("recipeList", intent.getStringExtra("recipeList"));
         if (!inputNameRecipe.getText().toString().equals("") || downloadUrlCamera != null
                 || !inputIngredients.getText().toString().equals("")) {
             int backPressedTrue = 1;
             int backPressedTFalse = 0;
             if (backPressed == backPressedTrue) {
-                startActivity(intent1);
+                IntentHelper.intentRecipeListActivity(context, intent.getStringExtra(RECIPE_LIST));
             } else if (backPressed == backPressedTFalse) {
                 Toast.makeText(context, getResources().getString(R.string.input_will_lost), Toast.LENGTH_SHORT).show();
                 backPressed = backPressedTrue;
             } else {
-                startActivity(intent1);
+                IntentHelper.intentRecipeListActivity(context, intent.getStringExtra(RECIPE_LIST));
             }
         } else {
-            startActivity(intent1);
+            IntentHelper.intentRecipeListActivity(context, intent.getStringExtra(RECIPE_LIST));
         }
     }
 }

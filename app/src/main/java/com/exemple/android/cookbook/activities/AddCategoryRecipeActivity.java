@@ -117,20 +117,22 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
                     break;
                 case R.id.btnSave:
                     if (inputCategoryName.getText().toString().equals("")) {
-                        Toast.makeText(context, getResources().getString(R.string.no_category_name), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, getResources()
+                                .getString(R.string.no_category_name), Toast.LENGTH_SHORT).show();
                     } else {
                         if (downloadUrlCamera != null) {
-                            CategoryRecipes categoryRecipes = new CategoryRecipes(inputCategoryName.getText().toString(),
-                                    downloadUrlCamera.toString());
+                            CategoryRecipes categoryRecipes = new CategoryRecipes(inputCategoryName
+                                    .getText().toString(), downloadUrlCamera.toString());
                             String recipeId = databaseReference.push().getKey();
                             databaseReference.child(recipeId).setValue(categoryRecipes);
-                            Toast.makeText(getApplicationContext(), getResources().getString(R.string.data_save), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, getResources()
+                                    .getString(R.string.data_save), Toast.LENGTH_SHORT).show();
                             imageView.setImageResource(R.drawable.dishes);
                             inputCategoryName.setText("");
                             downloadUrlCamera = null;
                         } else {
-                            Toast.makeText(getApplicationContext(), getResources().getString(R.string.invalid_input),
-                                    Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), getResources()
+                                    .getString(R.string.invalid_input), Toast.LENGTH_LONG).show();
                         }
                     }
                     break;
@@ -170,7 +172,7 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
             if (backPressed == backPressedTrue) {
                 super.onBackPressed();
             } else if (backPressed == backPressedTFalse) {
-                Toast.makeText(getApplicationContext(), getResources().getString(R.string.input_will_lost), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, getResources().getString(R.string.input_will_lost), Toast.LENGTH_SHORT).show();
                 backPressed = backPressedTrue;
             }
         } else {

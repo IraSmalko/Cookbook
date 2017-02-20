@@ -19,7 +19,6 @@ repositories {
     }
     maven { url 'https://maven.fabric.io/public' }
 
-
 }
 
 android {
@@ -47,6 +46,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 }
@@ -74,7 +74,7 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'me.villani.lorenzo.android:android-cropimage:1.1.0'
-    
+
     compile('com.crashlytics.sdk.android:crashlytics:2.6.6@aar') {
         transitive = true;
     }

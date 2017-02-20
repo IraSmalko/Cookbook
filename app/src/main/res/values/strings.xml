@@ -34,6 +34,7 @@
     <string name="progress_vait">Зачекайте, будь ласка</string>
     <string name="input_will_lost">Введені дані буде втрачено</string>
     <string name="step">Крок </string>
+    <string name="no_information_available">Інформація відсутня</string>
 
     <string name="example_voice_recognition">Супи</string>
     <string name="rating">рейтинг: </string>

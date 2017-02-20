@@ -27,6 +27,7 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.StepRecipe;
+import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.supporting.DBHelper;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -38,6 +39,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeActivity extends AppCompatActivity {
+
+    private static final String RECIPE_LIST = "recipeList";
+    private static final String RECIPE = "recipe";
+    private static final String PHOTO = "photo";
+    private static final String DESCRIPTION = "description";
+    private static final String ID_RECIPE = "id_recipe";
+    private static final String TEXT_STEP = "text_step";
+    private static final String PHOTO_STEP = "photo_step";
+    private static final String NUMBER_STEP = "numberStep";
+    private static final String STEP_RECIPE = "step_recipe";
 
     private DBHelper dbHelper;
     private Intent intent;
@@ -71,12 +82,11 @@ public class RecipeActivity extends AppCompatActivity {
         stars.getDrawable(0).setColorFilter(ContextCompat.getColor(this, R.color.starNotSelected), PorterDuff.Mode.SRC_ATOP);
 
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
-
             @Override
             public void onRatingChanged(RatingBar ratingBar, float rating,
                                         boolean fromUser) {
 
-                Toast.makeText(getApplicationContext(), getResources().getString(R.string.rating) + String.valueOf(rating),
+                Toast.makeText(RecipeActivity.this, getResources().getString(R.string.rating) + String.valueOf(rating),
                         Toast.LENGTH_LONG).show();
             }
         });
@@ -84,10 +94,10 @@ public class RecipeActivity extends AppCompatActivity {
         intent = getIntent();
 
         if (actionBar != null) {
-            actionBar.setTitle(intent.getStringExtra("recipe"));
+            actionBar.setTitle(intent.getStringExtra(RECIPE));
         }
         Glide.with(getApplicationContext())
-                .load(intent.getStringExtra("photo"))
+                .load(intent.getStringExtra(PHOTO))
                 .asBitmap()
                 .into(new SimpleTarget<Bitmap>(660, 480) {
                     @Override
@@ -97,17 +107,14 @@ public class RecipeActivity extends AppCompatActivity {
                     }
                 });
 
-        descriptionRecipe.setText(intent.getStringExtra("description"));
+        descriptionRecipe.setText(intent.getStringExtra(DESCRIPTION));
 
         btnDetailRecipe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intentStepRecipeActivity = new Intent(getApplicationContext(), StepRecipeActivity.class);
-                intentStepRecipeActivity.putExtra("recipe", intent.getStringExtra("recipe"));
-                intentStepRecipeActivity.putExtra("photo", intent.getStringExtra("photo"));
-                intentStepRecipeActivity.putExtra("description", intent.getStringExtra("description"));
-                intentStepRecipeActivity.putExtra("recipeList", intent.getStringExtra("recipeList"));
-                startActivity(new Intent(intentStepRecipeActivity));
+                IntentHelper.intentStepRecipeActivity(getApplicationContext(), intent
+                        .getStringExtra(RECIPE), intent.getStringExtra(PHOTO), intent
+                        .getStringExtra(DESCRIPTION), intent.getStringExtra(RECIPE_LIST));
             }
         });
     }
@@ -131,15 +138,15 @@ public class RecipeActivity extends AppCompatActivity {
             String path = MediaStore.Images.Media.insertImage(getContentResolver(),
                     loadPhotoStep, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
 
-            cvRecipe.put("recipe", intent.getStringExtra("recipe"));
-            cvRecipe.put("photo", path);
-            cvRecipe.put("description", intent.getStringExtra("description"));
-            long rowID = db.insertOrThrow("recipe", null, cvRecipe);
+            cvRecipe.put(RECIPE, intent.getStringExtra(RECIPE));
+            cvRecipe.put(PHOTO, path);
+            cvRecipe.put(DESCRIPTION, intent.getStringExtra(DESCRIPTION));
+            long rowID = db.insertOrThrow(RECIPE, null, cvRecipe);
 
             idRecipe = (int) rowID;
             FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
             DatabaseReference databaseReference = firebaseDatabase.getReference()
-                    .child("Step_recipe/" + intent.getStringExtra("recipeList") + "/" + intent.getStringExtra("recipe"));
+                    .child("Step_recipe/" + intent.getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE));
 
             databaseReference.addValueEventListener(new ValueEventListener() {
                 @Override
@@ -156,10 +163,8 @@ public class RecipeActivity extends AppCompatActivity {
                 }
             });
             return true;
-        }else if(id == android.R.id.home) {
-            Intent intent1 = new Intent(this, RecipeListActivity.class);
-            intent1.putExtra("recipeList", intent.getStringExtra("recipeList"));
-            startActivity(intent1);
+        } else if (id == android.R.id.home) {
+            IntentHelper.intentRecipeListActivity(this, intent.getStringExtra(RECIPE_LIST));
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -187,19 +192,17 @@ public class RecipeActivity extends AppCompatActivity {
 
     public void saveSteps(String path) {
         ContentValues cvStepRecipe = new ContentValues();
-        cvStepRecipe.put("id_recipe", idRecipe);
-        cvStepRecipe.put("number_step", stepRecipe.get(iterator).getNumberStep());
-        cvStepRecipe.put("text_step", stepRecipe.get(iterator).getTextStep());
-        cvStepRecipe.put("photo_step", path);
-        db.insertOrThrow("step_recipe", null, cvStepRecipe);
+        cvStepRecipe.put(ID_RECIPE, idRecipe);
+        cvStepRecipe.put(NUMBER_STEP, stepRecipe.get(iterator).getNumberStep());
+        cvStepRecipe.put(TEXT_STEP, stepRecipe.get(iterator).getTextStep());
+        cvStepRecipe.put(PHOTO_STEP, path);
+        db.insertOrThrow(STEP_RECIPE, null, cvStepRecipe);
         iterator = ++iterator;
         loadPhoto();
     }
 
     @Override
     public void onBackPressed() {
-        Intent intent1 = new Intent(this, RecipeListActivity.class);
-        intent1.putExtra("recipeList", intent.getStringExtra("recipeList"));
-        startActivity(intent1);
+        IntentHelper.intentRecipeListActivity(this, intent.getStringExtra(RECIPE_LIST));
     }
 }

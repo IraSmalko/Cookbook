@@ -1,7 +1,6 @@
 package com.exemple.android.cookbook.activities;
 
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -13,12 +12,18 @@ import android.support.v7.widget.RecyclerView;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.SelectedRecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.entity.SelectedRecipe;
+import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.supporting.DBHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SelectedRecipeListActivity extends AppCompatActivity {
+
+    private static final String RECIPE = "recipe";
+    private static final String PHOTO = "photo";
+    private static final String DESCRIPTION = "description";
+    private static final String ID = "id";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -28,16 +33,17 @@ public class SelectedRecipeListActivity extends AppCompatActivity {
         List<SelectedRecipe> recipesList = new ArrayList<>();
         DBHelper dbHelper = new DBHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor c = db.query("recipe", null, null, null, null, null, null);
+        Cursor c = db.query(RECIPE, null, null, null, null, null, null);
 
         if (c.moveToFirst()) {
             do {
-                int idColIndex = c.getColumnIndex("id");
-                int recipeColIndex = c.getColumnIndex("recipe");
-                int photoColIndex = c.getColumnIndex("photo");
-                int descriptionColIndex = c.getColumnIndex("description");
+                int idColIndex = c.getColumnIndex(ID);
+                int recipeColIndex = c.getColumnIndex(RECIPE);
+                int photoColIndex = c.getColumnIndex(PHOTO);
+                int descriptionColIndex = c.getColumnIndex(DESCRIPTION);
 
-                recipesList.add(new SelectedRecipe(c.getString(recipeColIndex), c.getString(photoColIndex), c.getString(descriptionColIndex), c.getInt(idColIndex)));
+                recipesList.add(new SelectedRecipe(c.getString(recipeColIndex), c
+                        .getString(photoColIndex), c.getString(descriptionColIndex), c.getInt(idColIndex)));
             } while (c.moveToNext());
         } else {
             c.close();
@@ -50,12 +56,8 @@ public class SelectedRecipeListActivity extends AppCompatActivity {
                 new SelectedRecipeRecyclerListAdapter(this, recipesList, new SelectedRecipeRecyclerListAdapter.ItemClickListener() {
                     @Override
                     public void onItemClick(SelectedRecipe item) {
-                        Intent intent = new Intent(getApplicationContext(), SelectedRecipeActivity.class);
-                        intent.putExtra("recipe", item.getName());
-                        intent.putExtra("photo", item.getPhotoUrl());
-                        intent.putExtra("description", item.getDescription());
-                        intent.putExtra("id_recipe", item.getIdRecipe());
-                        startActivity(intent);
+                        IntentHelper.intentSelectedRecipeActivity(getApplicationContext(), item
+                                .getName(), item.getPhotoUrl(), item.getDescription(), item.getIdRecipe());
                     }
                 });
         recyclerView.setAdapter(recipeRecyclerAdapter);

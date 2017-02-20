@@ -13,10 +13,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.helpers.IntentHelper;
 
 import java.io.IOException;
 
 public class SelectedRecipeActivity extends AppCompatActivity {
+
+    private static final int INT_EXTRA = 0;
+    private static final String RECIPE = "recipe";
+    private static final String DESCRIPTION = "description";
+    private static final String PHOTO = "photo";
+    private static final String ID_RECIPE = "id_recipe";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,11 +37,12 @@ public class SelectedRecipeActivity extends AppCompatActivity {
 
         final Intent intent = getIntent();
 
-        actionBar.setTitle(intent.getStringExtra("recipe"));
-        descriptionRecipe.setText(intent.getStringExtra("description"));
+        actionBar.setTitle(intent.getStringExtra(RECIPE));
+        descriptionRecipe.setText(intent.getStringExtra(DESCRIPTION));
 
         try {
-            imageView.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(intent.getStringExtra("photo"))));
+            imageView.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
+                    .parse(intent.getStringExtra(PHOTO))));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -42,12 +50,9 @@ public class SelectedRecipeActivity extends AppCompatActivity {
         btnDetailRecipe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent1 = new Intent(getApplicationContext(), SelectedStepRecipeActivity.class);
-                intent1.putExtra("recipe", intent.getStringExtra("recipe"));
-                intent1.putExtra("photo", intent.getStringExtra("photo"));
-                intent1.putExtra("description", intent.getStringExtra("description"));
-                intent1.putExtra("id_recipe", intent.getIntExtra("id_recipe", 0));
-                startActivity(intent1);
+                IntentHelper.intentSelectedStepRecipeActivity(getApplicationContext(), intent
+                        .getStringExtra(RECIPE), intent.getStringExtra(PHOTO), intent
+                        .getStringExtra(DESCRIPTION), intent.getIntExtra(ID_RECIPE, INT_EXTRA));
             }
         });
     }

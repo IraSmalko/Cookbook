@@ -1,6 +1,7 @@
 package com.exemple.android.cookbook.activities;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import android.view.View;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -29,10 +31,13 @@ import java.util.List;
 public class RecipeListActivity extends AppCompatActivity
         implements SearchView.OnQueryTextListener {
 
+    private static final String RECIPE_LIST = "recipeList";
+
     private List<Recipe> recipesList = new ArrayList<>();
     private RecipeRecyclerListAdapter recipeRecyclerAdapter;
     private Intent intent;
     private RecyclerView recyclerView;
+    private Context context = RecipeListActivity.this;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,17 +52,16 @@ public class RecipeListActivity extends AppCompatActivity
                 for (int i = 0; i < recipesList.size(); i++) {
                     nameRecipesList.add(recipesList.get(i).getName());
                 }
-                Intent intentAddRecipeActivity = new Intent(getApplicationContext(), AddRecipeActivity.class);
-                intentAddRecipeActivity.putExtra("recipeList", intent.getStringExtra("recipeList"));
-                intentAddRecipeActivity.putStringArrayListExtra("ArrayListRecipe", nameRecipesList);
-                startActivity(intentAddRecipeActivity);
+                IntentHelper.intentAddRecipeActivity(context, nameRecipesList, intent
+                        .getStringExtra(RECIPE_LIST));
             }
         });
 
         intent = getIntent();
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference databaseReference = firebaseDatabase.getReference().child("Recipe_lists/" + intent.getStringExtra("recipeList"));
+        DatabaseReference databaseReference = firebaseDatabase.getReference()
+                .child("Recipe_lists/" + intent.getStringExtra(RECIPE_LIST));
 
         recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -69,16 +73,12 @@ public class RecipeListActivity extends AppCompatActivity
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Recipe recipes = postSnapshot.getValue(Recipe.class);
                     recipesList.add(recipes);
-                    recipeRecyclerAdapter = new RecipeRecyclerListAdapter(getApplicationContext(), recipesList,
+                    recipeRecyclerAdapter = new RecipeRecyclerListAdapter(context, recipesList,
                             new RecipeRecyclerListAdapter.ItemClickListener() {
                                 @Override
                                 public void onItemClick(Recipe item) {
-                                    Intent intent1 = new Intent(getApplicationContext(), RecipeActivity.class);
-                                    intent1.putExtra("recipe", item.getName());
-                                    intent1.putExtra("photo", item.getPhotoUrl());
-                                    intent1.putExtra("description", item.getDescription());
-                                    intent1.putExtra("recipeList", intent.getStringExtra("recipeList"));
-                                    startActivity(intent1);
+                                    IntentHelper.intentRecipeActivity(context, item.getName(), item
+                                            .getPhotoUrl(), item.getDescription(), intent.getStringExtra(RECIPE_LIST));
                                 }
                             });
                     recyclerView.setAdapter(recipeRecyclerAdapter);

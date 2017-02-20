@@ -1,6 +1,7 @@
 package com.exemple.android.cookbook.activities;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.SelectedStepRecipe;
+import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.supporting.DBHelper;
 
 import java.io.IOException;
@@ -26,12 +28,22 @@ import java.util.List;
 
 public class SelectedStepRecipeActivity extends AppCompatActivity {
 
+    private static final int INT_EXTRA = 0;
+    private static final String RECIPE = "recipe";
+    private static final String PHOTO = "photo";
+    private static final String DESCRIPTION = "description";
+    private static final String ID_RECIPE = "id_recipe";
+    private static final String TEXT_STEP = "text_step";
+    private static final String PHOTO_STEP = "photo_step";
+    private static final String NUMBER_STEP = "numberStep";
+
     private List<SelectedStepRecipe> selectedStepRecipes = new ArrayList<>();
     private int index = 0;
     private ActionBar actionBar;
     private TextView txtStepRecipe;
     private ImageView imgStepRecipe;
     private Intent intent;
+    private Context context = SelectedStepRecipeActivity.this;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,27 +58,31 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
 
         DBHelper dbHelper = new DBHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor c = db.rawQuery("SELECT * FROM step_recipe WHERE id_recipe" + " == " + intent.getIntExtra("id_recipe", 0), null);
+        Cursor c = db.rawQuery("SELECT * FROM step_recipe WHERE id_recipe" + " == " + intent
+                .getIntExtra(ID_RECIPE, INT_EXTRA), null);
 
         if (c.moveToFirst()) {
             do {
-                int idColIndex = c.getColumnIndex("id_recipe");
-                int numberStepColIndex = c.getColumnIndex("number_step");
-                int textStepColIndex = c.getColumnIndex("text_step");
-                int photoStepColIndex = c.getColumnIndex("photo_step");
+                int idColIndex = c.getColumnIndex(ID_RECIPE);
+                int numberStepColIndex = c.getColumnIndex(NUMBER_STEP);
+                int textStepColIndex = c.getColumnIndex(TEXT_STEP);
+                int photoStepColIndex = c.getColumnIndex(PHOTO_STEP);
 
-                selectedStepRecipes.add(new SelectedStepRecipe(c.getString(numberStepColIndex), c.getString(textStepColIndex), c.getString(photoStepColIndex), c.getInt(idColIndex)));
+                selectedStepRecipes.add(new SelectedStepRecipe(c.getString(numberStepColIndex), c
+                        .getString(textStepColIndex), c.getString(photoStepColIndex), c.getInt(idColIndex)));
             } while (c.moveToNext());
             actionBar.setTitle(selectedStepRecipes.get(0).getNumberStep());
             txtStepRecipe.setText(selectedStepRecipes.get(0).getTextStep());
             try {
-                imgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(selectedStepRecipes.get(0).getPhotoUrlStep())));
+                imgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
+                        .parse(selectedStepRecipes.get(0).getPhotoUrlStep())));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
             c.close();
-            Toast.makeText(getApplicationContext(), "Інформація відсутня", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, getResources().getString(R.string
+                    .no_information_available), Toast.LENGTH_SHORT).show();
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_step);
@@ -84,17 +100,15 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
             actionBar.setTitle(selectedStepRecipes.get(i).getNumberStep());
             txtStepRecipe.setText(selectedStepRecipes.get(i).getTextStep());
             try {
-                imgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(selectedStepRecipes.get(i).getPhotoUrlStep())));
+                imgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
+                        .parse(selectedStepRecipes.get(i).getPhotoUrlStep())));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-            Intent intent1 = new Intent(this, SelectedRecipeActivity.class);
-            intent1.putExtra("recipe", intent.getStringExtra("recipe"));
-            intent1.putExtra("photo", intent.getStringExtra("photo"));
-            intent1.putExtra("description", intent.getStringExtra("description"));
-            intent1.putExtra("id_recipe", intent.getIntExtra("id_recipe", 0));
-            startActivity(intent1);
+            IntentHelper.intentSelectedRecipeActivity(context, intent.getStringExtra(RECIPE), intent
+                    .getStringExtra(PHOTO), intent.getStringExtra(DESCRIPTION), intent
+                    .getIntExtra(ID_RECIPE, INT_EXTRA));
         }
     }
 }
