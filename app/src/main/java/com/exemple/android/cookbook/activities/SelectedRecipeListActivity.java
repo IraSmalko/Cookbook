@@ -13,7 +13,7 @@ import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.SelectedRecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.entity.SelectedRecipe;
 import com.exemple.android.cookbook.helpers.IntentHelper;
-import com.exemple.android.cookbook.supporting.DBHelper;
+import com.exemple.android.cookbook.helpers.DBHelper;
 
 import java.util.ArrayList;
 import java.util.List;

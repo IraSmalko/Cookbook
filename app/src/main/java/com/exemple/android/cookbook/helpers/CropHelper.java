@@ -3,7 +3,6 @@ package com.exemple.android.cookbook.helpers;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -11,7 +10,6 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 
 import com.android.camera.CropImageIntentBuilder;
-import com.exemple.android.cookbook.ProcessPhotoAsyncTask;
 
 import java.io.File;
 

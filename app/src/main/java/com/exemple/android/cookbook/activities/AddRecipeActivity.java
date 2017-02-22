@@ -15,7 +15,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.exemple.android.cookbook.ProcessPhotoAsyncTask;
+import com.exemple.android.cookbook.helpers.ProcessPhotoAsyncTask;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.ImageCard;
 import com.exemple.android.cookbook.entity.Recipe;

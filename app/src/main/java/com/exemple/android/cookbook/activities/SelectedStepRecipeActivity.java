@@ -3,8 +3,6 @@ package com.exemple.android.cookbook.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -17,10 +15,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.SelectedStepRecipe;
 import com.exemple.android.cookbook.helpers.IntentHelper;
-import com.exemple.android.cookbook.supporting.DBHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,9 +31,6 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
     private static final String PHOTO = "photo";
     private static final String DESCRIPTION = "description";
     private static final String ID_RECIPE = "id_recipe";
-    private static final String TEXT_STEP = "text_step";
-    private static final String PHOTO_STEP = "photo_step";
-    private static final String NUMBER_STEP = "numberStep";
 
     private List<SelectedStepRecipe> selectedStepRecipes = new ArrayList<>();
     private int index = 0;
@@ -55,22 +50,13 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
         actionBar = getSupportActionBar();
 
         intent = getIntent();
+        DataSourceSQLite dataSource = new DataSourceSQLite(this);
+        selectedStepRecipes = dataSource.readStepRecipe(intent.getIntExtra(ID_RECIPE, INT_EXTRA));
 
-        DBHelper dbHelper = new DBHelper(this);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor c = db.rawQuery("SELECT * FROM step_recipe WHERE id_recipe" + " == " + intent
-                .getIntExtra(ID_RECIPE, INT_EXTRA), null);
-
-        if (c.moveToFirst()) {
-            do {
-                int idColIndex = c.getColumnIndex(ID_RECIPE);
-                int numberStepColIndex = c.getColumnIndex(NUMBER_STEP);
-                int textStepColIndex = c.getColumnIndex(TEXT_STEP);
-                int photoStepColIndex = c.getColumnIndex(PHOTO_STEP);
-
-                selectedStepRecipes.add(new SelectedStepRecipe(c.getString(numberStepColIndex), c
-                        .getString(textStepColIndex), c.getString(photoStepColIndex), c.getInt(idColIndex)));
-            } while (c.moveToNext());
+        if (selectedStepRecipes.isEmpty()) {
+            Toast.makeText(context, getResources().getString(R.string
+                    .no_information_available), Toast.LENGTH_SHORT).show();
+        } else {
             actionBar.setTitle(selectedStepRecipes.get(0).getNumberStep());
             txtStepRecipe.setText(selectedStepRecipes.get(0).getTextStep());
             try {
@@ -79,10 +65,6 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else {
-            c.close();
-            Toast.makeText(context, getResources().getString(R.string
-                    .no_information_available), Toast.LENGTH_SHORT).show();
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_step);

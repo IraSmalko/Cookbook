@@ -1,9 +1,7 @@
 package com.exemple.android.cookbook.activities;
 
 import android.app.ProgressDialog;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.LayerDrawable;
@@ -25,10 +23,10 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.StepRecipe;
 import com.exemple.android.cookbook.helpers.IntentHelper;
-import com.exemple.android.cookbook.supporting.DBHelper;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -44,22 +42,14 @@ public class RecipeActivity extends AppCompatActivity {
     private static final String RECIPE = "recipe";
     private static final String PHOTO = "photo";
     private static final String DESCRIPTION = "description";
-    private static final String ID_RECIPE = "id_recipe";
-    private static final String TEXT_STEP = "text_step";
-    private static final String PHOTO_STEP = "photo_step";
-    private static final String NUMBER_STEP = "numberStep";
-    private static final String STEP_RECIPE = "step_recipe";
 
-    private DBHelper dbHelper;
     private Intent intent;
     private ImageView imageView;
     private Bitmap loadPhotoStep;
     private List<StepRecipe> stepRecipe = new ArrayList<>();
-    private SQLiteDatabase db;
     private int idRecipe;
-    private String pathPhotoStep;
-    private int iterator = 0;
     private ProgressDialog progressDialog;
+    private DataSourceSQLite dataSource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +61,8 @@ public class RecipeActivity extends AppCompatActivity {
         Button btnDetailRecipe = (Button) findViewById(R.id.btnDetailRecipe);
         RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar);
         ActionBar actionBar = getSupportActionBar();
-        dbHelper = new DBHelper(this);
 
+        dataSource = new DataSourceSQLite(this);
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
 
@@ -96,6 +86,7 @@ public class RecipeActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setTitle(intent.getStringExtra(RECIPE));
         }
+
         Glide.with(getApplicationContext())
                 .load(intent.getStringExtra(PHOTO))
                 .asBitmap()
@@ -132,18 +123,11 @@ public class RecipeActivity extends AppCompatActivity {
         if (id == R.id.action_save) {
             progressDialog.show();
             progressDialog.setMessage(getResources().getString(R.string.progress_vait));
-            db = dbHelper.getWritableDatabase();
-            ContentValues cvRecipe = new ContentValues();
 
             String path = MediaStore.Images.Media.insertImage(getContentResolver(),
                     loadPhotoStep, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
 
-            cvRecipe.put(RECIPE, intent.getStringExtra(RECIPE));
-            cvRecipe.put(PHOTO, path);
-            cvRecipe.put(DESCRIPTION, intent.getStringExtra(DESCRIPTION));
-            long rowID = db.insertOrThrow(RECIPE, null, cvRecipe);
-
-            idRecipe = (int) rowID;
+            idRecipe = dataSource.saveRecipe(intent.getStringExtra(RECIPE), path, intent.getStringExtra(DESCRIPTION));
             FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
             DatabaseReference databaseReference = firebaseDatabase.getReference()
                     .child("Step_recipe/" + intent.getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE));
@@ -155,7 +139,8 @@ public class RecipeActivity extends AppCompatActivity {
                         StepRecipe step = postSnapshot.getValue(StepRecipe.class);
                         stepRecipe.add(step);
                     }
-                    loadPhoto();
+                    new DataSourceSQLite(getApplicationContext()).saveStepsSQLite(stepRecipe, idRecipe);
+                    progressDialog.dismiss();
                 }
 
                 @Override
@@ -170,39 +155,9 @@ public class RecipeActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void loadPhoto() {
-        if (iterator < stepRecipe.size()) {
-            Glide.with(getApplicationContext())
-                    .load(stepRecipe.get(iterator).getPhotoUrlStep())
-                    .asBitmap()
-                    .into(new SimpleTarget<Bitmap>(660, 480) {
-                        @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
-                            loadPhotoStep = resource;
-                            pathPhotoStep = MediaStore.Images.Media.insertImage(getContentResolver(),
-                                    loadPhotoStep, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
-                            saveSteps(pathPhotoStep);
-                        }
-                    });
-        } else {
-            dbHelper.close();
-            progressDialog.dismiss();
-        }
-    }
-
-    public void saveSteps(String path) {
-        ContentValues cvStepRecipe = new ContentValues();
-        cvStepRecipe.put(ID_RECIPE, idRecipe);
-        cvStepRecipe.put(NUMBER_STEP, stepRecipe.get(iterator).getNumberStep());
-        cvStepRecipe.put(TEXT_STEP, stepRecipe.get(iterator).getTextStep());
-        cvStepRecipe.put(PHOTO_STEP, path);
-        db.insertOrThrow(STEP_RECIPE, null, cvStepRecipe);
-        iterator = ++iterator;
-        loadPhoto();
-    }
-
     @Override
     public void onBackPressed() {
         IntentHelper.intentRecipeListActivity(this, intent.getStringExtra(RECIPE_LIST));
     }
+
 }

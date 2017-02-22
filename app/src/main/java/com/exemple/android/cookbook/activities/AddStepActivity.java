@@ -21,7 +21,7 @@ import com.exemple.android.cookbook.helpers.CropHelper;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.helpers.PhotoFromCameraHelper;
-import com.exemple.android.cookbook.ProcessPhotoAsyncTask;
+import com.exemple.android.cookbook.helpers.ProcessPhotoAsyncTask;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.ImageCard;
 import com.exemple.android.cookbook.entity.StepRecipe;

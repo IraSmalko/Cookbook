@@ -15,7 +15,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.exemple.android.cookbook.ProcessPhotoAsyncTask;
+import com.exemple.android.cookbook.helpers.ProcessPhotoAsyncTask;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.ImageCard;
@@ -91,8 +91,6 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
                 progressDialog.dismiss();
             }
         });
-
-
 
         boolean isOnline = new CheckOnlineHelper(context).isOnline();
         if (isOnline) {
