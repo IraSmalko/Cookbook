@@ -23,18 +23,11 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.StepRecipe;
+import com.exemple.android.cookbook.helpers.WriterDAtaSQLiteAsyncTask;
+import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class RecipeActivity extends AppCompatActivity {
 
@@ -46,10 +39,7 @@ public class RecipeActivity extends AppCompatActivity {
     private Intent intent;
     private ImageView imageView;
     private Bitmap loadPhotoStep;
-    private List<StepRecipe> stepRecipe = new ArrayList<>();
-    private int idRecipe;
     private ProgressDialog progressDialog;
-    private DataSourceSQLite dataSource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +52,6 @@ public class RecipeActivity extends AppCompatActivity {
         RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar);
         ActionBar actionBar = getSupportActionBar();
 
-        dataSource = new DataSourceSQLite(this);
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
 
@@ -126,27 +115,14 @@ public class RecipeActivity extends AppCompatActivity {
 
             String path = MediaStore.Images.Media.insertImage(getContentResolver(),
                     loadPhotoStep, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
-
-            idRecipe = dataSource.saveRecipe(intent.getStringExtra(RECIPE), path, intent.getStringExtra(DESCRIPTION));
-            FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-            DatabaseReference databaseReference = firebaseDatabase.getReference()
-                    .child("Step_recipe/" + intent.getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE));
-
-            databaseReference.addValueEventListener(new ValueEventListener() {
+            new WriterDAtaSQLiteAsyncTask.WriterRecipe(this, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
                 @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                        StepRecipe step = postSnapshot.getValue(StepRecipe.class);
-                        stepRecipe.add(step);
-                    }
-                    new DataSourceSQLite(getApplicationContext()).saveStepsSQLite(stepRecipe, idRecipe);
-                    progressDialog.dismiss();
+                public void onDataReady(Integer integer) {
+                    FirebaseHelper.getStepsRecipe(getApplicationContext(), integer, intent
+                            .getStringExtra(RECIPE_LIST), intent.getStringExtra(RECIPE));
                 }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                }
-            });
+            }).execute(new Recipe(intent.getStringExtra(RECIPE), path, intent.getStringExtra(DESCRIPTION)));
+            progressDialog.dismiss();
             return true;
         } else if (id == android.R.id.home) {
             IntentHelper.intentRecipeListActivity(this, intent.getStringExtra(RECIPE_LIST));
@@ -159,5 +135,4 @@ public class RecipeActivity extends AppCompatActivity {
     public void onBackPressed() {
         IntentHelper.intentRecipeListActivity(this, intent.getStringExtra(RECIPE_LIST));
     }
-
 }

@@ -4,17 +4,14 @@ package com.exemple.android.cookbook.helpers;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.entity.ForWriterStepsRecipe;
 import com.exemple.android.cookbook.entity.SelectedStepRecipe;
 import com.exemple.android.cookbook.entity.StepRecipe;
 
@@ -35,9 +32,8 @@ public class DataSourceSQLite {
     private DBHelper dbHelper;
     private int iterator = 0;
     private Context context;
-    private List<StepRecipe> stepRecipe = new ArrayList<>();
     private List<SelectedStepRecipe> selectedStepRecipes = new ArrayList<>();
-    private int idRecipe;
+    private ForWriterStepsRecipe writerStepsRecipe;
     private String pathPhotoStep;
 
     public DataSourceSQLite(Context context) {
@@ -45,11 +41,11 @@ public class DataSourceSQLite {
         this.context = context;
     }
 
-    public void open() throws SQLException {
+    public void open() {
         database = dbHelper.getWritableDatabase();
     }
 
-    public void close() {
+    private void close() {
         dbHelper.close();
     }
 
@@ -67,37 +63,36 @@ public class DataSourceSQLite {
     }
 
     public void saveStepsSQLite(List<StepRecipe> stepRecipe, int idRecipe) {
-        this.stepRecipe = stepRecipe;
-        this.idRecipe = idRecipe;
-        loadPhoto();
+        loadPhoto(new ForWriterStepsRecipe(stepRecipe, pathPhotoStep, idRecipe, iterator));
     }
 
-    public void saveSteps() {
+    public ForWriterStepsRecipe saveSteps(ForWriterStepsRecipe forWriterStepsRecipe) {
         open();
-
+        iterator = forWriterStepsRecipe.getIterator();
         ContentValues cvStepRecipe = new ContentValues();
-        cvStepRecipe.put(ID_RECIPE, idRecipe);
-        cvStepRecipe.put(NUMBER_STEP, stepRecipe.get(iterator).getNumberStep());
-        cvStepRecipe.put(TEXT_STEP, stepRecipe.get(iterator).getTextStep());
-        cvStepRecipe.put(PHOTO_STEP, pathPhotoStep);
+        cvStepRecipe.put(ID_RECIPE, forWriterStepsRecipe.getIdRecipe());
+        cvStepRecipe.put(NUMBER_STEP, forWriterStepsRecipe.getStepRecipes().get(iterator).getNumberStep());
+        cvStepRecipe.put(TEXT_STEP, forWriterStepsRecipe.getStepRecipes().get(iterator).getTextStep());
+        cvStepRecipe.put(PHOTO_STEP, forWriterStepsRecipe.getPathPhotoStep());
         database.insertOrThrow(DBHelper.TABLE_STEP_RECIPE, null, cvStepRecipe);
-        iterator = ++iterator;
-        loadPhoto();
+        forWriterStepsRecipe.setIterator(forWriterStepsRecipe.getIterator() + 1);
+        close();
+        return forWriterStepsRecipe;
     }
 
-    public void loadPhoto() {
-        if (iterator < stepRecipe.size()) {
-            Glide.with(context)
-                    .load(stepRecipe.get(iterator).getPhotoUrlStep())
-                    .asBitmap()
-                    .into(new SimpleTarget<Bitmap>(660, 480) {
-                        @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
-                            pathPhotoStep = MediaStore.Images.Media.insertImage(context.getContentResolver(),
-                                    resource, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
-                            saveSteps();
-                        }
-                    });
+    public void loadPhoto(ForWriterStepsRecipe forWriterStepsRecipe) {
+        this.writerStepsRecipe = forWriterStepsRecipe;
+        if (forWriterStepsRecipe.getIterator() < forWriterStepsRecipe.getStepRecipes().size()) {
+            new PhotoLoaderAsyncTask(context, new PhotoLoaderAsyncTask.PhotoLoadProcessed() {
+                @Override
+                public void onBitmapReady(Bitmap bitmap) {
+                    pathPhotoStep = MediaStore.Images.Media.insertImage(context.getContentResolver(),
+                            bitmap, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
+                    writerStepsRecipe.setPathPhotoStep(pathPhotoStep);
+                    new WriterDAtaSQLiteAsyncTask.WriterStepsRecipe(context)
+                            .execute(writerStepsRecipe);
+                }
+            }).execute(writerStepsRecipe.getStepRecipes().get(iterator).getPhotoUrlStep());
         } else {
             close();
         }

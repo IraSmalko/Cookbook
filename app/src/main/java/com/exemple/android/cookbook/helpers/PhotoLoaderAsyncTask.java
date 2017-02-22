@@ -7,23 +7,21 @@ import android.os.AsyncTask;
 
 import com.bumptech.glide.Glide;
 
-import java.lang.ref.WeakReference;
 import java.util.concurrent.ExecutionException;
 
 public class PhotoLoaderAsyncTask extends AsyncTask<String, Bitmap, Bitmap> {
 
-    private WeakReference<Context> weakContext;
+    private Context context;
     private PhotoLoadProcessed photoLoadProcessed;
 
     public PhotoLoaderAsyncTask(Context context, PhotoLoadProcessed photoLoadProcessed) {
-        weakContext = new WeakReference<>(context);
+        this.context = context;
         this.photoLoadProcessed = photoLoadProcessed;
     }
 
     @Override
     protected Bitmap doInBackground(String... strings) {
         String photoUrl = strings[0];
-        Context context = weakContext.get();
         Bitmap theBitmap = null;
         try {
             theBitmap = Glide
