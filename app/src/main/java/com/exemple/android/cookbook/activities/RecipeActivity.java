@@ -24,10 +24,11 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.helpers.WriterDAtaSQLiteAsyncTask;
 import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
+import com.exemple.android.cookbook.helpers.WriterDAtaSQLiteAsyncTask;
 
 public class RecipeActivity extends AppCompatActivity {
 
@@ -110,19 +111,25 @@ public class RecipeActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_save) {
-            progressDialog.show();
-            progressDialog.setMessage(getResources().getString(R.string.progress_vait));
+            boolean isOnline = new CheckOnlineHelper(this).isOnline();
+            if (isOnline) {
+                progressDialog.show();
+                progressDialog.setMessage(getResources().getString(R.string.progress_vait));
 
-            String path = MediaStore.Images.Media.insertImage(getContentResolver(),
-                    loadPhotoStep, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
-            new WriterDAtaSQLiteAsyncTask.WriterRecipe(this, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
-                @Override
-                public void onDataReady(Integer integer) {
-                    FirebaseHelper.getStepsRecipe(getApplicationContext(), integer, intent
-                            .getStringExtra(RECIPE_LIST), intent.getStringExtra(RECIPE));
-                }
-            }).execute(new Recipe(intent.getStringExtra(RECIPE), path, intent.getStringExtra(DESCRIPTION)));
-            progressDialog.dismiss();
+                String path = MediaStore.Images.Media.insertImage(getContentResolver(),
+                        loadPhotoStep, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
+                new WriterDAtaSQLiteAsyncTask.WriterRecipe(this, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
+                    @Override
+                    public void onDataReady(Integer integer) {
+                        FirebaseHelper.getStepsRecipe(getApplicationContext(), integer, intent
+                                .getStringExtra(RECIPE_LIST), intent.getStringExtra(RECIPE));
+                    }
+                }).execute(new Recipe(intent.getStringExtra(RECIPE), path, intent.getStringExtra(DESCRIPTION)));
+                progressDialog.dismiss();
+            } else {
+                Toast.makeText(RecipeActivity.this, getResources()
+                        .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+            }
             return true;
         } else if (id == android.R.id.home) {
             IntentHelper.intentRecipeListActivity(this, intent.getStringExtra(RECIPE_LIST));
