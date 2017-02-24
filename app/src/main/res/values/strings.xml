@@ -32,6 +32,7 @@
     <string name="name_recipe_exists">Iм\'я рецепта вже існує!</string>
     <string name="no_recipe_name">Додайте ім\'я рецепта!</string>
     <string name="progress_vait">Зачекайте, будь ласка</string>
+    <string name="unauthorized_user">Авторизуйтесь, будь ласка.</string>
     <string name="input_will_lost">Введені дані буде втрачено</string>
     <string name="step">Крок </string>
     <string name="no_information_available">Інформація відсутня</string>

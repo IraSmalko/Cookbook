@@ -15,7 +15,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.exemple.android.cookbook.helpers.ProcessPhotoAsyncTask;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.ImageCard;
@@ -23,6 +22,9 @@ import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.CropHelper;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.PhotoFromCameraHelper;
+import com.exemple.android.cookbook.helpers.ProcessPhotoAsyncTask;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -33,8 +35,6 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     private static final int REQUEST_CROP_PICTURE = 2;
     private static final int REQUEST_IMAGE_CAPTURE = 22;
     private static final int GALLERY_REQUEST = 13;
-    private static final String REFERENCE = "Сategory_Recipes";
-    private static final String STORAGE_REFERENCE = "Photo_Сategory_Recipes";
 
     private EditText inputCategoryName;
     private ImageView imageView;
@@ -42,10 +42,13 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
 
     private DatabaseReference databaseReference;
     private StorageReference storageReference;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseUser firebaseUser;
+    private String username;
     private Uri downloadUrlCamera;
     private int backPressed = 0;
     private PhotoFromCameraHelper photoFromCameraHelper;
-    private FirebaseHelper firebaseHelper;
+    private FirebaseHelper.FirebaseSaveImage firebaseHelper;
     private CropHelper cropHelper;
     private Context context = AddCategoryRecipeActivity.this;
 
@@ -66,40 +69,50 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
 
-        databaseReference = firebaseDatabase.getReference(REFERENCE);
-        storageReference = firebaseStorage.getReference().child(STORAGE_REFERENCE);
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
 
-        cropHelper = new CropHelper(context, new CropHelper.OnCrop() {
-            @Override
-            public void onCrop(Uri cropImageUri) {
-                final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(context, listener);
-                photoAsyncTask.execute(cropImageUri);
+        if (firebaseUser != null) {
+            username = firebaseUser.getDisplayName();
+
+            databaseReference = firebaseDatabase.getReference("Сategory_Recipes_" + username);
+            storageReference = firebaseStorage.getReference().child("Photo_Сategory_Recipes_" + username);
+
+            cropHelper = new CropHelper(context, new CropHelper.OnCrop() {
+                @Override
+                public void onCrop(Uri cropImageUri) {
+                    final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(context, listener);
+                    photoAsyncTask.execute(cropImageUri);
+                }
+            });
+
+            photoFromCameraHelper = new PhotoFromCameraHelper(context, new PhotoFromCameraHelper.OnPhotoPicked() {
+                @Override
+                public void onPicked(Uri photoUri) {
+                    cropHelper.cropImage(photoUri);
+                }
+            });
+
+            firebaseHelper = new FirebaseHelper.FirebaseSaveImage(new FirebaseHelper.OnSaveImage() {
+                @Override
+                public void OnSave(Uri photoUri) {
+                    downloadUrlCamera = photoUri;
+                    progressDialog.dismiss();
+                }
+            });
+
+            boolean isOnline = new CheckOnlineHelper(context).isOnline();
+            if (isOnline) {
+                btnSave.setOnClickListener(onClickListener);
+                btnPhotoFromCamera.setOnClickListener(onClickListener);
+                btnPhotoFromGallery.setOnClickListener(onClickListener);
+            } else {
+                Toast.makeText(context, getResources()
+                        .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
             }
-        });
-
-        photoFromCameraHelper = new PhotoFromCameraHelper(context, new PhotoFromCameraHelper.OnPhotoPicked() {
-            @Override
-            public void onPicked(Uri photoUri) {
-                cropHelper.cropImage(photoUri);
-            }
-        });
-
-        firebaseHelper = new FirebaseHelper(new FirebaseHelper.OnSaveImage() {
-            @Override
-            public void OnSave(Uri photoUri) {
-                downloadUrlCamera = photoUri;
-                progressDialog.dismiss();
-            }
-        });
-
-        boolean isOnline = new CheckOnlineHelper(context).isOnline();
-        if (isOnline) {
-            btnSave.setOnClickListener(onClickListener);
-            btnPhotoFromCamera.setOnClickListener(onClickListener);
-            btnPhotoFromGallery.setOnClickListener(onClickListener);
         } else {
-            Toast.makeText(context, getResources()
-                    .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, getResources().getString(R.string.unauthorized_user), Toast
+                    .LENGTH_SHORT).show();
         }
     }
 

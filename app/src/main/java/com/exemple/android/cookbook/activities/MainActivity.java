@@ -32,6 +32,7 @@ import com.crashlytics.android.Crashlytics;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
+import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity
 
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
+    private FirebaseDatabase firebaseDatabase;
 
     private String username;
     private String photoUrl;
@@ -66,11 +68,10 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = MainActivity.class.getSimpleName();
     public static final String ANONYMOUS = "anonymous";
     private String RECIPE_LIST = "recipeList";
-    private static final String REFERENCE = "Сategory_Recipes";
     private static final int REQUEST_CODE = 1234;
 
     private RecyclerView recyclerView;
-    private CategoryRecipeRecyclerAdapter myAdapter;
+    private CategoryRecipeRecyclerAdapter recyclerAdapter;
     private List<CategoryRecipes> categoryRecipesList = new ArrayList<>();
     private SensorManager sensorManager;
     private Sensor sensor;
@@ -108,13 +109,16 @@ public class MainActivity extends AppCompatActivity
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
         //        AUTHENTICATION
         View headerLayout = navigationView.getHeaderView(0);
         userNameTV = (TextView) headerLayout.findViewById(R.id.textViewForUserName);
         userPhotoIV = (CircleImageView) headerLayout.findViewById(R.id.imageViewForUserPhoto);
 
-        username = ANONYMOUS;
+        if (firebaseUser == null) {
+            username = ANONYMOUS;
+        } else {
+            username = firebaseUser.getDisplayName();
+        }
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
@@ -127,8 +131,8 @@ public class MainActivity extends AppCompatActivity
         userRefresh();
 
 
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference databaseReference = firebaseDatabase.getReference(REFERENCE);
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference databaseReference = firebaseDatabase.getReference("Сategory_Recipes");
 
         recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -136,18 +140,22 @@ public class MainActivity extends AppCompatActivity
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                categoryRecipesList.clear();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
                     categoryRecipesList.add(categoryRecipes);
-                    myAdapter = new CategoryRecipeRecyclerAdapter(getApplicationContext(), categoryRecipesList,
-                            new CategoryRecipeRecyclerAdapter.ItemClickListener() {
-                                @Override
-                                public void onItemClick(CategoryRecipes item) {
-                                    IntentHelper.intentRecipeListActivity(getApplicationContext(), item.getName());
-                                }
-                            });
-                    recyclerView.setAdapter(myAdapter);
+                }
+                if (firebaseUser != null) {
+                    new FirebaseHelper(new FirebaseHelper.OnUserCategoryRecipe() {
+                        @Override
+                        public void OnGet(List<CategoryRecipes> category) {
+                            categoryRecipesList = category;
+                            creatRecyclerAdapter();
+                            recyclerView.setAdapter(recyclerAdapter);
+                        }
+                    }).getUserCategoryRecipe(categoryRecipesList, username, firebaseDatabase);
+                } else {
+                    creatRecyclerAdapter();
+                    recyclerView.setAdapter(recyclerAdapter);
                 }
             }
 
@@ -155,7 +163,16 @@ public class MainActivity extends AppCompatActivity
             public void onCancelled(DatabaseError databaseError) {
             }
         });
+    }
 
+    public void creatRecyclerAdapter(){
+        recyclerAdapter = new CategoryRecipeRecyclerAdapter(getApplicationContext(), categoryRecipesList,
+                new CategoryRecipeRecyclerAdapter.ItemClickListener() {
+                    @Override
+                    public void onItemClick(CategoryRecipes item) {
+                        IntentHelper.intentRecipeListActivity(getApplicationContext(), item.getName());
+                    }
+                });
     }
 
     @Override
@@ -202,7 +219,7 @@ public class MainActivity extends AppCompatActivity
             if (name.contains(newText))
                 newList.add(categoryRecipes);
         }
-        myAdapter.updateAdapter(newList);
+        recyclerAdapter.updateAdapter(newList);
         return true;
     }
 
