@@ -93,7 +93,7 @@ public class StepRecipeActivity extends AppCompatActivity {
             Glide.with(context).load(stepRecipe.get(i).getPhotoUrlStep()).into(imgStepRecipe);
         } else {
             IntentHelper.intentRecipeActivity(context, intent.getStringExtra(RECIPE), intent
-                    .getStringExtra(PHOTO), intent.getStringExtra(DESCRIPTION), intent.getStringExtra(RECIPE_LIST));
+                    .getStringExtra(PHOTO), intent.getStringExtra(DESCRIPTION), intent.getStringExtra(RECIPE_LIST), null);
         }
     }
 }

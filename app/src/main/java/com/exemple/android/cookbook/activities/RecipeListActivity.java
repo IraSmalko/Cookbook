@@ -18,7 +18,11 @@ import android.view.View;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.helpers.CreaterRecyclerAdapter;
+import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -38,6 +42,10 @@ public class RecipeListActivity extends AppCompatActivity
     private Intent intent;
     private RecyclerView recyclerView;
     private Context context = RecipeListActivity.this;
+    private FirebaseDatabase firebaseDatabase;
+    private String reference;
+    private String username;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,10 +66,17 @@ public class RecipeListActivity extends AppCompatActivity
         });
 
         intent = getIntent();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference databaseReference = firebaseDatabase.getReference()
-                .child("Recipe_lists/" + intent.getStringExtra(RECIPE_LIST));
+        reference = "Recipe_lists/" + intent.getStringExtra(RECIPE_LIST);
+        DatabaseReference databaseReference = firebaseDatabase.getReference().child(reference);
+
+        if (firebaseUser != null) {
+            username = firebaseUser.getDisplayName();
+            reference = username + "/" + reference;
+        }
 
         recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -73,14 +88,26 @@ public class RecipeListActivity extends AppCompatActivity
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Recipe recipes = postSnapshot.getValue(Recipe.class);
                     recipesList.add(recipes);
-                    recipeRecyclerAdapter = new RecipeRecyclerListAdapter(context, recipesList,
-                            new RecipeRecyclerListAdapter.ItemClickListener() {
-                                @Override
-                                public void onItemClick(Recipe item) {
-                                    IntentHelper.intentRecipeActivity(context, item.getName(), item
-                                            .getPhotoUrl(), item.getDescription(), intent.getStringExtra(RECIPE_LIST));
-                                }
-                            });
+                }
+                if (username != null) {
+                    new FirebaseHelper(new FirebaseHelper.OnUserRecipes() {
+                        @Override
+                        public void OnGet(List<Recipe> recipes) {
+                            if (recipes.isEmpty()) {
+                                recipeRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
+                                        .createRecyclerAdapter(recipesList, intent.getStringExtra(RECIPE_LIST), username);
+                                recyclerView.setAdapter(recipeRecyclerAdapter);
+                            } else {
+                                recipesList = recipes;
+                                recipeRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
+                                        .createRecyclerAdapter(recipes, intent.getStringExtra(RECIPE_LIST), username);
+                                recyclerView.setAdapter(recipeRecyclerAdapter);
+                            }
+                        }
+                    }).getUserRecipe(recipesList, firebaseDatabase, reference);
+                } else {
+                    recipeRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
+                            .createRecyclerAdapter(recipesList, intent.getStringExtra(RECIPE_LIST), username);
                     recyclerView.setAdapter(recipeRecyclerAdapter);
                 }
             }
@@ -90,6 +117,7 @@ public class RecipeListActivity extends AppCompatActivity
             }
         });
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -25,6 +25,7 @@ public class IntentHelper {
     private static final String RECIPE = "recipe";
     private static final String PHOTO = "photo";
     private static final String DESCRIPTION = "description";
+    private static final String USERNAME = "username";
     private static final String ARRAY_LIST_RECIPE = "ArrayListRecipe";
     private static final String ID_RECIPE = "id_recipe";
 
@@ -76,13 +77,14 @@ public class IntentHelper {
     }
 
     static public void intentRecipeActivity(Context context, String recipe, String photo,
-                                            String description, String recipeList) {
+                                            String description, String recipeList, String username) {
         Intent intent = new Intent(context, RecipeActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(RECIPE, recipe);
         intent.putExtra(PHOTO, photo);
         intent.putExtra(DESCRIPTION, description);
         intent.putExtra(RECIPE_LIST, recipeList);
+        intent.putExtra(USERNAME, username);
         ActivityCompat.startActivity(context, intent, null);
     }
 

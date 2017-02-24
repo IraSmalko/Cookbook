@@ -32,8 +32,8 @@ import com.crashlytics.android.Crashlytics;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
+import com.exemple.android.cookbook.helpers.CreaterRecyclerAdapter;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
-import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -149,12 +149,14 @@ public class MainActivity extends AppCompatActivity
                         @Override
                         public void OnGet(List<CategoryRecipes> category) {
                             categoryRecipesList = category;
-                            creatRecyclerAdapter();
+                            recyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
+                                    .createRecyclerAdapter(category);
                             recyclerView.setAdapter(recyclerAdapter);
                         }
                     }).getUserCategoryRecipe(categoryRecipesList, username, firebaseDatabase);
                 } else {
-                    creatRecyclerAdapter();
+                    recyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
+                            .createRecyclerAdapter(categoryRecipesList);
                     recyclerView.setAdapter(recyclerAdapter);
                 }
             }
@@ -163,16 +165,6 @@ public class MainActivity extends AppCompatActivity
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-    }
-
-    public void creatRecyclerAdapter(){
-        recyclerAdapter = new CategoryRecipeRecyclerAdapter(getApplicationContext(), categoryRecipesList,
-                new CategoryRecipeRecyclerAdapter.ItemClickListener() {
-                    @Override
-                    public void onItemClick(CategoryRecipes item) {
-                        IntentHelper.intentRecipeListActivity(getApplicationContext(), item.getName());
-                    }
-                });
     }
 
     @Override

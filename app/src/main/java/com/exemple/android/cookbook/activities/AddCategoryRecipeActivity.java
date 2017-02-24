@@ -45,7 +45,7 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
     private Uri downloadUrlCamera;
     private int backPressed = 0;
     private PhotoFromCameraHelper photoFromCameraHelper;
-    private FirebaseHelper.FirebaseSaveImage firebaseHelper;
+    private FirebaseHelper firebaseHelper;
     private CropHelper cropHelper;
     private Context context = AddCategoryRecipeActivity.this;
 
@@ -89,7 +89,7 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
                 }
             });
 
-            firebaseHelper = new FirebaseHelper.FirebaseSaveImage(new FirebaseHelper.OnSaveImage() {
+            firebaseHelper = new FirebaseHelper(new FirebaseHelper.OnSaveImage() {
                 @Override
                 public void OnSave(Uri photoUri) {
                     downloadUrlCamera = photoUri;

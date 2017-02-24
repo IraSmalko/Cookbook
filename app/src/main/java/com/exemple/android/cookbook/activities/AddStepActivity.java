@@ -52,7 +52,7 @@ public class AddStepActivity extends AppCompatActivity {
     private int numberStep = 1;
     private Intent intent;
     private PhotoFromCameraHelper photoFromCameraHelper;
-    private FirebaseHelper.FirebaseSaveImage firebaseHelper;
+    private FirebaseHelper firebaseHelper;
     private CropHelper cropHelper;
     private Context context = AddStepActivity.this;
 
@@ -98,7 +98,7 @@ public class AddStepActivity extends AppCompatActivity {
                 }
             });
 
-            firebaseHelper = new FirebaseHelper.FirebaseSaveImage(new FirebaseHelper.OnSaveImage() {
+            firebaseHelper = new FirebaseHelper(new FirebaseHelper.OnSaveImage() {
                 @Override
                 public void OnSave(Uri photoUri) {
                     downloadUrlCamera = photoUri;

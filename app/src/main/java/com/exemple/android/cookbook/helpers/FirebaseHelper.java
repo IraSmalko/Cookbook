@@ -5,9 +5,9 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.ImageCard;
+import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.entity.StepRecipe;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -27,16 +27,38 @@ public class FirebaseHelper {
 
     private static List<StepRecipe> stepRecipe = new ArrayList<>();
     private List<CategoryRecipes> category = new ArrayList<>();
+    private List<Recipe> recipes = new ArrayList<>();
     private FirebaseHelper.OnUserCategoryRecipe onUserCategoryRecipe;
+    private FirebaseHelper.OnUserRecipes onUserRecipes;
+    private FirebaseHelper.OnSaveImage onSaveImage;
+    private Context cnx;
 
-    public FirebaseHelper(FirebaseHelper.OnUserCategoryRecipe onUserCategoryRecipe){
+    public FirebaseHelper(){}
+
+    public FirebaseHelper(FirebaseHelper.OnSaveImage onSaveImage) {
+        this.onSaveImage = onSaveImage;
+    }
+
+    public FirebaseHelper(FirebaseHelper.OnUserRecipes onUserRecipes) {
+        this.onUserRecipes = onUserRecipes;
+    }
+
+    public FirebaseHelper(FirebaseHelper.OnUserCategoryRecipe onUserCategoryRecipe) {
         this.onUserCategoryRecipe = onUserCategoryRecipe;
     }
 
-    public static void getStepsRecipe(final Context context, final int idRecipe, String recipeList, String recipe) {
+    public void getStepsRecipe(Context context, final int idRecipe, String recipeList,
+                                      String recipe, String username) {
+        cnx = context;
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference databaseReference = firebaseDatabase.getReference()
-                .child("Step_recipe/" + recipeList + "/" + recipe);
+        DatabaseReference databaseReference;
+        if (username != null) {
+            databaseReference = firebaseDatabase.getReference()
+                    .child(username + "/Step_recipe/" + recipeList + "/" + recipe);
+        } else {
+            databaseReference = firebaseDatabase.getReference()
+                    .child("Step_recipe/" + recipeList + "/" + recipe);
+        }
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -45,7 +67,7 @@ public class FirebaseHelper {
                     StepRecipe step = postSnapshot.getValue(StepRecipe.class);
                     stepRecipe.add(step);
                 }
-                new DataSourceSQLite(context).saveStepsSQLite(stepRecipe, idRecipe);
+                new DataSourceSQLite(cnx).saveStepsSQLite(stepRecipe, idRecipe);
             }
 
             @Override
@@ -58,7 +80,7 @@ public class FirebaseHelper {
                                       FirebaseDatabase firebaseDatabase) {
         this.category = categoryRecipesList;
 
-        DatabaseReference databaseUserReference = firebaseDatabase.getReference("Сategory_Recipes_" + username);
+        DatabaseReference databaseUserReference = firebaseDatabase.getReference(username + "/Сategory_Recipes");
         databaseUserReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -76,30 +98,47 @@ public class FirebaseHelper {
         });
     }
 
-    public static class FirebaseSaveImage {
+    public void getUserRecipe(List<Recipe> recipesList, FirebaseDatabase firebaseDatabase,
+                              String reference) {
+        this.recipes = recipesList;
 
-        private FirebaseHelper.OnSaveImage onSaveImage;
+        DatabaseReference databaseUserReference = firebaseDatabase.getReference(reference);
+        databaseUserReference.addValueEventListener(new ValueEventListener() {
 
-        public FirebaseSaveImage(FirebaseHelper.OnSaveImage onSaveImage) {
-            this.onSaveImage = onSaveImage;
-        }
-
-        public void saveImage(StorageReference storageReference, ImageCard imageCard) {
-            final Random random = new Random();
-            UploadTask uploadTask = storageReference.child("Photo_Сategory_Recipes"
-                    + String.valueOf(random.nextInt())).putBytes(imageCard.getBytesImage());
-            uploadTask.addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        Recipe recipe = postSnapshot.getValue(Recipe.class);
+                        recipes.add(recipe);
+                        onUserRecipes.OnGet(recipes);
+                    }
+                } else {
+                    onUserRecipes.OnGet(recipes);
                 }
-            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Uri downloadUrlCamera = taskSnapshot.getDownloadUrl();
-                    onSaveImage.OnSave(downloadUrlCamera);
-                }
-            });
-        }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public void saveImage(StorageReference storageReference, ImageCard imageCard) {
+        final Random random = new Random();
+        UploadTask uploadTask = storageReference.child("Photo" + String.valueOf(random.nextInt()))
+                .putBytes(imageCard.getBytesImage());
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Uri downloadUrlCamera = taskSnapshot.getDownloadUrl();
+                onSaveImage.OnSave(downloadUrlCamera);
+            }
+        });
     }
 
     public interface OnSaveImage {
@@ -108,5 +147,9 @@ public class FirebaseHelper {
 
     public interface OnUserCategoryRecipe {
         void OnGet(List<CategoryRecipes> categoryRecipesList);
+    }
+
+    public interface OnUserRecipes {
+        void OnGet(List<Recipe> recipes);
     }
 }

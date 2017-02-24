@@ -36,6 +36,7 @@ public class RecipeActivity extends AppCompatActivity {
     private static final String RECIPE = "recipe";
     private static final String PHOTO = "photo";
     private static final String DESCRIPTION = "description";
+    private static final String USERNAME = "username";
 
     private Intent intent;
     private ImageView imageView;
@@ -121,8 +122,8 @@ public class RecipeActivity extends AppCompatActivity {
                 new WriterDAtaSQLiteAsyncTask.WriterRecipe(this, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
                     @Override
                     public void onDataReady(Integer integer) {
-                        FirebaseHelper.getStepsRecipe(getApplicationContext(), integer, intent
-                                .getStringExtra(RECIPE_LIST), intent.getStringExtra(RECIPE));
+                        new FirebaseHelper().getStepsRecipe(getApplicationContext(), integer, intent
+                                .getStringExtra(RECIPE_LIST), intent.getStringExtra(RECIPE), intent.getStringExtra(USERNAME));
                     }
                 }).execute(new Recipe(intent.getStringExtra(RECIPE), path, intent.getStringExtra(DESCRIPTION)));
                 progressDialog.dismiss();
