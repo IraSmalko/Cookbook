@@ -15,7 +15,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.exemple.android.cookbook.helpers.ProcessPhotoAsyncTask;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.ImageCard;
 import com.exemple.android.cookbook.entity.Recipe;
@@ -24,6 +23,9 @@ import com.exemple.android.cookbook.helpers.CropHelper;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.helpers.PhotoFromCameraHelper;
+import com.exemple.android.cookbook.helpers.ProcessPhotoAsyncTask;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -94,19 +96,30 @@ public class AddRecipeActivity extends AppCompatActivity {
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
-        intent = getIntent();
-        nameRecipesList = intent.getStringArrayListExtra(ARRAY_LIST_RECIPE);
-        databaseReference = firebaseDatabase.getReference().child("Recipe_lists/" + intent.getStringExtra(RECIPE_LIST));
-        storageReference = firebaseStorage.getReference().child("Recipe" + "/" + intent.getStringExtra(RECIPE_LIST));
+        if (firebaseUser != null) {
+            String username = firebaseUser.getDisplayName();
 
-        boolean isOnline = new CheckOnlineHelper(context).isOnline();
-        if (isOnline) {
-            btnSave.setOnClickListener(onClickListener);
-            btnPhotoFromCamera.setOnClickListener(onClickListener);
-            btnPhotoFromGallery.setOnClickListener(onClickListener);
+            intent = getIntent();
+            nameRecipesList = intent.getStringArrayListExtra(ARRAY_LIST_RECIPE);
+            databaseReference = firebaseDatabase.getReference().child(username + "/Recipe_lists/" + intent
+                    .getStringExtra(RECIPE_LIST));
+            storageReference = firebaseStorage.getReference().child(username + "/Recipe" + "/" + intent
+                    .getStringExtra(RECIPE_LIST));
+
+            boolean isOnline = new CheckOnlineHelper(context).isOnline();
+            if (isOnline) {
+                btnSave.setOnClickListener(onClickListener);
+                btnPhotoFromCamera.setOnClickListener(onClickListener);
+                btnPhotoFromGallery.setOnClickListener(onClickListener);
+            } else {
+                Toast.makeText(context, getResources().getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+            }
         } else {
-            Toast.makeText(context, getResources().getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, getResources().getString(R.string.unauthorized_user), Toast
+                    .LENGTH_SHORT).show();
         }
     }
 

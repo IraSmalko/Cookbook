@@ -16,15 +16,17 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.entity.ImageCard;
+import com.exemple.android.cookbook.entity.StepRecipe;
 import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.CropHelper;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.helpers.PhotoFromCameraHelper;
 import com.exemple.android.cookbook.helpers.ProcessPhotoAsyncTask;
-import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.ImageCard;
-import com.exemple.android.cookbook.entity.StepRecipe;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -36,7 +38,7 @@ public class AddStepActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 22;
     private static final int GALLERY_REQUEST = 13;
     private static final String RECIPE_LIST = "recipeList";
-    private static final String RECIPE ="recipe";
+    private static final String RECIPE = "recipe";
     private static final String NUMBER_STEP = "numberStep";
 
     private EditText inputNameRecipe;
@@ -70,51 +72,60 @@ public class AddStepActivity extends AppCompatActivity {
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
-        intent = getIntent();
-        databaseReference = firebaseDatabase.getReference().child("Step_recipe/" + intent
-                .getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE));
-        storageReference = firebaseStorage.getReference().child("Step_Recipes" + "/" + intent
-                .getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE));
+        if (firebaseUser != null) {
+            String username = firebaseUser.getDisplayName();
 
-        actionBar = getSupportActionBar();
+            intent = getIntent();
+            databaseReference = firebaseDatabase.getReference().child(username + "/Step_recipe/" + intent
+                    .getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE));
+            storageReference = firebaseStorage.getReference().child(username + "/Step_Recipes" + "/" + intent
+                    .getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE));
 
-        if (savedInstanceState != null && savedInstanceState.containsKey(NUMBER_STEP)) {
-            numberStep = savedInstanceState.getInt(NUMBER_STEP);
-        }
-        actionBar.setTitle(getResources().getString(R.string.step) + numberStep);
+            actionBar = getSupportActionBar();
 
-        photoFromCameraHelper = new PhotoFromCameraHelper(context, new PhotoFromCameraHelper.OnPhotoPicked() {
-            @Override
-            public void onPicked(Uri photoUri) {
-                cropHelper.cropImage(photoUri);
+            if (savedInstanceState != null && savedInstanceState.containsKey(NUMBER_STEP)) {
+                numberStep = savedInstanceState.getInt(NUMBER_STEP);
             }
-        });
+            actionBar.setTitle(getResources().getString(R.string.step) + numberStep);
 
-        firebaseHelper = new FirebaseHelper.FirebaseSaveImage(new FirebaseHelper.OnSaveImage() {
-            @Override
-            public void OnSave(Uri photoUri) {
-                downloadUrlCamera = photoUri;
-                progressDialog.dismiss();
+            photoFromCameraHelper = new PhotoFromCameraHelper(context, new PhotoFromCameraHelper.OnPhotoPicked() {
+                @Override
+                public void onPicked(Uri photoUri) {
+                    cropHelper.cropImage(photoUri);
+                }
+            });
+
+            firebaseHelper = new FirebaseHelper.FirebaseSaveImage(new FirebaseHelper.OnSaveImage() {
+                @Override
+                public void OnSave(Uri photoUri) {
+                    downloadUrlCamera = photoUri;
+                    progressDialog.dismiss();
+                }
+            });
+
+            cropHelper = new CropHelper(context, new CropHelper.OnCrop() {
+                @Override
+                public void onCrop(Uri cropImageUri) {
+                    final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(context, listener);
+                    photoAsyncTask.execute(cropImageUri);
+                }
+            });
+
+            boolean isOnline = new CheckOnlineHelper(context).isOnline();
+            if (isOnline) {
+                btnSave.setOnClickListener(onClickListener);
+                btnPhotoFromCamera.setOnClickListener(onClickListener);
+                btnPhotoFromGallery.setOnClickListener(onClickListener);
+            } else {
+                Toast.makeText(context, getResources()
+                        .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
             }
-        });
-
-        cropHelper = new CropHelper(context, new CropHelper.OnCrop() {
-            @Override
-            public void onCrop(Uri cropImageUri) {
-                final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(context, listener);
-                photoAsyncTask.execute(cropImageUri);
-            }
-        });
-
-        boolean isOnline = new CheckOnlineHelper(context).isOnline();
-        if (isOnline) {
-            btnSave.setOnClickListener(onClickListener);
-            btnPhotoFromCamera.setOnClickListener(onClickListener);
-            btnPhotoFromGallery.setOnClickListener(onClickListener);
         } else {
-            Toast.makeText(context, getResources()
-                    .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, getResources().getString(R.string.unauthorized_user), Toast
+                    .LENGTH_SHORT).show();
         }
     }
 

@@ -42,9 +42,6 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
 
     private DatabaseReference databaseReference;
     private StorageReference storageReference;
-    private FirebaseAuth firebaseAuth;
-    private FirebaseUser firebaseUser;
-    private String username;
     private Uri downloadUrlCamera;
     private int backPressed = 0;
     private PhotoFromCameraHelper photoFromCameraHelper;
@@ -68,15 +65,14 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
-
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
         if (firebaseUser != null) {
-            username = firebaseUser.getDisplayName();
+            String username = firebaseUser.getDisplayName();
 
-            databaseReference = firebaseDatabase.getReference("Сategory_Recipes_" + username);
-            storageReference = firebaseStorage.getReference().child("Photo_Сategory_Recipes_" + username);
+            databaseReference = firebaseDatabase.getReference(username + "/Сategory_Recipes");
+            storageReference = firebaseStorage.getReference().child(username + "/Photo_Сategory_Recipes");
 
             cropHelper = new CropHelper(context, new CropHelper.OnCrop() {
                 @Override
