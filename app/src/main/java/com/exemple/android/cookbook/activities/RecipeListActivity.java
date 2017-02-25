@@ -1,10 +1,12 @@
-package com.exemple.android.cookbook;
+package com.exemple.android.cookbook.activities;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,9 +17,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.bumptech.glide.Glide;
+import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
-import com.exemple.android.cookbook.supporting.OnItemClickListenerRecipes;
-import com.exemple.android.cookbook.supporting.Recipes;
+import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.helpers.IntentHelper;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -30,14 +36,17 @@ import java.util.List;
 public class RecipeListActivity extends AppCompatActivity
         implements SearchView.OnQueryTextListener {
 
-    private String RECIPE_LIST = "recipeList";
-    private String RECIPE = "recipe";
-    private String PHOTO_URL = "photo";
-    private String DESCRIPTION = "description";
+    private static final String RECIPE_LIST = "recipeList";
 
-    private List<Recipes> recipesList = new ArrayList<>();
+    private List<Recipe> recipesList = new ArrayList<>();
     private RecipeRecyclerListAdapter recipeRecyclerAdapter;
     private Intent intent;
+    private RecyclerView recyclerView;
+    private Context context = RecipeListActivity.this;
+
+    private FirebaseAuth firebaseAuth;
+    private FirebaseUser firebaseUser;
+    FloatingActionButton fab;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,40 +55,52 @@ public class RecipeListActivity extends AppCompatActivity
         intent = getIntent();
         final String recipeCategory = intent.getStringExtra(RECIPE_LIST);
 
-        Log.d("LOG","InListCreate");
-        Log.d("LOG",recipeCategory);
+        Log.d("LOG", "InListCreate");
+        Log.d("LOG", recipeCategory);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab1);
+        fab = (FloatingActionButton) findViewById(R.id.fab1);
+
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
+        userRefresh();
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ArrayList<String> nameRecipesList = new ArrayList<>();
-                for (int i = 0; i < recipesList.size(); i++){
+                for (int i = 0; i < recipesList.size(); i++) {
                     nameRecipesList.add(recipesList.get(i).getName());
                 }
-                Intent intentAddRecipeActivity = new Intent(getApplicationContext(), AddRecipeActivity.class);
-                intentAddRecipeActivity.putExtra(RECIPE, intent.getStringExtra(RECIPE_LIST));
-                intentAddRecipeActivity.putStringArrayListExtra("ArrayListRecipe", nameRecipesList);
-                startActivity(intentAddRecipeActivity);
+                IntentHelper.intentAddRecipeActivity(context, nameRecipesList, intent
+                        .getStringExtra(RECIPE_LIST));
             }
         });
 
+        intent = getIntent();
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference databaseReference = firebaseDatabase.getReference(intent.getStringExtra(RECIPE_LIST));
+        DatabaseReference databaseReference = firebaseDatabase.getReference()
+                .child("Recipe_lists/" + intent.getStringExtra(RECIPE_LIST));
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
+        recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        recipeRecyclerAdapter = new RecipeRecyclerListAdapter(this, recipesList);
-        recyclerView.setAdapter(recipeRecyclerAdapter);
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                recipesList.clear();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    Recipes recipes = postSnapshot.getValue(Recipes.class);
-
+                    Recipe recipes = postSnapshot.getValue(Recipe.class);
                     recipesList.add(recipes);
+                    recipeRecyclerAdapter = new RecipeRecyclerListAdapter(context, recipesList,
+                            new RecipeRecyclerListAdapter.ItemClickListener() {
+                                @Override
+                                public void onItemClick(Recipe item) {
+                                    IntentHelper.intentRecipeActivity(context, item.getName(), item
+                                            .getPhotoUrl(), item.getDescription(), intent.getStringExtra(RECIPE_LIST));
+                                }
+                            });
+                    recyclerView.setAdapter(recipeRecyclerAdapter);
                 }
             }
 
@@ -88,17 +109,6 @@ public class RecipeListActivity extends AppCompatActivity
             }
         });
 
-        recipeRecyclerAdapter.setOnItemClickListener(new OnItemClickListenerRecipes() {
-            @Override
-            public void onItemClick(Recipes recipes) {
-                Intent intent = new Intent(getApplicationContext(), RecipeActivity.class);
-                intent.putExtra(RECIPE, recipes.getName());
-                intent.putExtra(PHOTO_URL, recipes.getPhotoUrl());
-                intent.putExtra(DESCRIPTION, recipes.getDescription());
-                intent.putExtra(RECIPE_LIST, recipeCategory);
-                startActivity(intent);
-            }
-        });
     }
 
     @Override
@@ -117,8 +127,6 @@ public class RecipeListActivity extends AppCompatActivity
             case R.id.action_search:
                 return true;
         }
-        int id = item.getItemId();
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -130,15 +138,20 @@ public class RecipeListActivity extends AppCompatActivity
     @Override
     public boolean onQueryTextChange(String newText) {
         newText = newText.toLowerCase();
-        ArrayList<Recipes> newList = new ArrayList<>();
+        ArrayList<Recipe> newList = new ArrayList<>();
 
-        for (Recipes recipes : recipesList) {
+        for (Recipe recipes : recipesList) {
             String name = recipes.getName().toLowerCase();
             if (name.contains(newText))
                 newList.add(recipes);
         }
-        recipeRecyclerAdapter.setFilter(newList);
+        recipeRecyclerAdapter.updateAdapter(newList);
         return true;
     }
 
+    public void userRefresh() {
+        if (firebaseUser == null) {
+            fab.setVisibility(View.GONE);
+        }
+    }
 }

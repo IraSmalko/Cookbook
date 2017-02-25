@@ -1,20 +1,20 @@
-package com.exemple.android.cookbook;
+package com.exemple.android.cookbook.activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Color;
+import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
@@ -23,15 +23,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
+import com.exemple.android.cookbook.helpers.FirebaseHelper;
+import com.exemple.android.cookbook.helpers.IntentHelper;
+import com.exemple.android.cookbook.helpers.WriterDAtaSQLiteAsyncTask;
 import com.exemple.android.cookbook.supporting.Comment;
-import com.exemple.android.cookbook.supporting.Recipes;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -43,27 +49,24 @@ import com.google.firebase.appindexing.builders.Indexables;
 import com.google.firebase.appindexing.builders.PersonBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class RecipeActivity extends AppCompatActivity
         implements GoogleApiClient.OnConnectionFailedListener {
 
-    private String RECIPE = "recipe";
-    private String PHOTO_URL = "photo";
-    private String DESCRIPTION = "description";
-    private String RECIPE_LIST = "recipeList";
+    private static final String RECIPE_LIST = "recipeList";
+    private static final String RECIPE = "recipe";
+    private static final String PHOTO = "photo";
+    private static final String DESCRIPTION = "description";
 
-    TextView descriptionRecipe;
+    private Intent intent;
+    private ImageView imageView;
+    private Bitmap loadPhotoStep;
+    private ProgressDialog progressDialog;
 
     public static class CommentViewHolder extends RecyclerView.ViewHolder {
         public TextView commentTextView;
@@ -77,7 +80,6 @@ public class RecipeActivity extends AppCompatActivity
             commentatorImageView = (CircleImageView) itemView.findViewById(R.id.messengerImageView);
         }
     }
-
 
     private static final String MESSAGE_URL = "https://cookbook-6cce5.firebaseio.com/comments/";
     private static final String TAG = "RecipeActivity";
@@ -104,15 +106,61 @@ public class RecipeActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe);
 
-        final Intent intent = getIntent();
-
-        MESSAGES_CHILD = "comments/" + intent.getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE) + "/comments";
-
-        descriptionRecipe = (TextView) findViewById(R.id.textView);
-        ImageView imageView = (ImageView) findViewById(R.id.imageView);
-        Button btnDetailRecipe = (Button) findViewById(R.id.btn_detail_recipe);
+        TextView descriptionRecipe = (TextView) findViewById(R.id.textView);
+        imageView = (ImageView) findViewById(R.id.imageView);
+        Button btnDetailRecipe = (Button) findViewById(R.id.btnDetailRecipe);
         RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar);
         ActionBar actionBar = getSupportActionBar();
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
+
+        LayerDrawable stars = (LayerDrawable) ratingBar.getProgressDrawable();
+        stars.getDrawable(2).setColorFilter(ContextCompat.getColor(this, R.color.starFullySelected), PorterDuff.Mode.SRC_ATOP);
+        stars.getDrawable(1).setColorFilter(ContextCompat.getColor(this, R.color.starPartiallySelected), PorterDuff.Mode.SRC_ATOP);
+        stars.getDrawable(0).setColorFilter(ContextCompat.getColor(this, R.color.starNotSelected), PorterDuff.Mode.SRC_ATOP);
+
+        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float rating,
+                                        boolean fromUser) {
+
+                Toast.makeText(RecipeActivity.this, getResources().getString(R.string.rating) + String.valueOf(rating),
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+
+        intent = getIntent();
+
+        if (actionBar != null) {
+            actionBar.setTitle(intent.getStringExtra(RECIPE));
+        }
+
+        Glide.with(getApplicationContext())
+                .load(intent.getStringExtra(PHOTO))
+                .asBitmap()
+                .into(new SimpleTarget<Bitmap>(660, 480) {
+                    @Override
+                    public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
+                        loadPhotoStep = resource;
+                        imageView.setImageBitmap(loadPhotoStep);
+                    }
+                });
+
+        descriptionRecipe.setText(intent.getStringExtra(DESCRIPTION));
+
+        btnDetailRecipe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                IntentHelper.intentStepRecipeActivity(getApplicationContext(), intent
+                        .getStringExtra(RECIPE), intent.getStringExtra(PHOTO), intent
+                        .getStringExtra(DESCRIPTION), intent.getStringExtra(RECIPE_LIST));
+            }
+        });
+
+
+
+        MESSAGES_CHILD = "comments/" + intent.getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE) + "/comments";
 
         mCommentsRecyclerView = (RecyclerView) findViewById(R.id.commentsRecyclerView);
         mCommentEditText = (EditText) findViewById(R.id.editTextComent);
@@ -122,22 +170,22 @@ public class RecipeActivity extends AppCompatActivity
         mLinearLayoutManager.setStackFromEnd(true);
         mCommentsRecyclerView.setLayoutManager(mLinearLayoutManager);
 
-
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
 
         if (mFirebaseUser == null) {
             // Not signed in, launch the Sign In activity
-            mUsername = ANONYMOUS;
+            mCommentEditText.setFocusable(false);
             return;
         } else {
+            mCommentEditText.setFocusable(true);
             mUsername = mFirebaseUser.getDisplayName();
             if (mFirebaseUser.getPhotoUrl() != null) {
                 mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
             }
         }
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API)
                 .build();
@@ -176,9 +224,9 @@ public class RecipeActivity extends AppCompatActivity
                             .into(viewHolder.commentatorImageView);
                 }
 
-//                 write this message to the on-device index
+                // write this message to the on-device index
                 FirebaseAppIndex.getInstance().update(getCommentIndexable(comment));
-//                 log a view action on it
+                // log a view action on it
                 FirebaseUserActions.getInstance().end(getCommentViewAction(comment));
             }
         };
@@ -235,41 +283,6 @@ public class RecipeActivity extends AppCompatActivity
                 mCommentEditText.setText("");
             }
         });
-
-
-        LayerDrawable stars = (LayerDrawable) ratingBar.getProgressDrawable();
-        stars.getDrawable(2).setColorFilter(ContextCompat.getColor(this, R.color.starFullySelected), PorterDuff.Mode.SRC_ATOP);
-        stars.getDrawable(1).setColorFilter(ContextCompat.getColor(this, R.color.starPartiallySelected), PorterDuff.Mode.SRC_ATOP);
-        stars.getDrawable(0).setColorFilter(ContextCompat.getColor(this, R.color.starNotSelected), PorterDuff.Mode.SRC_ATOP);
-
-        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
-
-            @Override
-            public void onRatingChanged(RatingBar ratingBar, float rating,
-                                        boolean fromUser) {
-
-                Toast.makeText(getApplicationContext(), "рейтинг: " + String.valueOf(rating),
-                        Toast.LENGTH_LONG).show();
-            }
-        });
-
-
-        actionBar.setTitle(intent.getStringExtra(RECIPE));
-        Glide.with(this).load(intent.getStringExtra(PHOTO_URL)).into(imageView);
-        descriptionRecipe.setText(intent.getStringExtra(DESCRIPTION));
-
-        btnDetailRecipe.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intentStepRecipeActivity = new Intent(getApplicationContext(), StepRecipeActivity.class);
-                intentStepRecipeActivity.putExtra(RECIPE, intent.getStringExtra(RECIPE));
-                intentStepRecipeActivity.putExtra(PHOTO_URL, intent.getStringExtra(PHOTO_URL));
-                intentStepRecipeActivity.putExtra(DESCRIPTION, intent.getStringExtra(DESCRIPTION));
-                startActivity(new Intent(intentStepRecipeActivity));
-            }
-        });
-
-
     }
 
     @Override
@@ -282,12 +295,37 @@ public class RecipeActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_search) {
+        if (id == R.id.action_save) {
+            boolean isOnline = new CheckOnlineHelper(this).isOnline();
+            if (isOnline) {
+                progressDialog.show();
+                progressDialog.setMessage(getResources().getString(R.string.progress_vait));
 
+                String path = MediaStore.Images.Media.insertImage(getContentResolver(),
+                        loadPhotoStep, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
+                new WriterDAtaSQLiteAsyncTask.WriterRecipe(this, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
+                    @Override
+                    public void onDataReady(Integer integer) {
+                        FirebaseHelper.getStepsRecipe(getApplicationContext(), integer, intent
+                                .getStringExtra(RECIPE_LIST), intent.getStringExtra(RECIPE));
+                    }
+                }).execute(new Recipe(intent.getStringExtra(RECIPE), path, intent.getStringExtra(DESCRIPTION)));
+                progressDialog.dismiss();
+            } else {
+                Toast.makeText(RecipeActivity.this, getResources()
+                        .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        } else if (id == android.R.id.home) {
+            IntentHelper.intentRecipeListActivity(this, intent.getStringExtra(RECIPE_LIST));
             return true;
         }
-
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        IntentHelper.intentRecipeListActivity(this, intent.getStringExtra(RECIPE_LIST));
     }
 
 

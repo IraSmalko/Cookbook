@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook;
+package com.exemple.android.cookbook.activities;
 
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -10,7 +10,7 @@ import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -28,9 +28,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.crashlytics.android.Crashlytics;
+import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
-import com.exemple.android.cookbook.supporting.CategoryRecipes;
-import com.exemple.android.cookbook.supporting.OnItemClickListenerCategoryRecipes;
+import com.exemple.android.cookbook.entity.CategoryRecipes;
+import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -46,6 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -53,40 +56,39 @@ public class MainActivity extends AppCompatActivity
         SensorEventListener,
         GoogleApiClient.OnConnectionFailedListener {
 
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseUser mFirebaseUser;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseUser firebaseUser;
 
-    public static final String ANONYMOUS = "anonymous";
-
-    private String mUsername;
-    private String mPhotoUrl;
-    private GoogleApiClient mGoogleApiClient;
+    private String username;
+    private String photoUrl;
+    private GoogleApiClient googleApiClient;
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    public static final String ANONYMOUS = "anonymous";
     private String RECIPE_LIST = "recipeList";
+    private static final String REFERENCE = "Сategory_Recipes";
     private static final int REQUEST_CODE = 1234;
 
     private RecyclerView recyclerView;
     private CategoryRecipeRecyclerAdapter myAdapter;
     private List<CategoryRecipes> categoryRecipesList = new ArrayList<>();
-    private SensorManager mSensorManager;
-    private Sensor mSensor;
+    private SensorManager sensorManager;
+    private Sensor sensor;
 
     FloatingActionButton fab;
 
     private NavigationView navigationView;
-    TextView userNameTV;
-    CircleImageView userPhotoIV;
+    private TextView userNameTV;
+    private CircleImageView userPhotoIV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
 
-
-        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -99,7 +101,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -108,17 +110,18 @@ public class MainActivity extends AppCompatActivity
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
         //        AUTHENTICATION
         View headerLayout = navigationView.getHeaderView(0);
         userNameTV = (TextView) headerLayout.findViewById(R.id.textViewForUserName);
         userPhotoIV = (CircleImageView) headerLayout.findViewById(R.id.imageViewForUserPhoto);
 
-        mUsername = ANONYMOUS;
+        username = ANONYMOUS;
 
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
+        googleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API)
                 .build();
@@ -127,22 +130,26 @@ public class MainActivity extends AppCompatActivity
 
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference databaseReference = firebaseDatabase.getReference("Сategory_Recipes");
-
+        DatabaseReference databaseReference = firebaseDatabase.getReference(REFERENCE);
 
         recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        myAdapter = new CategoryRecipeRecyclerAdapter(this, categoryRecipesList);
-        recyclerView.setAdapter(myAdapter);
-
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                categoryRecipesList.clear();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
-
                     categoryRecipesList.add(categoryRecipes);
+                    myAdapter = new CategoryRecipeRecyclerAdapter(getApplicationContext(), categoryRecipesList,
+                            new CategoryRecipeRecyclerAdapter.ItemClickListener() {
+                                @Override
+                                public void onItemClick(CategoryRecipes item) {
+                                    IntentHelper.intentRecipeListActivity(getApplicationContext(), item.getName());
+                                }
+                            });
+                    recyclerView.setAdapter(myAdapter);
                 }
             }
 
@@ -150,21 +157,11 @@ public class MainActivity extends AppCompatActivity
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-
-        myAdapter.setOnItemClickListener(new OnItemClickListenerCategoryRecipes() {
-            @Override
-            public void onItemClick(CategoryRecipes categoryRecipes) {
-                Intent intent = new Intent(getApplicationContext(), RecipeListActivity.class);
-                intent.putExtra(RECIPE_LIST, categoryRecipes.getName());
-                Log.d("LOG","ToList");
-                startActivity(intent);
-            }
-        });
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -188,8 +185,6 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_search:
                 return true;
         }
-        int id = item.getItemId();
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -208,81 +203,60 @@ public class MainActivity extends AppCompatActivity
             if (name.contains(newText))
                 newList.add(categoryRecipes);
         }
-        myAdapter.setFilter(newList);
+        myAdapter.updateAdapter(newList);
         return true;
     }
 
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        if (id == R.id.selected) {
+            startActivity(new Intent(this, SelectedRecipeListActivity.class));
 
         } else if (id == R.id.nav_sign_in) {
             Intent intent = new Intent(MainActivity.this, AuthenticationActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_sign_out) {
-            if (mFirebaseUser != null) {
-                mFirebaseAuth.signOut();
-                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
-                mUsername = ANONYMOUS;
-                mFirebaseUser = null;
+            if (firebaseUser != null) {
+                firebaseAuth.signOut();
+                Auth.GoogleSignInApi.signOut(googleApiClient);
+                username = ANONYMOUS;
+                firebaseUser = null;
                 userRefresh();
             }
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
     protected void onResume() {
         super.onResume();
-        mSensorManager.registerListener(this, mSensor,
+        sensorManager.registerListener(this, sensor,
                 SensorManager.SENSOR_DELAY_NORMAL);
 
     }
 
     protected void onPause() {
         super.onPause();
-        mSensorManager.unregisterListener(this);
+        sensorManager.unregisterListener(this);
     }
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        if (sensorEvent.values[0] == 0) {
-            startVoiceRecognitionActivity();
-            // near
-        } else {
-
-        }
+//        if (sensorEvent.values[0] == 0) {
+//            IntentHelper.startVoiceRecognitionActivity(getApplicationContext());
+//            // near
+//        }
     }
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
-
-    private void startVoiceRecognitionActivity() {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-                "AndroidBite Voice Recognition...");
-        startActivityForResult(intent, REQUEST_CODE);
-    }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -290,9 +264,9 @@ public class MainActivity extends AppCompatActivity
             ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             Toast.makeText(getApplicationContext(), matches.get(0),
                     Toast.LENGTH_LONG).show();
-            if (matches.contains("супи")) {
+            if (matches.contains(getResources().getString(R.string.example_voice_recognition))) {
                 Intent intent = new Intent(getApplicationContext(), RecipeListActivity.class);
-                intent.putExtra(RECIPE_LIST, "Супи");
+                intent.putExtra(RECIPE_LIST, getResources().getString(R.string.example_voice_recognition));
                 startActivity(intent);
             }
         }
@@ -308,22 +282,22 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void userRefresh() {
-        if (mFirebaseUser == null) {
+        if (firebaseUser == null) {
             navigationView.getMenu().findItem(R.id.nav_sign_in).setVisible(true);
             navigationView.getMenu().findItem(R.id.nav_sign_out).setVisible(false);
             fab.setVisibility(View.GONE);
-            mUsername = ANONYMOUS;
-            userNameTV.setText(mUsername);
-            userPhotoIV.setImageDrawable(getResources().getDrawable(R.drawable.anonymous));
+            username = ANONYMOUS;
+            userNameTV.setText(username);
+            userPhotoIV.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.a));
         } else {
             navigationView.getMenu().findItem(R.id.nav_sign_in).setVisible(false);
             navigationView.getMenu().findItem(R.id.nav_sign_out).setVisible(true);
-            mUsername = mFirebaseUser.getDisplayName();
-            if (mFirebaseUser.getPhotoUrl() != null) {
-                mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
+            username = firebaseUser.getDisplayName();
+            if (firebaseUser.getPhotoUrl() != null) {
+                photoUrl = firebaseUser.getPhotoUrl().toString();
             }
-            userNameTV.setText(mUsername);
-            Glide.with(this).load(mPhotoUrl).into(userPhotoIV);
+            userNameTV.setText(username);
+            Glide.with(this).load(photoUrl).into(userPhotoIV);
         }
     }
 }

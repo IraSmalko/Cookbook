@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Cookbook</string>
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="navigation_drawer_open">Відкрити панель навігації</string>
+    <string name="navigation_drawer_close">Закрити панель навігації</string>
 
     <string name="action_settings">Settings</string>
     <string name="add_name_category_recipe">Додайте назву категорії</string>
@@ -19,4 +19,26 @@
     <string name="add_main_photo_recipe">Додайте головне фото \n рецепта</string>
     <string name="add_ingredients">Додайте інгридієнти</string>
     <string name="add_photo_step">Додайте фото кроку</string>
+    <string name="btn_back">back</string>
+
+    <string name="progress_dialog_title">Завантаження</string>
+    <string name="not_online">Відсутній доступ до інтернету!</string>
+    <string name="data_save">Дані збережено.</string>
+    <string name="invalid_input">Щось ви робите неправильно, \n зробіть нормально!</string>
+    <string name="no_category_name">Додайте ім\'я категорії!</string>
+    <string name="no_ingredients">Додайте інгридієнти!</string>
+    <string name="no_photo">Додайте фото!</string>
+    <string name="no_description_step">Додайте опис кроку!</string>
+    <string name="name_recipe_exists">Iм\'я рецепта вже існує!</string>
+    <string name="no_recipe_name">Додайте ім\'я рецепта!</string>
+    <string name="progress_vait">Зачекайте, будь ласка</string>
+    <string name="input_will_lost">Введені дані буде втрачено</string>
+    <string name="step">Крок </string>
+    <string name="no_information_available">Інформація відсутня</string>
+
+    <string name="example_voice_recognition">Супи</string>
+    <string name="rating">рейтинг: </string>
+
+    <string name="voice_recognition_intent">AndroidBite Voice Recognition…</string>
+
 </resources>

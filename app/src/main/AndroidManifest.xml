@@ -5,16 +5,17 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:name=".supporting.MyFirebaseApp"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -24,19 +25,44 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AddRecipeActivity"
+            android:name=".activities.AddRecipeActivity"
             android:screenOrientation="userPortrait" />
         <activity
-            android:name=".AddCategoryRecipeActivity"
-            android:parentActivityName=".MainActivity"
+            android:name=".activities.AddCategoryRecipeActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:screenOrientation="userPortrait" />
         <activity
-            android:name=".AddStepActivity"
+            android:name=".activities.AddStepActivity"
             android:screenOrientation="userPortrait" />
-        <activity android:name=".RecipeListActivity" />
-        <activity android:name=".RecipeActivity" />
-        <activity android:name=".StepRecipeActivity" />
-        <activity android:name=".AuthenticationActivity"></activity>
+        <activity
+            android:name=".activities.RecipeListActivity"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity
+            android:name=".activities.RecipeActivity"
+            android:parentActivityName=".activities.RecipeListActivity" />
+        <activity android:name=".activities.StepRecipeActivity" />
+        <activity android:name=".activities.AuthenticationActivity"></activity>
+        <activity
+            android:name=".activities.SelectedRecipeActivity"
+            android:parentActivityName=".activities.SelectedRecipeListActivity" />
+        <activity
+            android:name=".activities.SelectedRecipeListActivity"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity android:name=".activities.SelectedStepRecipeActivity" />
+        <activity android:name="com.android.camera.CropImage" />
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="49038910b9ef574b84a5121e68a07e8b94810ed3" />
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.exemple.android.cookbook"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/photo_provider_path" />
+        </provider>
     </application>
 
 </manifest>

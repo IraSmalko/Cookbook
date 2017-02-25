@@ -10,7 +10,7 @@
     android:paddingTop="@dimen/activity_vertical_margin">
 
     <ImageView
-        android:id="@+id/photo_imageView"
+        android:id="@+id/photoImageView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="20"
@@ -46,7 +46,7 @@
             ads:srcCompat="@android:drawable/ic_menu_gallery" />
 
         <ImageButton
-            android:id="@+id/categoryRecipesPhotoUrl"
+            android:id="@+id/categoryRecipesPhotoUrlCamera"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/add_photo_new_recipe"
@@ -55,7 +55,7 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/btn_save"
+        android:id="@+id/btnSave"
         style="?android:textAppearanceSmall"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

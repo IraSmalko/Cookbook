@@ -1,69 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="140dp"
-        app:srcCompat="@mipmap/ic_launcher"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/imageView"
-        android:scaleType="fitXY"/>
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/commentsRecyclerView"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/save_comments" />
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:text="Короткий опис"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView"
-        android:layout_below="@+id/imageView"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:textColor="#000"/>
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:scaleType="fitXY"
+            app:srcCompat="@drawable/ic_launcher" />
 
-    <RatingBar
-        android:layout_width="290dp"
-        android:layout_height="40dp"
-        android:id="@+id/ratingBar"
-        android:numStars="5"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true" />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/commentsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/save_comments" />
 
-    <Button
-        android:text="Детально"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btn_detail_recipe"
-        android:layout_above="@+id/textView"
-        android:layout_alignParentEnd="true" />
+        <ListView
+            android:id="@+id/listView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/save_comments" />
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="46dp"
-        android:ems="10"
-        android:id="@+id/editTextComent"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:hint="@string/editTextComent"
-        android:layout_below="@+id/textView"
-        android:layout_alignStart="@+id/textView" />
+        <RatingBar
+            android:id="@+id/ratingBar"
+            android:layout_width="290dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:numStars="5" />
 
-    <Button
-        android:text="Надіслати"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/save_comments"
-        android:layout_below="@+id/textView"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="35dp" />
+        <Button
+            android:id="@+id/btnDetailRecipe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/ratingBar"
+            android:layout_marginTop="63dp"
+            android:text="Детально" />
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btnDetailRecipe"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:background="#99ECEFF1"
+            android:text="Короткий опис"
+            android:textColor="#000" />
+
+        <Button
+            android:id="@+id/save_comments"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/textInputLayout1"
+            android:text="Надіслати" />
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/textInputLayout1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/textView">
+
+            <EditText
+                android:id="@+id/editTextComent"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:background="#99F5F5F5"
+                android:ems="10"
+                android:hint="@string/editTextComent"
+                android:inputType="textAutoCorrect" />
+        </android.support.design.widget.TextInputLayout>
+
+    </RelativeLayout>
+</ScrollView>

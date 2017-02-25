@@ -2,6 +2,7 @@ package com.exemple.android.cookbook.adapters;
 
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,66 +12,45 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.supporting.OnItemClickListenerRecipes;
-import com.exemple.android.cookbook.supporting.Recipes;
+import com.exemple.android.cookbook.entity.CategoryRecipes;
+import com.exemple.android.cookbook.entity.Recipe;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeRecyclerListAdapter extends RecyclerView.Adapter<RecipeRecyclerListAdapter.CustomViewHolder> {
 
-    private Context mContext;
-    private List<Recipes> items;
-    private OnItemClickListenerRecipes onItemClickListener;
+    private Context context;
+    private LayoutInflater inflater;
+    private List<Recipe> items = new ArrayList<>();
+    private final RecipeRecyclerListAdapter.ItemClickListener clickListener;
 
-    class CustomViewHolder extends RecyclerView.ViewHolder {
-        protected TextView mTextView;
-        public ImageView mImageView;
+    public RecipeRecyclerListAdapter(Context context, List<Recipe> items, RecipeRecyclerListAdapter.ItemClickListener clickListener) {
+        updateAdapter(items);
+        this.context = context;
+        this.clickListener = clickListener;
+    }
 
-        public CustomViewHolder(View v) {
-            super(v);
-            this.mTextView = (TextView) v.findViewById(R.id.info_text);
-            this.mImageView = (ImageView) v.findViewById(R.id.imageView1);
+    public void updateAdapter(@Nullable List<Recipe> recipe) {
+        items.clear();
+        if (recipe != null) {
+            items.addAll(recipe);
         }
-    }
-
-    public RecipeRecyclerListAdapter(Context mContext, List<Recipes> items) {
-        this.mContext = mContext;
-        this.items = items;
-    }
-
-    public OnItemClickListenerRecipes getOnItemClickListener() {
-        return onItemClickListener;
-    }
-
-    public void setOnItemClickListener(OnItemClickListenerRecipes onItemClickListener) {
-        this.onItemClickListener = onItemClickListener;
+        notifyDataSetChanged();
     }
 
     @Override
-    public RecipeRecyclerListAdapter.CustomViewHolder onCreateViewHolder(ViewGroup parent,
-                                                                         int viewType) {
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.card_recipe, parent, false);
-
-        return new CustomViewHolder(v);
+    public RecipeRecyclerListAdapter.CustomViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (inflater == null) {
+            inflater = LayoutInflater.from(parent.getContext());
+        }
+        return RecipeRecyclerListAdapter.CustomViewHolder.create(inflater, parent, clickListener);
     }
 
     @Override
     public void onBindViewHolder(RecipeRecyclerListAdapter.CustomViewHolder holder, int position) {
-        final Recipes item = items.get(position);
-
-        holder.mTextView.setText(item.getName());
-        Glide.with(mContext).load(item.getPhotoUrl()).into(holder.mImageView);
-
-        View.OnClickListener listener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onItemClickListener.onItemClick(item);
-            }
-        };
-        holder.mTextView.setOnClickListener(listener);
-
+        Recipe item = items.get(position);
+        holder.bind(context, item);
     }
 
     @Override
@@ -78,9 +58,41 @@ public class RecipeRecyclerListAdapter extends RecyclerView.Adapter<RecipeRecycl
         return (null != items ? items.size() : 0);
     }
 
-    public void setFilter(ArrayList<Recipes> newList) {
-        items = new ArrayList<>();
-        items.addAll(newList);
-        notifyDataSetChanged();
+    public static class CustomViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private TextView textView;
+        private ImageView imageView;
+        private final RecipeRecyclerListAdapter.ItemClickListener clickListener;
+        private Recipe item;
+
+        static RecipeRecyclerListAdapter.CustomViewHolder create(LayoutInflater inflater, ViewGroup parent,
+                                                                 RecipeRecyclerListAdapter.ItemClickListener clickListener) {
+            return new RecipeRecyclerListAdapter.CustomViewHolder(inflater.inflate(R.layout.card_recipe, parent, false), clickListener);
+        }
+
+        public CustomViewHolder(View v, RecipeRecyclerListAdapter.ItemClickListener clickListener) {
+            super(v);
+            this.clickListener = clickListener;
+            this.textView = (TextView) v.findViewById(R.id.infoText);
+            this.imageView = (ImageView) v.findViewById(R.id.imageView);
+            itemView.setOnClickListener(this);
+            textView.setOnClickListener(this);
+        }
+
+        void bind(Context context, Recipe item) {
+            this.item = item;
+            textView.setText(item.getName());
+            Glide.with(context).load(item.getPhotoUrl()).into(imageView);
+        }
+
+        @Override
+        public void onClick(View view) {
+            if (clickListener != null) {
+                clickListener.onItemClick(item);
+            }
+        }
+    }
+
+    public interface ItemClickListener {
+        void onItemClick(Recipe item);
     }
 }
