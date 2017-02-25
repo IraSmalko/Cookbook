@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,6 +45,9 @@ public class RecipeListActivity extends AppCompatActivity
         setContentView(R.layout.recipe_list_activity);
         intent = getIntent();
         final String recipeCategory = intent.getStringExtra(RECIPE_LIST);
+
+        Log.d("LOG","InListCreate");
+        Log.d("LOG",recipeCategory);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab1);
         fab.setOnClickListener(new View.OnClickListener() {

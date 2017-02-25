@@ -137,10 +137,10 @@ public class RecipeActivity extends AppCompatActivity
             }
         }
 
-//        mGoogleApiClient = new GoogleApiClient.Builder(this)
-//                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-//                .addApi(Auth.GOOGLE_SIGN_IN_API)
-//                .build();
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .addApi(Auth.GOOGLE_SIGN_IN_API)
+                .build();
 
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
         mFirebaseAdapter = new FirebaseRecyclerAdapter<Comment,
@@ -176,10 +176,10 @@ public class RecipeActivity extends AppCompatActivity
                             .into(viewHolder.commentatorImageView);
                 }
 
-                // write this message to the on-device index
-//                FirebaseAppIndex.getInstance().update(getCommentIndexable(comment));
-                // log a view action on it
-//                FirebaseUserActions.getInstance().end(getCommentViewAction(comment));
+//                 write this message to the on-device index
+                FirebaseAppIndex.getInstance().update(getCommentIndexable(comment));
+//                 log a view action on it
+                FirebaseUserActions.getInstance().end(getCommentViewAction(comment));
             }
         };
 

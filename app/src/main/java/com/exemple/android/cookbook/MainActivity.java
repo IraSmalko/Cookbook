@@ -72,6 +72,8 @@ public class MainActivity extends AppCompatActivity
     private SensorManager mSensorManager;
     private Sensor mSensor;
 
+    FloatingActionButton fab;
+
     private NavigationView navigationView;
     TextView userNameTV;
     CircleImageView userPhotoIV;
@@ -89,7 +91,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -154,6 +156,7 @@ public class MainActivity extends AppCompatActivity
             public void onItemClick(CategoryRecipes categoryRecipes) {
                 Intent intent = new Intent(getApplicationContext(), RecipeListActivity.class);
                 intent.putExtra(RECIPE_LIST, categoryRecipes.getName());
+                Log.d("LOG","ToList");
                 startActivity(intent);
             }
         });
@@ -308,6 +311,7 @@ public class MainActivity extends AppCompatActivity
         if (mFirebaseUser == null) {
             navigationView.getMenu().findItem(R.id.nav_sign_in).setVisible(true);
             navigationView.getMenu().findItem(R.id.nav_sign_out).setVisible(false);
+            fab.setVisibility(View.GONE);
             mUsername = ANONYMOUS;
             userNameTV.setText(mUsername);
             userPhotoIV.setImageDrawable(getResources().getDrawable(R.drawable.anonymous));
