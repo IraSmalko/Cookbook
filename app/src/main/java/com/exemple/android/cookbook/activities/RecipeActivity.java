@@ -224,10 +224,6 @@ public class RecipeActivity extends AppCompatActivity
                             .into(viewHolder.commentatorImageView);
                 }
 
-                // write this message to the on-device index
-                FirebaseAppIndex.getInstance().update(getCommentIndexable(comment));
-                // log a view action on it
-                FirebaseUserActions.getInstance().end(getCommentViewAction(comment));
             }
         };
 
@@ -326,34 +322,6 @@ public class RecipeActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         IntentHelper.intentRecipeListActivity(this, intent.getStringExtra(RECIPE_LIST));
-    }
-
-
-    private Indexable getCommentIndexable(Comment comment) {
-        PersonBuilder sender = Indexables.personBuilder()
-                .setIsSelf(mUsername == comment.getName())
-                .setName(comment.getName())
-                .setUrl(MESSAGE_URL.concat(comment.getId() + "/sender"));
-
-        PersonBuilder recipient = Indexables.personBuilder()
-                .setName(mUsername)
-                .setUrl(MESSAGE_URL.concat(comment.getId() + "/recipient"));
-
-        Indexable commentToIndex = Indexables.messageBuilder()
-                .setName(comment.getText())
-                .setUrl(MESSAGE_URL.concat(comment.getId()))
-                .setSender(sender)
-                .setRecipient(recipient)
-                .build();
-
-        return commentToIndex;
-    }
-
-    private Action getCommentViewAction(Comment comment) {
-        return new Action.Builder(Action.Builder.VIEW_ACTION)
-                .setObject(comment.getName(), MESSAGE_URL.concat(comment.getId()))
-                .setMetadata(new Action.Metadata.Builder().setUpload(false))
-                .build();
     }
 
     @Override
