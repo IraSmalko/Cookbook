@@ -21,50 +21,50 @@ public class PhotoFromCameraHelper {
     private static final int REQUEST_IMAGE_CAPTURE = 22;
     private static final int GALLERY_REQUEST = 13;
 
-    private Context context;
+    private Context mContext;
     @NonNull
-    private OnPhotoPicked onPhotoPickedListener;
+    private OnPhotoPicked mOnPhotoPickedListener;
 
-    private Uri filePath;
+    private Uri mFilePath;
 
     public PhotoFromCameraHelper(Context context, @NonNull OnPhotoPicked onPhotoPickedListener) {
-        this.context = context;
-        this.onPhotoPickedListener = onPhotoPickedListener;
+        mContext = context;
+        mOnPhotoPickedListener = onPhotoPickedListener;
     }
 
     public void takePhoto() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (intent.resolveActivity(context.getPackageManager()) != null) {
+        if (intent.resolveActivity(mContext.getPackageManager()) != null) {
 
-            filePath = createFileUri();
+            mFilePath = createFileUri();
 
-            if (filePath != null) {
-                List<ResolveInfo> resInfoList = context.getPackageManager().queryIntentActivities(intent,
+            if (mFilePath != null) {
+                List<ResolveInfo> resInfoList = mContext.getPackageManager().queryIntentActivities(intent,
                         PackageManager.MATCH_DEFAULT_ONLY);
 
                 for (ResolveInfo resolveInfo : resInfoList) {
                     String packageName = resolveInfo.activityInfo.packageName;
-                    context.grantUriPermission(packageName, filePath, Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    mContext.grantUriPermission(packageName, mFilePath, Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                             | Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 }
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, filePath);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, mFilePath);
                 ActivityCompat.startActivityForResult(
-                        (AppCompatActivity) context, intent, REQUEST_IMAGE_CAPTURE, null);
+                        (AppCompatActivity) mContext, intent, REQUEST_IMAGE_CAPTURE, null);
             }
         }
     }
 
-    private Uri createFileUri()  {
-        File file = new File(context.getCacheDir(), "photo.jpg");
+    private Uri createFileUri() {
+        File file = new File(mContext.getCacheDir(), "photo.jpg");
 
-        return FileProvider.getUriForFile(context, "com.exemple.android.cookbook", file);
+        return FileProvider.getUriForFile(mContext, "com.exemple.android.cookbook", file);
     }
 
     public void pickPhoto() {
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
         photoPickerIntent.setType("image/*");
         ActivityCompat.startActivityForResult(
-                (AppCompatActivity) context, photoPickerIntent, GALLERY_REQUEST, null);
+                (AppCompatActivity) mContext, photoPickerIntent, GALLERY_REQUEST, null);
     }
 
     public void onActivityResult(int resultCode, int requestCode, Intent data) {
@@ -72,12 +72,12 @@ public class PhotoFromCameraHelper {
             case GALLERY_REQUEST:
                 if (resultCode == Activity.RESULT_OK) {
                     Uri photoUri = data.getData();
-                    onPhotoPickedListener.onPicked(photoUri);
+                    mOnPhotoPickedListener.onPicked(photoUri);
                 }
             case REQUEST_IMAGE_CAPTURE:
 
                 if (resultCode == Activity.RESULT_OK) {
-                    onPhotoPickedListener.onPicked(filePath);
+                    mOnPhotoPickedListener.onPicked(mFilePath);
                 }
         }
     }

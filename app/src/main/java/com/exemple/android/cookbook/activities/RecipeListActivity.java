@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.entity.Recipe;
@@ -40,89 +38,88 @@ public class RecipeListActivity extends AppCompatActivity
 
     private static final String RECIPE_LIST = "recipeList";
 
-    private List<Recipe> recipesList = new ArrayList<>();
-    private RecipeRecyclerListAdapter recipeRecyclerAdapter;
-    private Intent intent;
-    private RecyclerView recyclerView;
-    private Context context = RecipeListActivity.this;
-    private FirebaseDatabase firebaseDatabase;
-    private String reference;
-    private String username;
+    private List<Recipe> mRecipesList = new ArrayList<>();
+    private RecipeRecyclerListAdapter mRecipeRecyclerAdapter;
+    private Intent mIntent;
+    private RecyclerView mRecyclerView;
+    private Context mContext = RecipeListActivity.this;
+    private FirebaseDatabase mFirebaseDatabase;
+    private String mReference;
+    private String mUsername;
 
-    private FirebaseAuth firebaseAuth;
-    private FirebaseUser firebaseUser;
-    private FloatingActionButton fab;
+    private FirebaseUser mFirebaseUser;
+    private FloatingActionButton mFab;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.recipe_list_activity);
-        intent = getIntent();
-        final String recipeCategory = intent.getStringExtra(RECIPE_LIST);
+        mIntent = getIntent();
+        final String recipeCategory = mIntent.getStringExtra(RECIPE_LIST);
 
         Log.d("LOG", "InListCreate");
         Log.d("LOG", recipeCategory);
 
-        fab = (FloatingActionButton) findViewById(R.id.fab1);
+        mFab = (FloatingActionButton) findViewById(R.id.fab1);
 
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = firebaseAuth.getCurrentUser();
         userRefresh();
 
-        fab.setOnClickListener(new View.OnClickListener() {
+        mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ArrayList<String> nameRecipesList = new ArrayList<>();
-                for (int i = 0; i < recipesList.size(); i++) {
-                    nameRecipesList.add(recipesList.get(i).getName());
+                for (int i = 0; i < mRecipesList.size(); i++) {
+                    nameRecipesList.add(mRecipesList.get(i).getName());
                 }
-                IntentHelper.intentAddRecipeActivity(context, nameRecipesList, intent
+                IntentHelper.intentAddRecipeActivity(mContext, nameRecipesList, mIntent
                         .getStringExtra(RECIPE_LIST));
             }
         });
 
-        intent = getIntent();
+        mIntent = getIntent();
 
-        reference = "Recipe_lists/" + intent.getStringExtra(RECIPE_LIST);
-        DatabaseReference databaseReference = firebaseDatabase.getReference().child(reference);
+        mReference = "Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST);
+        DatabaseReference databaseReference = mFirebaseDatabase.getReference().child(mReference);
 
-        if (firebaseUser != null) {
-            username = firebaseUser.getDisplayName();
-            reference = username + "/" + reference;
+        if (mFirebaseUser != null) {
+            mUsername = mFirebaseUser.getDisplayName();
+            mReference = mUsername + "/" + mReference;
         }
 
-        recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                recipesList.clear();
+                mRecipesList.clear();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Recipe recipes = postSnapshot.getValue(Recipe.class);
-                    recipesList.add(recipes);
+                    mRecipesList.add(recipes);
                 }
-                if (username != null) {
+                if (mUsername != null) {
                     new FirebaseHelper(new FirebaseHelper.OnUserRecipes() {
                         @Override
                         public void OnGet(List<Recipe> recipes) {
                             if (recipes.isEmpty()) {
-                                recipeRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
-                                        .createRecyclerAdapter(recipesList, intent.getStringExtra(RECIPE_LIST), username);
-                                recyclerView.setAdapter(recipeRecyclerAdapter);
+                                mRecipeRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
+                                        .createRecyclerAdapter(mRecipesList, mIntent.getStringExtra(RECIPE_LIST), mUsername);
+                                mRecyclerView.setAdapter(mRecipeRecyclerAdapter);
                             } else {
-                                recipesList = recipes;
-                                recipeRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
-                                        .createRecyclerAdapter(recipes, intent.getStringExtra(RECIPE_LIST), username);
-                                recyclerView.setAdapter(recipeRecyclerAdapter);
+                                mRecipesList = recipes;
+                                mRecipeRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
+                                        .createRecyclerAdapter(recipes, mIntent.getStringExtra(RECIPE_LIST), mUsername);
+                                mRecyclerView.setAdapter(mRecipeRecyclerAdapter);
                             }
                         }
-                    }).getUserRecipe(recipesList, firebaseDatabase, reference);
+                    }).getUserRecipe(mRecipesList, mFirebaseDatabase, mReference);
                 } else {
-                    recipeRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
-                            .createRecyclerAdapter(recipesList, intent.getStringExtra(RECIPE_LIST), username);
-                    recyclerView.setAdapter(recipeRecyclerAdapter);
+                    mRecipeRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
+                            .createRecyclerAdapter(mRecipesList, mIntent.getStringExtra(RECIPE_LIST), mUsername);
+                    mRecyclerView.setAdapter(mRecipeRecyclerAdapter);
                 }
             }
 
@@ -132,7 +129,6 @@ public class RecipeListActivity extends AppCompatActivity
         });
 
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -163,18 +159,18 @@ public class RecipeListActivity extends AppCompatActivity
         newText = newText.toLowerCase();
         ArrayList<Recipe> newList = new ArrayList<>();
 
-        for (Recipe recipes : recipesList) {
+        for (Recipe recipes : mRecipesList) {
             String name = recipes.getName().toLowerCase();
             if (name.contains(newText))
                 newList.add(recipes);
         }
-        recipeRecyclerAdapter.updateAdapter(newList);
+        mRecipeRecyclerAdapter.updateAdapter(newList);
         return true;
     }
 
     public void userRefresh() {
-        if (firebaseUser == null) {
-            fab.setVisibility(View.GONE);
+        if (mFirebaseUser == null) {
+            mFab.setVisibility(View.GONE);
         }
     }
 }

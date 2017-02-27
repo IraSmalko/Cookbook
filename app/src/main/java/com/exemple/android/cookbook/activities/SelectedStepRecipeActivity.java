@@ -15,9 +15,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.SelectedStepRecipe;
+import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 
 import java.io.IOException;
@@ -32,36 +32,36 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
     private static final String DESCRIPTION = "description";
     private static final String ID_RECIPE = "id_recipe";
 
-    private List<SelectedStepRecipe> selectedStepRecipes = new ArrayList<>();
-    private int index = 0;
-    private ActionBar actionBar;
-    private TextView txtStepRecipe;
-    private ImageView imgStepRecipe;
-    private Intent intent;
-    private Context context = SelectedStepRecipeActivity.this;
+    private List<SelectedStepRecipe> mSelectedStepRecipes = new ArrayList<>();
+    private int mIndex = 0;
+    private ActionBar mActionBar;
+    private TextView mTxtStepRecipe;
+    private ImageView mImgStepRecipe;
+    private Intent mIntent;
+    private Context mContext = SelectedStepRecipeActivity.this;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.step_recipe_activity);
 
-        txtStepRecipe = (TextView) findViewById(R.id.txtStepRecipe);
-        imgStepRecipe = (ImageView) findViewById(R.id.imgStepRecipe);
-        actionBar = getSupportActionBar();
+        mTxtStepRecipe = (TextView) findViewById(R.id.txtStepRecipe);
+        mImgStepRecipe = (ImageView) findViewById(R.id.imgStepRecipe);
+        mActionBar = getSupportActionBar();
 
-        intent = getIntent();
+        mIntent = getIntent();
         DataSourceSQLite dataSource = new DataSourceSQLite(this);
-        selectedStepRecipes = dataSource.readStepRecipe(intent.getIntExtra(ID_RECIPE, INT_EXTRA));
+        mSelectedStepRecipes = dataSource.readStepRecipe(mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
 
-        if (selectedStepRecipes.isEmpty()) {
-            Toast.makeText(context, getResources().getString(R.string
+        if (mSelectedStepRecipes.isEmpty()) {
+            Toast.makeText(mContext, getResources().getString(R.string
                     .no_information_available), Toast.LENGTH_SHORT).show();
         } else {
-            actionBar.setTitle(selectedStepRecipes.get(0).getNumberStep());
-            txtStepRecipe.setText(selectedStepRecipes.get(0).getTextStep());
+            mActionBar.setTitle(mSelectedStepRecipes.get(0).getNumberStep());
+            mTxtStepRecipe.setText(mSelectedStepRecipes.get(0).getTextStep());
             try {
-                imgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
-                        .parse(selectedStepRecipes.get(0).getPhotoUrlStep())));
+                mImgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
+                        .parse(mSelectedStepRecipes.get(0).getPhotoUrlStep())));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -71,25 +71,25 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                index = ++index;
-                updateData(index);
+                mIndex = ++mIndex;
+                updateData(mIndex);
             }
         });
     }
 
     public void updateData(int i) {
-        if (i < selectedStepRecipes.size()) {
-            actionBar.setTitle(selectedStepRecipes.get(i).getNumberStep());
-            txtStepRecipe.setText(selectedStepRecipes.get(i).getTextStep());
+        if (i < mSelectedStepRecipes.size()) {
+            mActionBar.setTitle(mSelectedStepRecipes.get(i).getNumberStep());
+            mTxtStepRecipe.setText(mSelectedStepRecipes.get(i).getTextStep());
             try {
-                imgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
-                        .parse(selectedStepRecipes.get(i).getPhotoUrlStep())));
+                mImgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
+                        .parse(mSelectedStepRecipes.get(i).getPhotoUrlStep())));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-            IntentHelper.intentSelectedRecipeActivity(context, intent.getStringExtra(RECIPE), intent
-                    .getStringExtra(PHOTO), intent.getStringExtra(DESCRIPTION), intent
+            IntentHelper.intentSelectedRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
+                    .getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
                     .getIntExtra(ID_RECIPE, INT_EXTRA));
         }
     }

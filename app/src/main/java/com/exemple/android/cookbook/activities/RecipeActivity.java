@@ -58,10 +58,10 @@ public class RecipeActivity extends AppCompatActivity
     private static final String DESCRIPTION = "description";
     private static final String USERNAME = "username";
 
-    private Intent intent;
-    private ImageView imageView;
-    private Bitmap loadPhotoStep;
-    private ProgressDialog progressDialog;
+    private Intent mIntent;
+    private ImageView mImageView;
+    private Bitmap mLoadPhotoStep;
+    private ProgressDialog mProgressDialog;
 
     public static class CommentViewHolder extends RecyclerView.ViewHolder {
         public TextView commentTextView;
@@ -102,13 +102,13 @@ public class RecipeActivity extends AppCompatActivity
         setContentView(R.layout.activity_recipe);
 
         TextView descriptionRecipe = (TextView) findViewById(R.id.textView);
-        imageView = (ImageView) findViewById(R.id.imageView);
+        mImageView = (ImageView) findViewById(R.id.imageView);
         Button btnDetailRecipe = (Button) findViewById(R.id.btnDetailRecipe);
         RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar);
         ActionBar actionBar = getSupportActionBar();
 
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
 
         LayerDrawable stars = (LayerDrawable) ratingBar.getProgressDrawable();
         stars.getDrawable(2).setColorFilter(ContextCompat.getColor(this, R.color.starFullySelected), PorterDuff.Mode.SRC_ATOP);
@@ -125,37 +125,37 @@ public class RecipeActivity extends AppCompatActivity
             }
         });
 
-        intent = getIntent();
+        mIntent = getIntent();
 
         if (actionBar != null) {
-            actionBar.setTitle(intent.getStringExtra(RECIPE));
+            actionBar.setTitle(mIntent.getStringExtra(RECIPE));
         }
 
         Glide.with(getApplicationContext())
-                .load(intent.getStringExtra(PHOTO))
+                .load(mIntent.getStringExtra(PHOTO))
                 .asBitmap()
                 .into(new SimpleTarget<Bitmap>(660, 480) {
                     @Override
                     public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
-                        loadPhotoStep = resource;
-                        imageView.setImageBitmap(loadPhotoStep);
+                        mLoadPhotoStep = resource;
+                        mImageView.setImageBitmap(mLoadPhotoStep);
                     }
                 });
 
-        descriptionRecipe.setText(intent.getStringExtra(DESCRIPTION));
+        descriptionRecipe.setText(mIntent.getStringExtra(DESCRIPTION));
 
         btnDetailRecipe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                IntentHelper.intentStepRecipeActivity(getApplicationContext(), intent
-                        .getStringExtra(RECIPE), intent.getStringExtra(PHOTO), intent
-                        .getStringExtra(DESCRIPTION), intent.getStringExtra(RECIPE_LIST));
+                IntentHelper.intentStepRecipeActivity(getApplicationContext(), mIntent
+                        .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent
+                        .getStringExtra(DESCRIPTION), mIntent.getStringExtra(RECIPE_LIST));
             }
         });
 
 
 
-        MESSAGES_CHILD = "comments/" + intent.getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE) + "/comments";
+        MESSAGES_CHILD = "comments/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/comments";
 
         mCommentsRecyclerView = (RecyclerView) findViewById(R.id.commentsRecyclerView);
         mCommentEditText = (EditText) findViewById(R.id.editTextComent);
@@ -289,26 +289,26 @@ public class RecipeActivity extends AppCompatActivity
         if (id == R.id.action_save) {
             boolean isOnline = new CheckOnlineHelper(this).isOnline();
             if (isOnline) {
-                progressDialog.show();
-                progressDialog.setMessage(getResources().getString(R.string.progress_vait));
+                mProgressDialog.show();
+                mProgressDialog.setMessage(getResources().getString(R.string.progress_vait));
 
                 String path = MediaStore.Images.Media.insertImage(getContentResolver(),
-                        loadPhotoStep, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
+                        mLoadPhotoStep, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
                 new WriterDAtaSQLiteAsyncTask.WriterRecipe(this, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
                     @Override
                     public void onDataReady(Integer integer) {
-                        new FirebaseHelper().getStepsRecipe(getApplicationContext(), integer, intent
-                                .getStringExtra(RECIPE_LIST), intent.getStringExtra(RECIPE), intent.getStringExtra(USERNAME));
+                        new FirebaseHelper().getStepsRecipe(getApplicationContext(), integer, mIntent
+                                .getStringExtra(RECIPE_LIST), mIntent.getStringExtra(RECIPE), mIntent.getStringExtra(USERNAME));
                     }
-                }).execute(new Recipe(intent.getStringExtra(RECIPE), path, intent.getStringExtra(DESCRIPTION)));
-                progressDialog.dismiss();
+                }).execute(new Recipe(mIntent.getStringExtra(RECIPE), path, mIntent.getStringExtra(DESCRIPTION)));
+                mProgressDialog.dismiss();
             } else {
                 Toast.makeText(RecipeActivity.this, getResources()
                         .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
             }
             return true;
         } else if (id == android.R.id.home) {
-            IntentHelper.intentRecipeListActivity(this, intent.getStringExtra(RECIPE_LIST));
+            IntentHelper.intentRecipeListActivity(this, mIntent.getStringExtra(RECIPE_LIST));
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -316,7 +316,7 @@ public class RecipeActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        IntentHelper.intentRecipeListActivity(this, intent.getStringExtra(RECIPE_LIST));
+        IntentHelper.intentRecipeListActivity(this, mIntent.getStringExtra(RECIPE_LIST));
     }
 
     @Override

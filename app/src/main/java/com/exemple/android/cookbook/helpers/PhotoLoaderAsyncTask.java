@@ -11,12 +11,12 @@ import java.util.concurrent.ExecutionException;
 
 public class PhotoLoaderAsyncTask extends AsyncTask<String, Bitmap, Bitmap> {
 
-    private Context context;
-    private PhotoLoadProcessed photoLoadProcessed;
+    private Context mContext;
+    private PhotoLoadProcessed mPhotoLoadProcessed;
 
     public PhotoLoaderAsyncTask(Context context, PhotoLoadProcessed photoLoadProcessed) {
-        this.context = context;
-        this.photoLoadProcessed = photoLoadProcessed;
+        mContext = context;
+        mPhotoLoadProcessed = photoLoadProcessed;
     }
 
     @Override
@@ -25,7 +25,7 @@ public class PhotoLoaderAsyncTask extends AsyncTask<String, Bitmap, Bitmap> {
         Bitmap theBitmap = null;
         try {
             theBitmap = Glide
-                    .with(context)
+                    .with(mContext)
                     .load(photoUrl)
                     .asBitmap()
                     .into(660, 480)
@@ -39,7 +39,7 @@ public class PhotoLoaderAsyncTask extends AsyncTask<String, Bitmap, Bitmap> {
     @Override
     protected void onPostExecute(Bitmap bitmap) {
         super.onPostExecute(bitmap);
-        photoLoadProcessed.onBitmapReady(bitmap);
+        mPhotoLoadProcessed.onBitmapReady(bitmap);
     }
 
     public interface PhotoLoadProcessed {

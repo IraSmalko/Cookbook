@@ -17,18 +17,18 @@ import java.lang.ref.WeakReference;
 
 public class ProcessPhotoAsyncTask extends AsyncTask<Uri, Void, ImageCard> {
 
-    private WeakReference<Context> weakContext;
-    private OnPhotoProcessed onPhotoProcessedListener;
+    private WeakReference<Context> mWeakContext;
+    private OnPhotoProcessed mOnPhotoProcessedListener;
 
     public ProcessPhotoAsyncTask(Context context, OnPhotoProcessed onPhotoProcessedListener) {
-        weakContext = new WeakReference<>(context);
-        this.onPhotoProcessedListener = onPhotoProcessedListener;
+        mWeakContext = new WeakReference<>(context);
+        mOnPhotoProcessedListener = onPhotoProcessedListener;
     }
 
     @Override
     protected ImageCard doInBackground(Uri... uris) {
         Uri photo = uris[0];
-        Context context = weakContext.get();
+        Context context = mWeakContext.get();
         Bitmap selectedBitmap = null;
         if (context != null) {
             ContentResolver resolver = context.getContentResolver();
@@ -48,7 +48,7 @@ public class ProcessPhotoAsyncTask extends AsyncTask<Uri, Void, ImageCard> {
     @Override
     protected void onPostExecute(ImageCard imageCard) {
         super.onPostExecute(imageCard);
-        onPhotoProcessedListener.onDataReady(imageCard);
+        mOnPhotoProcessedListener.onDataReady(imageCard);
     }
 
     public interface OnPhotoProcessed {

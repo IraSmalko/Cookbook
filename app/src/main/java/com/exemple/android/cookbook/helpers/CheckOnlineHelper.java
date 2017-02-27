@@ -7,14 +7,14 @@ import android.net.NetworkInfo;
 
 public class CheckOnlineHelper {
 
-    private Context context;
+    private Context mContext;
 
-    public CheckOnlineHelper(Context context){
-        this.context = context;
+    public CheckOnlineHelper(Context context) {
+        mContext = context;
     }
 
     public boolean isOnline() {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }

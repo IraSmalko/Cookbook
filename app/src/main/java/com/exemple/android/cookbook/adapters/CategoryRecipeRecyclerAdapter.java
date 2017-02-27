@@ -19,42 +19,42 @@ import java.util.List;
 
 public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<CategoryRecipeRecyclerAdapter.CustomViewHolder> {
 
-    private Context context;
-    private LayoutInflater inflater;
-    private List<CategoryRecipes> items = new ArrayList<>();
-    private final ItemClickListener clickListener;
+    private Context mContext;
+    private LayoutInflater mInflater;
+    private List<CategoryRecipes> mItems = new ArrayList<>();
+    private final ItemClickListener mClickListener;
 
     public CategoryRecipeRecyclerAdapter(Context context, List<CategoryRecipes> items, ItemClickListener clickListener) {
         updateAdapter(items);
-        this.context = context;
-        this.clickListener = clickListener;
+        mContext = context;
+        mClickListener = clickListener;
     }
 
     public void updateAdapter(@Nullable List<CategoryRecipes> categoryRecipes) {
-        items.clear();
+        mItems.clear();
         if(categoryRecipes != null) {
-            items.addAll(categoryRecipes);
+            mItems.addAll(categoryRecipes);
         }
         notifyDataSetChanged();
     }
 
     @Override
     public CustomViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (inflater == null) {
-            inflater = LayoutInflater.from(parent.getContext());
+        if (mInflater == null) {
+            mInflater = LayoutInflater.from(parent.getContext());
         }
-        return CustomViewHolder.create(inflater, parent, clickListener);
+        return CustomViewHolder.create(mInflater, parent, mClickListener);
     }
 
     @Override
     public void onBindViewHolder(CustomViewHolder holder, int position) {
-        CategoryRecipes item = items.get(position);
-        holder.bind(context, item);
+        CategoryRecipes item = mItems.get(position);
+        holder.bind(mContext, item);
     }
 
     @Override
     public int getItemCount() {
-        return (null != items ? items.size() : 0);
+        return (null != mItems ? mItems.size() : 0);
     }
 
     public static class CustomViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

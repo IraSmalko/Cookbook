@@ -12,17 +12,17 @@ public class WriterDAtaSQLiteAsyncTask {
 
     public static class WriterRecipe extends AsyncTask<Recipe, Integer, Integer> {
 
-        private Context context;
-        private OnWriterSQLite onWriterSQLite;
+        private Context mContext;
+        private OnWriterSQLite mOnWriterSQLite;
 
         public WriterRecipe(Context context, OnWriterSQLite onWriterSQLite) {
-            this.context = context;
-            this.onWriterSQLite = onWriterSQLite;
+            mContext = context;
+            mOnWriterSQLite = onWriterSQLite;
         }
 
         @Override
         protected Integer doInBackground(Recipe... recipes) {
-            DataSourceSQLite dataSourceSQLite = new DataSourceSQLite(context);
+            DataSourceSQLite dataSourceSQLite = new DataSourceSQLite(mContext);
             return dataSourceSQLite.saveRecipe(recipes[0].getName(), recipes[0]
                     .getPhotoUrl(), recipes[0].getDescription());
         }
@@ -30,7 +30,7 @@ public class WriterDAtaSQLiteAsyncTask {
         @Override
         protected void onPostExecute(Integer integer) {
             super.onPostExecute(integer);
-            onWriterSQLite.onDataReady(integer);
+            mOnWriterSQLite.onDataReady(integer);
         }
 
         public interface OnWriterSQLite {
@@ -40,22 +40,22 @@ public class WriterDAtaSQLiteAsyncTask {
 
     public static class WriterStepsRecipe extends AsyncTask<ForWriterStepsRecipe, Void, ForWriterStepsRecipe> {
 
-        private Context context;
+        private Context mContext;
 
         public WriterStepsRecipe(Context context) {
-            this.context = context;
+            mContext = context;
         }
 
         @Override
         protected ForWriterStepsRecipe doInBackground(ForWriterStepsRecipe... forWriterStepsRecipes) {
-            DataSourceSQLite dataSourceSQLite = new DataSourceSQLite(context);
+            DataSourceSQLite dataSourceSQLite = new DataSourceSQLite(mContext);
             return dataSourceSQLite.saveSteps(forWriterStepsRecipes[0]);
         }
 
         @Override
         protected void onPostExecute(ForWriterStepsRecipe forWriterStepsRecipes) {
             super.onPostExecute(forWriterStepsRecipes);
-            new DataSourceSQLite(context).loadPhoto(forWriterStepsRecipes);
+            new DataSourceSQLite(mContext).loadPhoto(forWriterStepsRecipes);
         }
     }
 }

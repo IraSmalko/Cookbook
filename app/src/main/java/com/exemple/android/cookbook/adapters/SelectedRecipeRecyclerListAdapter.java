@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.SelectedRecipe;
 
 import java.util.ArrayList;
@@ -20,43 +19,43 @@ import java.util.List;
 
 public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<SelectedRecipeRecyclerListAdapter.CustomViewHolder> {
 
-    private Context context;
-    private LayoutInflater inflater;
-    private List<SelectedRecipe> items = new ArrayList<>();
-    private final SelectedRecipeRecyclerListAdapter.ItemClickListener clickListener;
+    private Context mContext;
+    private LayoutInflater mInflater;
+    private List<SelectedRecipe> mItems = new ArrayList<>();
+    private final SelectedRecipeRecyclerListAdapter.ItemClickListener mClickListener;
 
     public SelectedRecipeRecyclerListAdapter(Context context, List<SelectedRecipe> items,
                                              SelectedRecipeRecyclerListAdapter.ItemClickListener clickListener) {
         updateAdapter(items);
-        this.context = context;
-        this.clickListener = clickListener;
+        mContext = context;
+        mClickListener = clickListener;
     }
 
     public void updateAdapter(@Nullable List<SelectedRecipe> selectedRecipe) {
-        items.clear();
+        mItems.clear();
         if (selectedRecipe != null) {
-            items.addAll(selectedRecipe);
+            mItems.addAll(selectedRecipe);
         }
         notifyDataSetChanged();
     }
 
     @Override
     public SelectedRecipeRecyclerListAdapter.CustomViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (inflater == null) {
-            inflater = LayoutInflater.from(parent.getContext());
+        if (mInflater == null) {
+            mInflater = LayoutInflater.from(parent.getContext());
         }
-        return SelectedRecipeRecyclerListAdapter.CustomViewHolder.create(inflater, parent, clickListener);
+        return SelectedRecipeRecyclerListAdapter.CustomViewHolder.create(mInflater, parent, mClickListener);
     }
 
     @Override
     public void onBindViewHolder(SelectedRecipeRecyclerListAdapter.CustomViewHolder holder, int position) {
-        SelectedRecipe item = items.get(position);
-        holder.bind(context, item);
+        SelectedRecipe item = mItems.get(position);
+        holder.bind(mContext, item);
     }
 
     @Override
     public int getItemCount() {
-        return (null != items ? items.size() : 0);
+        return (null != mItems ? mItems.size() : 0);
     }
 
     public static class CustomViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

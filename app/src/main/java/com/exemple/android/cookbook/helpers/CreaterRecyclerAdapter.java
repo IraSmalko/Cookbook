@@ -12,34 +12,34 @@ import java.util.List;
 
 public class CreaterRecyclerAdapter {
 
-    private Context context;
-    private String recipes;
-    private String user;
+    private Context mContext;
+    private String mRecipes;
+    private String mUser;
 
     public CreaterRecyclerAdapter(Context context) {
-        this.context = context;
+        mContext = context;
     }
 
     public RecipeRecyclerListAdapter createRecyclerAdapter(List<Recipe> recipesList,
                                                            String recipesListIntent, String username) {
-        user = username;
-        recipes = recipesListIntent;
-        return new RecipeRecyclerListAdapter(context, recipesList,
+        mUser = username;
+        mRecipes = recipesListIntent;
+        return new RecipeRecyclerListAdapter(mContext, recipesList,
                 new RecipeRecyclerListAdapter.ItemClickListener() {
                     @Override
                     public void onItemClick(Recipe item) {
-                        IntentHelper.intentRecipeActivity(context, item.getName(), item
-                                .getPhotoUrl(), item.getDescription(), recipes, user);
+                        IntentHelper.intentRecipeActivity(mContext, item.getName(), item
+                                .getPhotoUrl(), item.getDescription(), mRecipes, mUser);
                     }
                 });
     }
 
-    public CategoryRecipeRecyclerAdapter createRecyclerAdapter(List<CategoryRecipes> categoryRecipesList){
-        return new CategoryRecipeRecyclerAdapter(context, categoryRecipesList,
+    public CategoryRecipeRecyclerAdapter createRecyclerAdapter(List<CategoryRecipes> categoryRecipesList) {
+        return new CategoryRecipeRecyclerAdapter(mContext, categoryRecipesList,
                 new CategoryRecipeRecyclerAdapter.ItemClickListener() {
                     @Override
                     public void onItemClick(CategoryRecipes item) {
-                        IntentHelper.intentRecipeListActivity(context, item.getName());
+                        IntentHelper.intentRecipeListActivity(mContext, item.getName());
                     }
                 });
     }

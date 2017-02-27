@@ -57,30 +57,30 @@ public class MainActivity extends AppCompatActivity
         SensorEventListener,
         GoogleApiClient.OnConnectionFailedListener {
 
-    private FirebaseAuth firebaseAuth;
-    private FirebaseUser firebaseUser;
-    private FirebaseDatabase firebaseDatabase;
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseUser mFirebaseUser;
+    private FirebaseDatabase mFirebaseDatabase;
 
-    private String username;
-    private String photoUrl;
-    private GoogleApiClient googleApiClient;
+    private String mUsername;
+    private String mPhotoUrl;
+    private GoogleApiClient mGoogleApiClient;
 
     private static final String TAG = MainActivity.class.getSimpleName();
     public static final String ANONYMOUS = "anonymous";
-    private String RECIPE_LIST = "recipeList";
+    private static final String RECIPE_LIST = "recipeList";
     private static final int REQUEST_CODE = 1234;
 
-    private RecyclerView recyclerView;
-    private CategoryRecipeRecyclerAdapter recyclerAdapter;
-    private List<CategoryRecipes> categoryRecipesList = new ArrayList<>();
-    private SensorManager sensorManager;
-    private Sensor sensor;
+    private RecyclerView mRecyclerView;
+    private CategoryRecipeRecyclerAdapter mRecyclerAdapter;
+    private List<CategoryRecipes> mCategoryRecipesList = new ArrayList<>();
+    private SensorManager mSensorManager;
+    private Sensor mSensor;
 
-    private FloatingActionButton fab;
+    private FloatingActionButton mFab;
 
-    private NavigationView navigationView;
-    private TextView userNameTV;
-    private CircleImageView userPhotoIV;
+    private NavigationView mNavigationView;
+    private TextView mUserNameTV;
+    private CircleImageView mUserPhotoIV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,14 +88,14 @@ public class MainActivity extends AppCompatActivity
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
 
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mFab = (FloatingActionButton) findViewById(R.id.fab);
+        mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getApplicationContext(), AddCategoryRecipeActivity.class));
@@ -108,58 +108,57 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+        mNavigationView.setNavigationItemSelectedListener(this);
 
         //        AUTHENTICATION
-        View headerLayout = navigationView.getHeaderView(0);
-        userNameTV = (TextView) headerLayout.findViewById(R.id.textViewForUserName);
-        userPhotoIV = (CircleImageView) headerLayout.findViewById(R.id.imageViewForUserPhoto);
+        View headerLayout = mNavigationView.getHeaderView(0);
+        mUserNameTV = (TextView) headerLayout.findViewById(R.id.textViewForUserName);
+        mUserPhotoIV = (CircleImageView) headerLayout.findViewById(R.id.imageViewForUserPhoto);
 
-        if (firebaseUser == null) {
-            username = ANONYMOUS;
+        if (mFirebaseUser == null) {
+            mUsername = ANONYMOUS;
         } else {
-            username = firebaseUser.getDisplayName();
+            mUsername = mFirebaseUser.getDisplayName();
         }
 
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = mFirebaseAuth.getCurrentUser();
 
-        googleApiClient = new GoogleApiClient.Builder(this)
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API)
                 .build();
 
         userRefresh();
 
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference databaseReference = mFirebaseDatabase.getReference("Сategory_Recipes");
 
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference databaseReference = firebaseDatabase.getReference("Сategory_Recipes");
-
-        recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
-                    categoryRecipesList.add(categoryRecipes);
+                    mCategoryRecipesList.add(categoryRecipes);
                 }
-                if (firebaseUser != null) {
+                if (mFirebaseUser != null) {
                     new FirebaseHelper(new FirebaseHelper.OnUserCategoryRecipe() {
                         @Override
                         public void OnGet(List<CategoryRecipes> category) {
-                            categoryRecipesList = category;
-                            recyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
+                            mCategoryRecipesList = category;
+                            mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
                                     .createRecyclerAdapter(category);
-                            recyclerView.setAdapter(recyclerAdapter);
+                            mRecyclerView.setAdapter(mRecyclerAdapter);
                         }
-                    }).getUserCategoryRecipe(categoryRecipesList, username, firebaseDatabase);
+                    }).getUserCategoryRecipe(mCategoryRecipesList, mUsername, mFirebaseDatabase);
                 } else {
-                    recyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
-                            .createRecyclerAdapter(categoryRecipesList);
-                    recyclerView.setAdapter(recyclerAdapter);
+                    mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
+                            .createRecyclerAdapter(mCategoryRecipesList);
+                    mRecyclerView.setAdapter(mRecyclerAdapter);
                 }
             }
 
@@ -208,15 +207,14 @@ public class MainActivity extends AppCompatActivity
         newText = newText.toLowerCase();
         ArrayList<CategoryRecipes> newList = new ArrayList<>();
 
-        for (CategoryRecipes categoryRecipes : categoryRecipesList) {
+        for (CategoryRecipes categoryRecipes : mCategoryRecipesList) {
             String name = categoryRecipes.getName().toLowerCase();
             if (name.contains(newText))
                 newList.add(categoryRecipes);
         }
-        recyclerAdapter.updateAdapter(newList);
+        mRecyclerAdapter.updateAdapter(newList);
         return true;
     }
-
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -231,11 +229,11 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(MainActivity.this, AuthenticationActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_sign_out) {
-            if (firebaseUser != null) {
-                firebaseAuth.signOut();
-                Auth.GoogleSignInApi.signOut(googleApiClient);
-                username = ANONYMOUS;
-                firebaseUser = null;
+            if (mFirebaseUser != null) {
+                mFirebaseAuth.signOut();
+                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+                mUsername = ANONYMOUS;
+                mFirebaseUser = null;
                 userRefresh();
             }
         }
@@ -247,14 +245,14 @@ public class MainActivity extends AppCompatActivity
 
     protected void onResume() {
         super.onResume();
-        sensorManager.registerListener(this, sensor,
+        mSensorManager.registerListener(this, mSensor,
                 SensorManager.SENSOR_DELAY_NORMAL);
 
     }
 
     protected void onPause() {
         super.onPause();
-        sensorManager.unregisterListener(this);
+        mSensorManager.unregisterListener(this);
     }
 
     @Override
@@ -292,22 +290,22 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void userRefresh() {
-        if (firebaseUser == null) {
-            navigationView.getMenu().findItem(R.id.nav_sign_in).setVisible(true);
-            navigationView.getMenu().findItem(R.id.nav_sign_out).setVisible(false);
-            fab.setVisibility(View.GONE);
-            username = ANONYMOUS;
-            userNameTV.setText(username);
-            userPhotoIV.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.a));
+        if (mFirebaseUser == null) {
+            mNavigationView.getMenu().findItem(R.id.nav_sign_in).setVisible(true);
+            mNavigationView.getMenu().findItem(R.id.nav_sign_out).setVisible(false);
+            mFab.setVisibility(View.GONE);
+            mUsername = ANONYMOUS;
+            mUserNameTV.setText(mUsername);
+            mUserPhotoIV.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.a));
         } else {
-            navigationView.getMenu().findItem(R.id.nav_sign_in).setVisible(false);
-            navigationView.getMenu().findItem(R.id.nav_sign_out).setVisible(true);
-            username = firebaseUser.getDisplayName();
-            if (firebaseUser.getPhotoUrl() != null) {
-                photoUrl = firebaseUser.getPhotoUrl().toString();
+            mNavigationView.getMenu().findItem(R.id.nav_sign_in).setVisible(false);
+            mNavigationView.getMenu().findItem(R.id.nav_sign_out).setVisible(true);
+            mUsername = mFirebaseUser.getDisplayName();
+            if (mFirebaseUser.getPhotoUrl() != null) {
+                mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
             }
-            userNameTV.setText(username);
-            Glide.with(this).load(photoUrl).into(userPhotoIV);
+            mUserNameTV.setText(mUsername);
+            Glide.with(this).load(mPhotoUrl).into(mUserPhotoIV);
         }
     }
 }

@@ -39,36 +39,36 @@ public class AddStepActivity extends AppCompatActivity {
     private static final int GALLERY_REQUEST = 13;
     private static final String RECIPE_LIST = "recipeList";
     private static final String RECIPE = "recipe";
-    private static final String NUMBER_STEP = "numberStep";
+    private static final String NUMBER_STEP = "mNumberStep";
 
-    private EditText inputNameRecipe;
-    private ImageView imageView;
-    private ProgressDialog progressDialog;
-    private ActionBar actionBar;
+    private EditText mInputNameRecipe;
+    private ImageView mImageView;
+    private ProgressDialog mProgressDialog;
+    private ActionBar mActionBar;
 
-    private DatabaseReference databaseReference;
-    private StorageReference storageReference;
-    private Uri downloadUrlCamera;
-    private int numberStep = 1;
-    private Intent intent;
-    private PhotoFromCameraHelper photoFromCameraHelper;
-    private FirebaseHelper firebaseHelper;
-    private CropHelper cropHelper;
-    private Context context = AddStepActivity.this;
+    private DatabaseReference mDatabaseReference;
+    private StorageReference mStorageReference;
+    private Uri mDownloadUrlCamera;
+    private int mNumberStep = 1;
+    private Intent mIntent;
+    private PhotoFromCameraHelper mPhotoFromCameraHelper;
+    private FirebaseHelper mFirebaseHelper;
+    private CropHelper mCropHelper;
+    private Context mContext = AddStepActivity.this;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_step_activity);
 
-        imageView = (ImageView) findViewById(R.id.photoImageView);
-        inputNameRecipe = (EditText) findViewById(R.id.name);
+        mImageView = (ImageView) findViewById(R.id.photoImageView);
+        mInputNameRecipe = (EditText) findViewById(R.id.name);
         ImageButton btnPhotoFromGallery = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlGallery);
         ImageButton btnPhotoFromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlCamera);
         Button btnSave = (Button) findViewById(R.id.btnSave);
 
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
@@ -78,53 +78,53 @@ public class AddStepActivity extends AppCompatActivity {
         if (firebaseUser != null) {
             String username = firebaseUser.getDisplayName();
 
-            intent = getIntent();
-            databaseReference = firebaseDatabase.getReference().child(username + "/Step_recipe/" + intent
-                    .getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE));
-            storageReference = firebaseStorage.getReference().child(username + "/Step_Recipes" + "/" + intent
-                    .getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE));
+            mIntent = getIntent();
+            mDatabaseReference = firebaseDatabase.getReference().child(username + "/Step_recipe/" + mIntent
+                    .getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE));
+            mStorageReference = firebaseStorage.getReference().child(username + "/Step_Recipes" + "/" + mIntent
+                    .getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE));
 
-            actionBar = getSupportActionBar();
+            mActionBar = getSupportActionBar();
 
             if (savedInstanceState != null && savedInstanceState.containsKey(NUMBER_STEP)) {
-                numberStep = savedInstanceState.getInt(NUMBER_STEP);
+                mNumberStep = savedInstanceState.getInt(NUMBER_STEP);
             }
-            actionBar.setTitle(getResources().getString(R.string.step) + " " + numberStep);
+            mActionBar.setTitle(getResources().getString(R.string.step) + " " + mNumberStep);
 
-            photoFromCameraHelper = new PhotoFromCameraHelper(context, new PhotoFromCameraHelper.OnPhotoPicked() {
+            mPhotoFromCameraHelper = new PhotoFromCameraHelper(mContext, new PhotoFromCameraHelper.OnPhotoPicked() {
                 @Override
                 public void onPicked(Uri photoUri) {
-                    cropHelper.cropImage(photoUri);
+                    mCropHelper.cropImage(photoUri);
                 }
             });
 
-            firebaseHelper = new FirebaseHelper(new FirebaseHelper.OnSaveImage() {
+            mFirebaseHelper = new FirebaseHelper(new FirebaseHelper.OnSaveImage() {
                 @Override
                 public void OnSave(Uri photoUri) {
-                    downloadUrlCamera = photoUri;
-                    progressDialog.dismiss();
+                    mDownloadUrlCamera = photoUri;
+                    mProgressDialog.dismiss();
                 }
             });
 
-            cropHelper = new CropHelper(context, new CropHelper.OnCrop() {
+            mCropHelper = new CropHelper(mContext, new CropHelper.OnCrop() {
                 @Override
                 public void onCrop(Uri cropImageUri) {
-                    ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(context, listener);
+                    ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(mContext, listener);
                     photoAsyncTask.execute(cropImageUri);
                 }
             });
 
-            boolean isOnline = new CheckOnlineHelper(context).isOnline();
+            boolean isOnline = new CheckOnlineHelper(mContext).isOnline();
             if (isOnline) {
                 btnSave.setOnClickListener(onClickListener);
                 btnPhotoFromCamera.setOnClickListener(onClickListener);
                 btnPhotoFromGallery.setOnClickListener(onClickListener);
             } else {
-                Toast.makeText(context, getResources()
+                Toast.makeText(mContext, getResources()
                         .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
             }
         } else {
-            Toast.makeText(context, getResources().getString(R.string.unauthorized_user), Toast
+            Toast.makeText(mContext, getResources().getString(R.string.unauthorized_user), Toast
                     .LENGTH_SHORT).show();
         }
     }
@@ -134,32 +134,32 @@ public class AddStepActivity extends AppCompatActivity {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.categoryRecipesPhotoUrlGallery:
-                    photoFromCameraHelper.pickPhoto();
+                    mPhotoFromCameraHelper.pickPhoto();
                     break;
                 case R.id.categoryRecipesPhotoUrlCamera:
-                    photoFromCameraHelper.takePhoto();
+                    mPhotoFromCameraHelper.takePhoto();
                     break;
                 case R.id.btnSave:
-                    if (inputNameRecipe.getText().toString().equals("")) {
-                        Toast.makeText(context, getResources()
+                    if (mInputNameRecipe.getText().toString().equals("")) {
+                        Toast.makeText(mContext, getResources()
                                 .getString(R.string.no_description_step), Toast.LENGTH_SHORT).show();
                     } else {
-                        if (downloadUrlCamera != null) {
+                        if (mDownloadUrlCamera != null) {
                             StepRecipe stepRecipe = new StepRecipe(getResources()
-                                    .getString(R.string.step)  + " " + numberStep, inputNameRecipe
-                                    .getText().toString(), downloadUrlCamera.toString());
-                            String recipeId = databaseReference.push().getKey();
-                            databaseReference.child(recipeId).setValue(stepRecipe);
+                                    .getString(R.string.step) + " " + mNumberStep, mInputNameRecipe
+                                    .getText().toString(), mDownloadUrlCamera.toString());
+                            String recipeId = mDatabaseReference.push().getKey();
+                            mDatabaseReference.child(recipeId).setValue(stepRecipe);
 
-                            Toast.makeText(context, getResources()
+                            Toast.makeText(mContext, getResources()
                                     .getString(R.string.data_save), Toast.LENGTH_SHORT).show();
-                            numberStep = ++numberStep;
-                            actionBar.setTitle(getResources().getString(R.string.step) + " " + numberStep);
-                            imageView.setImageResource(R.drawable.dishes);
-                            inputNameRecipe.setText("");
-                            downloadUrlCamera = null;
+                            mNumberStep = ++mNumberStep;
+                            mActionBar.setTitle(getResources().getString(R.string.step) + " " + mNumberStep);
+                            mImageView.setImageResource(R.drawable.dishes);
+                            mInputNameRecipe.setText("");
+                            mDownloadUrlCamera = null;
                         } else {
-                            Toast.makeText(context, getResources()
+                            Toast.makeText(mContext, getResources()
                                     .getString(R.string.no_photo), Toast.LENGTH_LONG).show();
                         }
                     }
@@ -172,10 +172,10 @@ public class AddStepActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
         if (requestCode == REQUEST_IMAGE_CAPTURE || requestCode == GALLERY_REQUEST) {
-            photoFromCameraHelper.onActivityResult(resultCode, requestCode, imageReturnedIntent);
+            mPhotoFromCameraHelper.onActivityResult(resultCode, requestCode, imageReturnedIntent);
         } else if (requestCode == REQUEST_CROP_PICTURE) {
             if (resultCode == RESULT_OK) {
-                cropHelper.onActivityResult(resultCode, requestCode);
+                mCropHelper.onActivityResult(resultCode, requestCode);
             }
         }
     }
@@ -184,11 +184,11 @@ public class AddStepActivity extends AppCompatActivity {
         @Override
         public void onDataReady(@Nullable ImageCard imageCard) {
             if (imageCard != null) {
-                imageView.setImageBitmap(imageCard.getImage());
+                mImageView.setImageBitmap(imageCard.getImage());
             }
-            progressDialog.setMessage(getResources().getString(R.string.progress_vait));
-            progressDialog.show();
-            firebaseHelper.saveImage(storageReference, imageCard);
+            mProgressDialog.setMessage(getResources().getString(R.string.progress_vait));
+            mProgressDialog.show();
+            mFirebaseHelper.saveImage(mStorageReference, imageCard);
         }
     };
 
@@ -196,13 +196,13 @@ public class AddStepActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         int noSaveStepNumber = 1;
-        if (numberStep > noSaveStepNumber) {
-            outState.putInt(NUMBER_STEP, numberStep);
+        if (mNumberStep > noSaveStepNumber) {
+            outState.putInt(NUMBER_STEP, mNumberStep);
         }
     }
 
     @Override
     public void onBackPressed() {
-        IntentHelper.intentRecipeListActivity(context, intent.getStringExtra(RECIPE_LIST));
+        IntentHelper.intentRecipeListActivity(mContext, mIntent.getStringExtra(RECIPE_LIST));
     }
 }

@@ -16,35 +16,35 @@ import java.io.File;
 public class CropHelper {
 
     private static final int REQUEST_CROP_PICTURE = 2;
-    private Context context;
-    private OnCrop onCropListener;
-    private Uri cropImageUri;
+    private Context mContext;
+    private OnCrop mOnCropListener;
+    private Uri mCropImageUri;
 
     public CropHelper(Context context, @NonNull OnCrop onCropListener) {
-        this.context = context;
-        this.onCropListener = onCropListener;
+        mContext = context;
+        mOnCropListener = onCropListener;
     }
 
     private Uri createFileUriCrop() {
-        File file = new File(context.getCacheDir(), "photoCrop.jpg");
+        File file = new File(mContext.getCacheDir(), "photoCrop.jpg");
 
-        return FileProvider.getUriForFile(context, "com.exemple.android.cookbook", file);
+        return FileProvider.getUriForFile(mContext, "com.exemple.android.cookbook", file);
     }
 
     public void cropImage(Uri photoUri) {
-        cropImageUri = createFileUriCrop();
-        CropImageIntentBuilder cropImage = new CropImageIntentBuilder(660, 480, cropImageUri);
+        mCropImageUri = createFileUriCrop();
+        CropImageIntentBuilder cropImage = new CropImageIntentBuilder(660, 480, mCropImageUri);
         cropImage.setOutlineColor(0xFF03A9F4);
         cropImage.setSourceImage(photoUri);
-        ActivityCompat.startActivityForResult((AppCompatActivity) context, cropImage
-                .getIntent(context), REQUEST_CROP_PICTURE, null);
+        ActivityCompat.startActivityForResult((AppCompatActivity) mContext, cropImage
+                .getIntent(mContext), REQUEST_CROP_PICTURE, null);
     }
 
     public void onActivityResult(int resultCode, int requestCode) {
         switch (requestCode) {
             case REQUEST_CROP_PICTURE:
                 if (resultCode == Activity.RESULT_OK) {
-                    onCropListener.onCrop(cropImageUri);
+                    mOnCropListener.onCrop(mCropImageUri);
                 }
         }
     }

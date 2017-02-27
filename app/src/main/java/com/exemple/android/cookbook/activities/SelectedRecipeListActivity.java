@@ -12,8 +12,8 @@ import android.support.v7.widget.RecyclerView;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.SelectedRecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.entity.SelectedRecipe;
-import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.helpers.DBHelper;
+import com.exemple.android.cookbook.helpers.IntentHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,5 +62,4 @@ public class SelectedRecipeListActivity extends AppCompatActivity {
                 });
         recyclerView.setAdapter(recipeRecyclerAdapter);
     }
-
 }

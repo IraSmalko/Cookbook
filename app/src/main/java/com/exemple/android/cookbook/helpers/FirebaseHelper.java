@@ -25,32 +25,32 @@ import java.util.Random;
 
 public class FirebaseHelper {
 
-    private static List<StepRecipe> stepRecipe = new ArrayList<>();
-    private List<CategoryRecipes> category = new ArrayList<>();
-    private List<Recipe> recipes = new ArrayList<>();
-    private FirebaseHelper.OnUserCategoryRecipe onUserCategoryRecipe;
-    private FirebaseHelper.OnUserRecipes onUserRecipes;
-    private FirebaseHelper.OnSaveImage onSaveImage;
-    private FirebaseHelper.OnStepRecipes onStepRecipes;
+    private static List<StepRecipe> mStepRecipe = new ArrayList<>();
+    private List<CategoryRecipes> mCategory = new ArrayList<>();
+    private List<Recipe> mRecipes = new ArrayList<>();
+    private FirebaseHelper.OnUserCategoryRecipe mOnUserCategoryRecipe;
+    private FirebaseHelper.OnUserRecipes mOnUserRecipes;
+    private FirebaseHelper.OnSaveImage mOnSaveImage;
+    private FirebaseHelper.OnStepRecipes mOnStepRecipes;
     private Context cnx;
 
     public FirebaseHelper() {
     }
 
     public FirebaseHelper(FirebaseHelper.OnStepRecipes onStepRecipes) {
-        this.onStepRecipes = onStepRecipes;
+        mOnStepRecipes = onStepRecipes;
     }
 
     public FirebaseHelper(FirebaseHelper.OnSaveImage onSaveImage) {
-        this.onSaveImage = onSaveImage;
+        mOnSaveImage = onSaveImage;
     }
 
     public FirebaseHelper(FirebaseHelper.OnUserRecipes onUserRecipes) {
-        this.onUserRecipes = onUserRecipes;
+        mOnUserRecipes = onUserRecipes;
     }
 
     public FirebaseHelper(FirebaseHelper.OnUserCategoryRecipe onUserCategoryRecipe) {
-        this.onUserCategoryRecipe = onUserCategoryRecipe;
+        mOnUserCategoryRecipe = onUserCategoryRecipe;
     }
 
     public void getStepsRecipe(Context context, final int idRecipe, String recipeList,
@@ -71,9 +71,9 @@ public class FirebaseHelper {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     StepRecipe step = postSnapshot.getValue(StepRecipe.class);
-                    stepRecipe.add(step);
+                    mStepRecipe.add(step);
                 }
-                new DataSourceSQLite(cnx).saveStepsSQLite(stepRecipe, idRecipe);
+                new DataSourceSQLite(cnx).saveStepsSQLite(mStepRecipe, idRecipe);
             }
 
             @Override
@@ -83,7 +83,7 @@ public class FirebaseHelper {
     }
 
     public void getStepsRecipe(List<StepRecipe> stepRecipes, String reference) {
-        stepRecipe = stepRecipes;
+        mStepRecipe = stepRecipes;
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = firebaseDatabase.getReference(reference);
@@ -93,8 +93,8 @@ public class FirebaseHelper {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     StepRecipe step = postSnapshot.getValue(StepRecipe.class);
-                    stepRecipe.add(step);
-                    onStepRecipes.OnGet(stepRecipe);
+                    mStepRecipe.add(step);
+                    mOnStepRecipes.OnGet(mStepRecipe);
                 }
             }
 
@@ -106,7 +106,7 @@ public class FirebaseHelper {
 
     public void getUserCategoryRecipe(List<CategoryRecipes> categoryRecipesList, String username,
                                       FirebaseDatabase firebaseDatabase) {
-        category = categoryRecipesList;
+        mCategory = categoryRecipesList;
 
         DatabaseReference databaseUserReference = firebaseDatabase.getReference(username + "/Сategory_Recipes");
         databaseUserReference.addValueEventListener(new ValueEventListener() {
@@ -114,8 +114,8 @@ public class FirebaseHelper {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
-                    category.add(categoryRecipes);
-                    onUserCategoryRecipe.OnGet(category);
+                    mCategory.add(categoryRecipes);
+                    mOnUserCategoryRecipe.OnGet(mCategory);
                 }
             }
 
@@ -128,7 +128,7 @@ public class FirebaseHelper {
 
     public void getUserRecipe(List<Recipe> recipesList, FirebaseDatabase firebaseDatabase,
                               String reference) {
-        recipes = recipesList;
+        mRecipes = recipesList;
 
         DatabaseReference databaseUserReference = firebaseDatabase.getReference(reference);
         databaseUserReference.addValueEventListener(new ValueEventListener() {
@@ -138,11 +138,11 @@ public class FirebaseHelper {
                 if (dataSnapshot.getValue() != null) {
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                         Recipe recipe = postSnapshot.getValue(Recipe.class);
-                        recipes.add(recipe);
-                        onUserRecipes.OnGet(recipes);
+                        mRecipes.add(recipe);
+                        mOnUserRecipes.OnGet(mRecipes);
                     }
                 } else {
-                    onUserRecipes.OnGet(recipes);
+                    mOnUserRecipes.OnGet(mRecipes);
                 }
             }
 
@@ -165,7 +165,7 @@ public class FirebaseHelper {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Uri downloadUrlCamera = taskSnapshot.getDownloadUrl();
-                onSaveImage.OnSave(downloadUrlCamera);
+                mOnSaveImage.OnSave(downloadUrlCamera);
             }
         });
     }

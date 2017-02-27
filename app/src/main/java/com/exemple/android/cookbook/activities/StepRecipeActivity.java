@@ -36,36 +36,36 @@ public class StepRecipeActivity extends AppCompatActivity {
     private static final String PHOTO = "photo";
     private static final String DESCRIPTION = "description";
 
-    private Intent intent;
-    private List<StepRecipe> stepRecipe = new ArrayList<>();
-    private TextView txtStepRecipe;
-    private ImageView imgStepRecipe;
-    private ActionBar actionBar;
-    private Context context = StepRecipeActivity.this;
-    private int index = 0;
-    private String reference;
-    private String username;
+    private Intent mIntent;
+    private List<StepRecipe> mStepRecipe = new ArrayList<>();
+    private TextView mTxtStepRecipe;
+    private ImageView mImgStepRecipe;
+    private ActionBar mActionBar;
+    private Context mContext = StepRecipeActivity.this;
+    private int mIndex = 0;
+    private String mReference;
+    private String mUsername;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.step_recipe_activity);
 
-        txtStepRecipe = (TextView) findViewById(R.id.txtStepRecipe);
-        imgStepRecipe = (ImageView) findViewById(R.id.imgStepRecipe);
-        actionBar = getSupportActionBar();
+        mTxtStepRecipe = (TextView) findViewById(R.id.txtStepRecipe);
+        mImgStepRecipe = (ImageView) findViewById(R.id.imgStepRecipe);
+        mActionBar = getSupportActionBar();
 
-        intent = getIntent();
+        mIntent = getIntent();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
 
-        reference = "Step_recipe/" + intent.getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE);
-        DatabaseReference databaseReference = firebaseDatabase.getReference().child(reference);
+        mReference = "Step_recipe/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE);
+        DatabaseReference databaseReference = firebaseDatabase.getReference().child(mReference);
 
         if (firebaseUser != null) {
-            username = firebaseUser.getDisplayName();
-            reference = username + "/" + reference;
+            mUsername = firebaseUser.getDisplayName();
+            mReference = mUsername + "/" + mReference;
         }
 
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -73,24 +73,24 @@ public class StepRecipeActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     StepRecipe step = postSnapshot.getValue(StepRecipe.class);
-                    stepRecipe.add(step);
+                    mStepRecipe.add(step);
                 }
-                if (username != null) {
+                if (mUsername != null) {
                     new FirebaseHelper(new FirebaseHelper.OnStepRecipes() {
                         @Override
                         public void OnGet(List<StepRecipe> stepRecipes) {
-                            if (stepRecipe.size() != 0) {
-                                updateData(index);
+                            if (mStepRecipe.size() != 0) {
+                                updateData(mIndex);
                             } else {
-                                Toast.makeText(context, getResources().getString(R
+                                Toast.makeText(mContext, getResources().getString(R
                                         .string.no_information_available), Toast.LENGTH_SHORT).show();
                             }
                         }
-                    }).getStepsRecipe(stepRecipe, reference);
-                } else if (stepRecipe.size() != 0) {
-                    updateData(index);
+                    }).getStepsRecipe(mStepRecipe, mReference);
+                } else if (mStepRecipe.size() != 0) {
+                    updateData(mIndex);
                 } else {
-                    Toast.makeText(context, getResources().getString(R
+                    Toast.makeText(mContext, getResources().getString(R
                             .string.no_information_available), Toast.LENGTH_SHORT).show();
                 }
             }
@@ -104,20 +104,20 @@ public class StepRecipeActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                index = ++index;
-                updateData(index);
+                mIndex = ++mIndex;
+                updateData(mIndex);
             }
         });
     }
 
     public void updateData(int i) {
-        if (i < stepRecipe.size()) {
-            actionBar.setTitle(stepRecipe.get(i).getNumberStep());
-            txtStepRecipe.setText(stepRecipe.get(i).getTextStep());
-            Glide.with(context).load(stepRecipe.get(i).getPhotoUrlStep()).into(imgStepRecipe);
+        if (i < mStepRecipe.size()) {
+            mActionBar.setTitle(mStepRecipe.get(i).getNumberStep());
+            mTxtStepRecipe.setText(mStepRecipe.get(i).getTextStep());
+            Glide.with(mContext).load(mStepRecipe.get(i).getPhotoUrlStep()).into(mImgStepRecipe);
         } else {
-            IntentHelper.intentRecipeActivity(context, intent.getStringExtra(RECIPE), intent
-                    .getStringExtra(PHOTO), intent.getStringExtra(DESCRIPTION), intent.getStringExtra(RECIPE_LIST), null);
+            IntentHelper.intentRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
+                    .getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent.getStringExtra(RECIPE_LIST), null);
         }
     }
 }
