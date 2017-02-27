@@ -8,13 +8,20 @@ import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -29,8 +36,21 @@ import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.helpers.WriterDAtaSQLiteAsyncTask;
+import com.exemple.android.cookbook.supporting.Comment;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
-public class RecipeActivity extends AppCompatActivity {
+import de.hdodenhof.circleimageview.CircleImageView;
+
+public class RecipeActivity extends AppCompatActivity
+        implements GoogleApiClient.OnConnectionFailedListener {
 
     private static final String RECIPE_LIST = "recipeList";
     private static final String RECIPE = "recipe";
@@ -42,6 +62,39 @@ public class RecipeActivity extends AppCompatActivity {
     private ImageView imageView;
     private Bitmap loadPhotoStep;
     private ProgressDialog progressDialog;
+
+    public static class CommentViewHolder extends RecyclerView.ViewHolder {
+        public TextView commentTextView;
+        public TextView commentatorTextView;
+        public CircleImageView commentatorImageView;
+
+        public CommentViewHolder(View v) {
+            super(v);
+            commentTextView = (TextView) itemView.findViewById(R.id.messageTextView);
+            commentatorTextView = (TextView) itemView.findViewById(R.id.messengerTextView);
+            commentatorImageView = (CircleImageView) itemView.findViewById(R.id.messengerImageView);
+        }
+    }
+
+    private static final String MESSAGE_URL = "https://cookbook-6cce5.firebaseio.com/comments/";
+    private static final String TAG = "RecipeActivity";
+    public static final String ANONYMOUS = "anonymous";
+    public String MESSAGES_CHILD;
+
+    private String mUsername;
+    private String mPhotoUrl;
+
+    private Button mSendButton;
+    private RecyclerView mCommentsRecyclerView;
+    private LinearLayoutManager mLinearLayoutManager;
+    private EditText mCommentEditText;
+
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseUser mFirebaseUser;
+    private DatabaseReference mFirebaseDatabaseReference;
+    private FirebaseRecyclerAdapter<Comment, CommentViewHolder> mFirebaseAdapter;
+    private GoogleApiClient mGoogleApiClient;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +152,128 @@ public class RecipeActivity extends AppCompatActivity {
                         .getStringExtra(DESCRIPTION), intent.getStringExtra(RECIPE_LIST));
             }
         });
+
+
+
+        MESSAGES_CHILD = "comments/" + intent.getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE) + "/comments";
+
+        mCommentsRecyclerView = (RecyclerView) findViewById(R.id.commentsRecyclerView);
+        mCommentEditText = (EditText) findViewById(R.id.editTextComent);
+        mSendButton = (Button) findViewById(R.id.save_comments);
+
+        mLinearLayoutManager = new LinearLayoutManager(this);
+        mLinearLayoutManager.setStackFromEnd(true);
+        mCommentsRecyclerView.setLayoutManager(mLinearLayoutManager);
+
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+
+        if (mFirebaseUser == null) {
+            // Not signed in, launch the Sign In activity
+            mCommentEditText.setFocusable(false);
+            return;
+        } else {
+            mCommentEditText.setFocusable(true);
+            mUsername = mFirebaseUser.getDisplayName();
+            if (mFirebaseUser.getPhotoUrl() != null) {
+                mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
+            }
+        }
+
+                mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .addApi(Auth.GOOGLE_SIGN_IN_API)
+                .build();
+
+        mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+        mFirebaseAdapter = new FirebaseRecyclerAdapter<Comment,
+                CommentViewHolder>(
+                Comment.class,
+                R.layout.item_comment,
+                CommentViewHolder.class,
+                mFirebaseDatabaseReference.child(MESSAGES_CHILD)) {
+
+            @Override
+            protected Comment parseSnapshot(DataSnapshot snapshot) {
+                Comment comment = super.parseSnapshot(snapshot);
+                if (comment != null) {
+                    comment.setId(snapshot.getKey());
+                }
+                return comment;
+            }
+
+            @Override
+            protected void populateViewHolder(CommentViewHolder viewHolder,
+                                              Comment comment, int position) {
+//                mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+                viewHolder.commentTextView.setText(comment.getText());
+                viewHolder.commentatorTextView.setText(comment.getName());
+                if (comment.getPhotoUrl() == null) {
+                    viewHolder.commentatorImageView
+                            .setImageDrawable(ContextCompat
+                                    .getDrawable(RecipeActivity.this,
+                                            R.drawable.ic_account_circle_black_36dp));
+                } else {
+                    Glide.with(RecipeActivity.this)
+                            .load(comment.getPhotoUrl())
+                            .into(viewHolder.commentatorImageView);
+                }
+
+            }
+        };
+
+        mFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                int commentCount = mFirebaseAdapter.getItemCount();
+                int lastVisiblePosition =
+                        mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
+                // If the recycler view is initially being loaded or the
+                // user is at the bottom of the list, scroll to the bottom
+                // of the list to show the newly added message.
+                if (lastVisiblePosition == -1 ||
+                        (positionStart >= (commentCount - 1) &&
+                                lastVisiblePosition == (positionStart - 1))) {
+                    mCommentsRecyclerView.scrollToPosition(positionStart);
+                }
+            }
+        });
+
+        mCommentsRecyclerView.setLayoutManager(mLinearLayoutManager);
+        mCommentsRecyclerView.setAdapter(mFirebaseAdapter);
+
+        mCommentEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (charSequence.toString().trim().length() > 0) {
+                    mSendButton.setEnabled(true);
+                } else {
+                    mSendButton.setEnabled(false);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+
+        mSendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Comment comment = new
+                        Comment(mCommentEditText.getText().toString(),
+                        mUsername,
+                        mPhotoUrl);
+                mFirebaseDatabaseReference.child(MESSAGES_CHILD)
+                        .push().setValue(comment);
+                mCommentEditText.setText("");
+            }
+        });
     }
 
     @Override
@@ -142,5 +317,13 @@ public class RecipeActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         IntentHelper.intentRecipeListActivity(this, intent.getStringExtra(RECIPE_LIST));
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        // An unresolvable error has occurred and Google APIs (including Sign-In) will not
+        // be available.
+        Log.d(TAG, "onConnectionFailed:" + connectionResult);
+        Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
     }
 }

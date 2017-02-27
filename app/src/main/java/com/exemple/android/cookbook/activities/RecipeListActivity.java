@@ -6,15 +6,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.entity.Recipe;
@@ -47,12 +50,26 @@ public class RecipeListActivity extends AppCompatActivity
     private String username;
 
 
+    private FirebaseAuth firebaseAuth;
+    private FirebaseUser firebaseUser;
+    FloatingActionButton fab;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.recipe_list_activity);
+        intent = getIntent();
+        final String recipeCategory = intent.getStringExtra(RECIPE_LIST);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab1);
+        Log.d("LOG", "InListCreate");
+        Log.d("LOG", recipeCategory);
+
+        fab = (FloatingActionButton) findViewById(R.id.fab1);
+
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
+        userRefresh();
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -116,6 +133,7 @@ public class RecipeListActivity extends AppCompatActivity
             public void onCancelled(DatabaseError databaseError) {
             }
         });
+
     }
 
 
@@ -155,5 +173,11 @@ public class RecipeListActivity extends AppCompatActivity
         }
         recipeRecyclerAdapter.updateAdapter(newList);
         return true;
+    }
+
+    public void userRefresh() {
+        if (firebaseUser == null) {
+            fab.setVisibility(View.GONE);
+        }
     }
 }

@@ -76,6 +76,8 @@ public class MainActivity extends AppCompatActivity
     private SensorManager sensorManager;
     private Sensor sensor;
 
+    FloatingActionButton fab;
+
     private NavigationView navigationView;
     private TextView userNameTV;
     private CircleImageView userPhotoIV;
@@ -92,7 +94,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -293,6 +295,7 @@ public class MainActivity extends AppCompatActivity
         if (firebaseUser == null) {
             navigationView.getMenu().findItem(R.id.nav_sign_in).setVisible(true);
             navigationView.getMenu().findItem(R.id.nav_sign_out).setVisible(false);
+            fab.setVisibility(View.GONE);
             username = ANONYMOUS;
             userNameTV.setText(username);
             userPhotoIV.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.a));

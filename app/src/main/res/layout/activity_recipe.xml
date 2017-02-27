@@ -17,11 +17,17 @@
             android:scaleType="fitXY"
             app:srcCompat="@drawable/ic_launcher" />
 
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/commentsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/save_comments" />
+
         <ListView
             android:id="@+id/listView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/saveComments" />
+            android:layout_below="@+id/save_comments" />
 
         <RatingBar
             android:id="@+id/ratingBar"
@@ -75,7 +81,6 @@
                 android:layout_marginRight="16dp"
                 android:background="#99F5F5F5"
                 android:ems="10"
-                android:focusable="false"
                 android:hint="@string/editTextComent"
                 android:inputType="textAutoCorrect" />
         </android.support.design.widget.TextInputLayout>
