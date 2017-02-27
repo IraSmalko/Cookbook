@@ -83,9 +83,6 @@ public class AuthenticationActivity extends AppCompatActivity implements
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
                 handleFacebookAccessToken(loginResult.getAccessToken());
-                Intent intent = new Intent(AuthenticationActivity.this,MainActivity.class);
-                startActivity(intent);
-//                intent.putExtra("FB_PROFILE",)
             }
 
             @Override
@@ -187,9 +184,10 @@ public class AuthenticationActivity extends AppCompatActivity implements
                             Log.w(TAG, "signInWithCredential", task.getException());
                             Toast.makeText(AuthenticationActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
+                        }else {
+                            startActivity(new Intent(AuthenticationActivity.this, MainActivity.class));
+                            finish();
                         }
-
-                        // ...
                     }
                 });
     }

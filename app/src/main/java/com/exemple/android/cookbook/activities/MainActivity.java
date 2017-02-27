@@ -87,6 +87,8 @@ public class MainActivity extends AppCompatActivity
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
 
+
+
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
@@ -222,8 +224,10 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
         } else if (id == R.id.nav_sign_out) {
             if (firebaseUser != null) {
+                Log.d("USER",firebaseUser.toString());
                 firebaseAuth.signOut();
                 Auth.GoogleSignInApi.signOut(googleApiClient);
+                Log.d("USER",firebaseUser.toString());
                 username = ANONYMOUS;
                 firebaseUser = null;
                 userRefresh();
