@@ -22,6 +22,9 @@
         android:layout_centerInParent="true"/>
 
     <com.facebook.login.widget.LoginButton
+        xmlns:facebook="http://schemas.android.com/apk/res-auto"
+        facebook:com_facebook_login_text="Log in"
+        facebook:com_facebook_logout_text="Log in"
         android:id="@+id/login_button_facebook"
         android:layout_width="122dp"
         android:layout_height="80dp"

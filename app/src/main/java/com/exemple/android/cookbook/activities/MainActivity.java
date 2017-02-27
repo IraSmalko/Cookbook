@@ -218,7 +218,6 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.selected) {
             startActivity(new Intent(this, SelectedRecipeListActivity.class));
-
         } else if (id == R.id.nav_sign_in) {
             Intent intent = new Intent(MainActivity.this, AuthenticationActivity.class);
             startActivity(intent);

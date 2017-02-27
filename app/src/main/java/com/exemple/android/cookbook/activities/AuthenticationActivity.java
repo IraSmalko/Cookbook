@@ -14,6 +14,7 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
@@ -74,6 +75,7 @@ public class AuthenticationActivity extends AppCompatActivity implements
         // Initialize FirebaseAuth
         mFirebaseAuth = FirebaseAuth.getInstance();
 
+        LoginManager.getInstance().logOut();
         // Initialize Facebook Login button
         mCallbackManager = CallbackManager.Factory.create();
         LoginButton loginButton = (LoginButton) findViewById(R.id.login_button_facebook);
@@ -98,6 +100,7 @@ public class AuthenticationActivity extends AppCompatActivity implements
             }
         });
 
+        Log.d("FB",loginButton.getText().toString());
 
     }
 
