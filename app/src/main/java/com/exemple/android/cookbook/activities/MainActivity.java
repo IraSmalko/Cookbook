@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity
     private SensorManager sensorManager;
     private Sensor sensor;
 
-    FloatingActionButton fab;
+    private FloatingActionButton fab;
 
     private NavigationView navigationView;
     private TextView userNameTV;

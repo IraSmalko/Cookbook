@@ -89,7 +89,7 @@ public class AddStepActivity extends AppCompatActivity {
             if (savedInstanceState != null && savedInstanceState.containsKey(NUMBER_STEP)) {
                 numberStep = savedInstanceState.getInt(NUMBER_STEP);
             }
-            actionBar.setTitle(getResources().getString(R.string.step) + numberStep);
+            actionBar.setTitle(getResources().getString(R.string.step) + " " + numberStep);
 
             photoFromCameraHelper = new PhotoFromCameraHelper(context, new PhotoFromCameraHelper.OnPhotoPicked() {
                 @Override
@@ -109,7 +109,7 @@ public class AddStepActivity extends AppCompatActivity {
             cropHelper = new CropHelper(context, new CropHelper.OnCrop() {
                 @Override
                 public void onCrop(Uri cropImageUri) {
-                    final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(context, listener);
+                    ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(context, listener);
                     photoAsyncTask.execute(cropImageUri);
                 }
             });
@@ -146,7 +146,7 @@ public class AddStepActivity extends AppCompatActivity {
                     } else {
                         if (downloadUrlCamera != null) {
                             StepRecipe stepRecipe = new StepRecipe(getResources()
-                                    .getString(R.string.step) + numberStep, inputNameRecipe
+                                    .getString(R.string.step)  + " " + numberStep, inputNameRecipe
                                     .getText().toString(), downloadUrlCamera.toString());
                             String recipeId = databaseReference.push().getKey();
                             databaseReference.child(recipeId).setValue(stepRecipe);
@@ -154,7 +154,7 @@ public class AddStepActivity extends AppCompatActivity {
                             Toast.makeText(context, getResources()
                                     .getString(R.string.data_save), Toast.LENGTH_SHORT).show();
                             numberStep = ++numberStep;
-                            actionBar.setTitle(getResources().getString(R.string.step) + numberStep);
+                            actionBar.setTitle(getResources().getString(R.string.step) + " " + numberStep);
                             imageView.setImageResource(R.drawable.dishes);
                             inputNameRecipe.setText("");
                             downloadUrlCamera = null;

@@ -31,9 +31,15 @@ public class FirebaseHelper {
     private FirebaseHelper.OnUserCategoryRecipe onUserCategoryRecipe;
     private FirebaseHelper.OnUserRecipes onUserRecipes;
     private FirebaseHelper.OnSaveImage onSaveImage;
+    private FirebaseHelper.OnStepRecipes onStepRecipes;
     private Context cnx;
 
-    public FirebaseHelper(){}
+    public FirebaseHelper() {
+    }
+
+    public FirebaseHelper(FirebaseHelper.OnStepRecipes onStepRecipes) {
+        this.onStepRecipes = onStepRecipes;
+    }
 
     public FirebaseHelper(FirebaseHelper.OnSaveImage onSaveImage) {
         this.onSaveImage = onSaveImage;
@@ -48,7 +54,7 @@ public class FirebaseHelper {
     }
 
     public void getStepsRecipe(Context context, final int idRecipe, String recipeList,
-                                      String recipe, String username) {
+                               String recipe, String username) {
         cnx = context;
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference;
@@ -76,9 +82,31 @@ public class FirebaseHelper {
         });
     }
 
+    public void getStepsRecipe(List<StepRecipe> stepRecipes, String reference) {
+        stepRecipe = stepRecipes;
+
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference databaseReference = firebaseDatabase.getReference(reference);
+
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    StepRecipe step = postSnapshot.getValue(StepRecipe.class);
+                    stepRecipe.add(step);
+                    onStepRecipes.OnGet(stepRecipe);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
+
     public void getUserCategoryRecipe(List<CategoryRecipes> categoryRecipesList, String username,
                                       FirebaseDatabase firebaseDatabase) {
-        this.category = categoryRecipesList;
+        category = categoryRecipesList;
 
         DatabaseReference databaseUserReference = firebaseDatabase.getReference(username + "/Сategory_Recipes");
         databaseUserReference.addValueEventListener(new ValueEventListener() {
@@ -100,7 +128,7 @@ public class FirebaseHelper {
 
     public void getUserRecipe(List<Recipe> recipesList, FirebaseDatabase firebaseDatabase,
                               String reference) {
-        this.recipes = recipesList;
+        recipes = recipesList;
 
         DatabaseReference databaseUserReference = firebaseDatabase.getReference(reference);
         databaseUserReference.addValueEventListener(new ValueEventListener() {
@@ -117,6 +145,7 @@ public class FirebaseHelper {
                     onUserRecipes.OnGet(recipes);
                 }
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
@@ -151,5 +180,9 @@ public class FirebaseHelper {
 
     public interface OnUserRecipes {
         void OnGet(List<Recipe> recipes);
+    }
+
+    public interface OnStepRecipes {
+        void OnGet(List<StepRecipe> stepRecipes);
     }
 }

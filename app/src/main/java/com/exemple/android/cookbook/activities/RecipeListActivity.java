@@ -49,10 +49,9 @@ public class RecipeListActivity extends AppCompatActivity
     private String reference;
     private String username;
 
-
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
-    FloatingActionButton fab;
+    private FloatingActionButton fab;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -66,6 +65,7 @@ public class RecipeListActivity extends AppCompatActivity
 
         fab = (FloatingActionButton) findViewById(R.id.fab1);
 
+        firebaseDatabase = FirebaseDatabase.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
         userRefresh();
@@ -83,9 +83,6 @@ public class RecipeListActivity extends AppCompatActivity
         });
 
         intent = getIntent();
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
         reference = "Recipe_lists/" + intent.getStringExtra(RECIPE_LIST);
         DatabaseReference databaseReference = firebaseDatabase.getReference().child(reference);
