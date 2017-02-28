@@ -91,6 +91,10 @@ public class MainActivity extends AppCompatActivity
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
+
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -224,14 +228,15 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.selected) {
             startActivity(new Intent(this, SelectedRecipeListActivity.class));
-
         } else if (id == R.id.nav_sign_in) {
             Intent intent = new Intent(MainActivity.this, AuthenticationActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_sign_out) {
             if (mFirebaseUser != null) {
+                Log.d("USER", mFirebaseUser.toString());
                 mFirebaseAuth.signOut();
                 Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+                Log.d("USER", mFirebaseUser.toString());
                 mUsername = ANONYMOUS;
                 mFirebaseUser = null;
                 userRefresh();

@@ -173,6 +173,7 @@ public class RecipeActivity extends AppCompatActivity
             mCommentEditText.setFocusable(false);
             return;
         } else {
+            Log.d("USER", mFirebaseUser.toString());
             mCommentEditText.setFocusable(true);
             mUsername = mFirebaseUser.getDisplayName();
             if (mFirebaseUser.getPhotoUrl() != null) {
