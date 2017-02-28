@@ -90,7 +90,6 @@ public class RecipeListActivity extends AppCompatActivity
         }
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override

@@ -1,6 +1,7 @@
 package com.exemple.android.cookbook.activities;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -136,7 +137,6 @@ public class MainActivity extends AppCompatActivity
         DatabaseReference databaseReference = mFirebaseDatabase.getReference("Сategory_Recipes");
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override

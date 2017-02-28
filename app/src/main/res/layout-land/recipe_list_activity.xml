@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/fab1"
+        android:orientation="horizontal"
         android:scaleType="fitXY"
         app:layoutManager="android.support.v7.widget.LinearLayoutManager"
         app:rippleColor="@color/colorPrimary" />

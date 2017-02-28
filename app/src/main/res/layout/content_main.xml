@@ -10,17 +10,15 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
-        app:theme="@style/ToolBarStyle"
-        />
-
+        app:theme="@style/ToolBarStyle" />
 
     <android.support.v7.widget.RecyclerView
-        android:layout_marginTop="62dp"
         android:id="@+id/recipeListRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/fab"
-        />
+        android:layout_marginTop="62dp"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -29,6 +27,5 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@drawable/add" />
-
 
 </android.support.design.widget.CoordinatorLayout>

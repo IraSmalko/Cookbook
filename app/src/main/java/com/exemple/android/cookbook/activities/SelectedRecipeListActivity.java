@@ -50,7 +50,6 @@ public class SelectedRecipeListActivity extends AppCompatActivity {
         }
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         SelectedRecipeRecyclerListAdapter recipeRecyclerAdapter =
                 new SelectedRecipeRecyclerListAdapter(this, recipesList, new SelectedRecipeRecyclerListAdapter.ItemClickListener() {
