@@ -65,7 +65,7 @@ public class RecipeListActivity extends AppCompatActivity
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = firebaseAuth.getCurrentUser();
-        userRefresh();
+//        userRefresh();
 
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -168,9 +168,9 @@ public class RecipeListActivity extends AppCompatActivity
         return true;
     }
 
-    public void userRefresh() {
-        if (mFirebaseUser == null) {
-            mFab.setVisibility(View.GONE);
-        }
-    }
+//    public void userRefresh() {
+//        if (mFirebaseUser == null) {
+//            mFab.setVisibility(View.GONE);
+//        }
+//    }
 }

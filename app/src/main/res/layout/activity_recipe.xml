@@ -44,7 +44,7 @@
             android:layout_alignParentEnd="true"
             android:layout_below="@+id/ratingBar"
             android:layout_marginTop="63dp"
-            android:text="Детально" />
+            android:text="@string/detail" />
 
         <TextView
             android:id="@+id/textView"
@@ -55,7 +55,7 @@
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:background="#99ECEFF1"
-            android:text="Короткий опис"
+            android:text="@string/describ"
             android:textColor="#000" />
 
         <Button
@@ -64,9 +64,11 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_below="@+id/textInputLayout1"
-            android:text="Надіслати" />
+            android:text="@string/send" />
 
         <android.support.design.widget.TextInputLayout
+            android:descendantFocusability="beforeDescendants"
+            android:focusableInTouchMode="true"
             android:id="@+id/textInputLayout1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -79,6 +81,7 @@
                 android:layout_height="46dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
+                android:textColorHint="#9000"
                 android:background="#99F5F5F5"
                 android:ems="10"
                 android:hint="@string/editTextComent"

@@ -45,4 +45,7 @@
     <string name="fb_login_protocol_scheme">fb1224969314223075</string>
 
     <string name="fb_app_id">1224969314223075</string>
+    <string name="send">Надіслати</string>
+    <string name="describ">Короткий опис</string>
+    <string name="detail">Детально</string>
 </resources>

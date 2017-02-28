@@ -91,10 +91,6 @@ public class MainActivity extends AppCompatActivity
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
-
-        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -298,7 +294,7 @@ public class MainActivity extends AppCompatActivity
         if (mFirebaseUser == null) {
             mNavigationView.getMenu().findItem(R.id.nav_sign_in).setVisible(true);
             mNavigationView.getMenu().findItem(R.id.nav_sign_out).setVisible(false);
-            mFab.setVisibility(View.GONE);
+       //     mFab.setVisibility(View.GONE);
             mUsername = ANONYMOUS;
             mUserNameTV.setText(mUsername);
             mUserPhotoIV.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.a));
