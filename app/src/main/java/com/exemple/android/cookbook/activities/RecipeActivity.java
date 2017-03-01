@@ -1,16 +1,16 @@
 package com.exemple.android.cookbook.activities;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -41,17 +41,15 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.firebase.appindexing.Action;
-import com.google.firebase.appindexing.FirebaseAppIndex;
-import com.google.firebase.appindexing.FirebaseUserActions;
-import com.google.firebase.appindexing.Indexable;
-import com.google.firebase.appindexing.builders.Indexables;
-import com.google.firebase.appindexing.builders.PersonBuilder;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -72,19 +70,22 @@ public class RecipeActivity extends AppCompatActivity
         public TextView commentTextView;
         public TextView commentatorTextView;
         public CircleImageView commentatorImageView;
+        public RatingBar commentatorRecipeRating;
 
         public CommentViewHolder(View v) {
             super(v);
             commentTextView = (TextView) itemView.findViewById(R.id.messageTextView);
             commentatorTextView = (TextView) itemView.findViewById(R.id.messengerTextView);
             commentatorImageView = (CircleImageView) itemView.findViewById(R.id.messengerImageView);
+            commentatorRecipeRating = (RatingBar) itemView.findViewById(R.id.ratingBar_small);
         }
     }
 
-    private static final String MESSAGE_URL = "https://cookbook-6cce5.firebaseio.com/comments/";
+    private static final String MESSAGE_URL = "https://cookbook-6cce5.firebaseio.com/Support/";
     private static final String TAG = "RecipeActivity";
     public static final String ANONYMOUS = "anonymous";
     public String MESSAGES_CHILD;
+    public String RATING_CHILD;
 
     private String mUsername;
     private String mPhotoUrl;
@@ -93,6 +94,7 @@ public class RecipeActivity extends AppCompatActivity
     private RecyclerView mCommentsRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
     private EditText mCommentEditText;
+    private RatingBar ratingBar;
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
@@ -100,6 +102,7 @@ public class RecipeActivity extends AppCompatActivity
     private FirebaseRecyclerAdapter<Comment, CommentViewHolder> mFirebaseAdapter;
     private GoogleApiClient mGoogleApiClient;
 
+    private RecipeRating recipeRating;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,26 +112,11 @@ public class RecipeActivity extends AppCompatActivity
         TextView descriptionRecipe = (TextView) findViewById(R.id.textView);
         imageView = (ImageView) findViewById(R.id.imageView);
         Button btnDetailRecipe = (Button) findViewById(R.id.btnDetailRecipe);
-        RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar);
+        ratingBar = (RatingBar) findViewById(R.id.ratingBar);
         ActionBar actionBar = getSupportActionBar();
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
-
-        LayerDrawable stars = (LayerDrawable) ratingBar.getProgressDrawable();
-        stars.getDrawable(2).setColorFilter(ContextCompat.getColor(this, R.color.starFullySelected), PorterDuff.Mode.SRC_ATOP);
-        stars.getDrawable(1).setColorFilter(ContextCompat.getColor(this, R.color.starPartiallySelected), PorterDuff.Mode.SRC_ATOP);
-        stars.getDrawable(0).setColorFilter(ContextCompat.getColor(this, R.color.starNotSelected), PorterDuff.Mode.SRC_ATOP);
-
-        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
-            @Override
-            public void onRatingChanged(RatingBar ratingBar, float rating,
-                                        boolean fromUser) {
-
-                Toast.makeText(RecipeActivity.this, getResources().getString(R.string.rating) + String.valueOf(rating),
-                        Toast.LENGTH_LONG).show();
-            }
-        });
 
         intent = getIntent();
 
@@ -158,24 +146,21 @@ public class RecipeActivity extends AppCompatActivity
             }
         });
 
-
-
-        MESSAGES_CHILD = "comments/" + intent.getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE) + "/comments";
-
         mCommentsRecyclerView = (RecyclerView) findViewById(R.id.commentsRecyclerView);
         mCommentEditText = (EditText) findViewById(R.id.editTextComent);
         mSendButton = (Button) findViewById(R.id.save_comments);
+
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+        mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
         mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(true);
         mCommentsRecyclerView.setLayoutManager(mLinearLayoutManager);
 
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
-
         if (mFirebaseUser == null) {
-            // Not signed in, launch the Sign In activity
             mCommentEditText.setFocusable(false);
+            ratingBar.isIndicator();
             return;
         } else {
             Log.d("USER", mFirebaseUser.toString());
@@ -186,12 +171,55 @@ public class RecipeActivity extends AppCompatActivity
             }
         }
 
-                mGoogleApiClient = new GoogleApiClient.Builder(this)
+        RATING_CHILD = "Support/" + intent.getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE) + "/recipeRating";
+
+//        Rating
+
+//        final LayerDrawable stars = (LayerDrawable) ratingBar.getProgressDrawable();
+//        stars.getDrawable(2).setColorFilter(ContextCompat.getColor(this, R.color.starFullySelected), PorterDuff.Mode.SRC_ATOP);
+//        stars.getDrawable(1).setColorFilter(ContextCompat.getColor(this, R.color.starPartiallySelected), PorterDuff.Mode.SRC_ATOP);
+//        stars.getDrawable(0).setColorFilter(ContextCompat.getColor(this, R.color.starNotSelected), PorterDuff.Mode.SRC_ATOP);
+
+        mFirebaseDatabaseReference.child(RATING_CHILD).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists()) {
+
+                    mFirebaseDatabaseReference.child(RATING_CHILD).child("rating").setValue(2)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            mFirebaseDatabaseReference.child(RATING_CHILD).child("numberOfUsers").setValue(1)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    setValueChangeListener();
+
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    setValueChangeListener();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+//        Comments
+
+        MESSAGES_CHILD = "Support/" + intent.getStringExtra(RECIPE_LIST) + "/" + intent.getStringExtra(RECIPE) + "/comments";
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API)
                 .build();
 
-        mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+
         mFirebaseAdapter = new FirebaseRecyclerAdapter<Comment,
                 CommentViewHolder>(
                 Comment.class,
@@ -214,6 +242,7 @@ public class RecipeActivity extends AppCompatActivity
 //                mProgressBar.setVisibility(ProgressBar.INVISIBLE);
                 viewHolder.commentTextView.setText(comment.getText());
                 viewHolder.commentatorTextView.setText(comment.getName());
+                viewHolder.commentatorRecipeRating.setRating(comment.getRating());
                 if (comment.getPhotoUrl() == null) {
                     viewHolder.commentatorImageView
                             .setImageDrawable(ContextCompat
@@ -249,6 +278,7 @@ public class RecipeActivity extends AppCompatActivity
         mCommentsRecyclerView.setLayoutManager(mLinearLayoutManager);
         mCommentsRecyclerView.setAdapter(mFirebaseAdapter);
 
+        mSendButton.setEnabled(false);
         mCommentEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -271,15 +301,11 @@ public class RecipeActivity extends AppCompatActivity
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Comment comment = new
-                        Comment(mCommentEditText.getText().toString(),
-                        mUsername,
-                        mPhotoUrl);
-                mFirebaseDatabaseReference.child(MESSAGES_CHILD)
-                        .push().setValue(comment);
-                mCommentEditText.setText("");
+                showRatingDialog();
             }
         });
+
+
     }
 
     @Override
@@ -332,4 +358,90 @@ public class RecipeActivity extends AppCompatActivity
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
         Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
     }
+
+    public static class RecipeRating {
+        private float rating;
+        private int numberOfUsers;
+
+        RecipeRating() {
+            this.rating = 0;
+            this.numberOfUsers = 0;
+        }
+
+        public void addRating(float rating) {
+            this.rating = (this.rating * this.numberOfUsers + rating) / (this.numberOfUsers + 1);
+            this.numberOfUsers++;
+        }
+
+        public float getRating() {
+            return rating;
+        }
+
+        public void setRating(float rating) {
+            this.rating = rating;
+        }
+
+        public int getNumberOfUsers() {
+            return numberOfUsers;
+        }
+
+        public void setNumberOfUsers(int numberOfUsers) {
+            this.numberOfUsers = numberOfUsers;
+        }
+    }
+
+    public void showRatingDialog() {
+
+        final AlertDialog.Builder ratingDialog = new AlertDialog.Builder(this);
+
+        ratingDialog.setIcon(android.R.drawable.btn_star_big_on);
+        ratingDialog.setTitle("Будь ласка, оцініть рецепт!");
+        ratingDialog.setCancelable(false);
+
+        View linearlayout = getLayoutInflater().inflate(R.layout.rating_dialog, null);
+        ratingDialog.setView(linearlayout);
+
+        final RatingBar ratingInDialog = (RatingBar) linearlayout.findViewById(R.id.dialogRatingBar);
+
+        ratingDialog.setPositiveButton("Готово",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Comment comment = new
+                                Comment(mCommentEditText.getText().toString(),
+                                mUsername,
+                                mPhotoUrl,
+                                ratingInDialog.getRating());
+                        mFirebaseDatabaseReference.child(MESSAGES_CHILD)
+                                .push().setValue(comment);
+                        mCommentEditText.setText("");
+
+
+                        recipeRating.addRating(ratingInDialog.getRating());
+                        mFirebaseDatabaseReference.child(RATING_CHILD).child("rating").setValue(recipeRating.getRating());
+                        mFirebaseDatabaseReference.child(RATING_CHILD).child("numberOfUsers").setValue(recipeRating.getNumberOfUsers());
+
+
+                        dialog.dismiss();
+                    }
+                });
+
+        ratingDialog.create();
+        ratingDialog.show();
+    }
+
+    public void setValueChangeListener(){
+        mFirebaseDatabaseReference.child(RATING_CHILD).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                recipeRating = dataSnapshot.getValue(RecipeRating.class);
+                ratingBar.setRating(recipeRating.getRating());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
 }
+
