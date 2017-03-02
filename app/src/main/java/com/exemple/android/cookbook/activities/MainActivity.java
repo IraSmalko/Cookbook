@@ -158,6 +158,8 @@ public class MainActivity extends AppCompatActivity
                             mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext()).setSwipeForRecyclerView();
                             ItemTouchHelper itemTouchHelper = new ItemTouchHelper(mSwipeHelper);
                             itemTouchHelper.attachToRecyclerView(mRecyclerView);
+                            mSwipeHelper.setmLeftSwipeLable(getResources().getString(R.string.extraction));
+                            mSwipeHelper.setmLeftcolorCode(ContextCompat.getColor(getApplicationContext(), R.color.starFullySelected));
                         }
                     }).getUserCategoryRecipe(mCategoryRecipesList, mUsername, mFirebaseDatabase);
                 } else {
@@ -167,9 +169,9 @@ public class MainActivity extends AppCompatActivity
                     mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext()).setSwipeForRecyclerView();
                     ItemTouchHelper itemTouchHelper = new ItemTouchHelper(mSwipeHelper);
                     itemTouchHelper.attachToRecyclerView(mRecyclerView);
+                    mSwipeHelper.setmLeftSwipeLable(getResources().getString(R.string.extraction));
+                    mSwipeHelper.setmLeftcolorCode(ContextCompat.getColor(getApplicationContext(), R.color.starFullySelected));
                 }
-                mSwipeHelper.setmLeftSwipeLable(getResources().getString(R.string.extraction));
-                mSwipeHelper.setmLeftcolorCode(ContextCompat.getColor(getApplicationContext(), R.color.starFullySelected));
             }
 
             @Override

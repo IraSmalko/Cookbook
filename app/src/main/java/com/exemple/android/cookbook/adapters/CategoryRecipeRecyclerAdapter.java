@@ -25,9 +25,9 @@ public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<Category
 
     private Context mContext;
     private LayoutInflater mInflater;
+    private CategoryRecipes mItem;
     private List<CategoryRecipes> mItems = new ArrayList<>();
     private List<CategoryRecipes> mItemsPendingRemoval;
-    private CategoryRecipes mItem;
     private CategoryRecipeRecyclerAdapter.ItemClickListener mClickListener;
 
     private static final int PENDING_REMOVAL_TIMEOUT = 3000;
@@ -60,37 +60,33 @@ public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<Category
 
     @Override
     public void onBindViewHolder(CustomViewHolder holder, int position) {
-        mItem = mItems.get(position);
-        if (mItemsPendingRemoval.contains(mItem)) {
+        final CategoryRecipes item = mItems.get(position);
+        mItem = item;
+        if (mItemsPendingRemoval.contains(item)) {
             holder.regularLayout.setVisibility(View.GONE);
             holder.swipeLayout.setVisibility(View.VISIBLE);
         } else {
             /** {show regular layout} and {hide swipe layout} */
             holder.regularLayout.setVisibility(View.VISIBLE);
             holder.swipeLayout.setVisibility(View.GONE);
-            holder.textView.setText(mItem.getName());
-            Glide.with(mContext).load(mItem.getPhotoUrl()).into(holder.imageView);
+            holder.textView.setText(item.getName());
+            Glide.with(mContext).load(item.getPhotoUrl()).into(holder.imageView);
         }
-        holder.undo.setOnClickListener(listener);
-        holder.regularLayout.setOnClickListener(listener);
-    }
-
-    private View.OnClickListener listener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.card:
-                    if (mClickListener != null) {
-                        mClickListener.onItemClick(mItem);
-                    }
-                    break;
-                case R.id.undo:
-                    undoOpt(mItem);
-                    break;
+        holder.undo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                undoOpt(item);
             }
-
-        }
-    };
+        });
+        holder.regularLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mClickListener != null) {
+                    mClickListener.onItemClick(item);
+                }
+            }
+        });
+    }
 
     private void undoOpt(CategoryRecipes item) {
         Runnable pendingRemovalRunnable = pendingRunnables.get(item);

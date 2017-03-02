@@ -6,11 +6,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +23,8 @@ import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.helpers.CreaterRecyclerAdapter;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
+import com.exemple.android.cookbook.helpers.SwipeHelper;
+import com.exemple.android.cookbook.supporting.SwipeUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -40,6 +43,7 @@ public class RecipeListActivity extends AppCompatActivity
 
     private List<Recipe> mRecipesList = new ArrayList<>();
     private RecipeRecyclerListAdapter mRecipeRecyclerAdapter;
+    private SwipeUtil mSwipeHelper;
     private Intent mIntent;
     private RecyclerView mRecyclerView;
     private Context mContext = RecipeListActivity.this;
@@ -107,11 +111,21 @@ public class RecipeListActivity extends AppCompatActivity
                                 mRecipeRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
                                         .createRecyclerAdapter(mRecipesList, mIntent.getStringExtra(RECIPE_LIST), mUsername);
                                 mRecyclerView.setAdapter(mRecipeRecyclerAdapter);
+                                mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext()).setSwipeForRecyclerView();
+                                ItemTouchHelper itemTouchHelper = new ItemTouchHelper(mSwipeHelper);
+                                itemTouchHelper.attachToRecyclerView(mRecyclerView);
+                                mSwipeHelper.setmLeftSwipeLable(getResources().getString(R.string.extraction));
+                                mSwipeHelper.setmLeftcolorCode(ContextCompat.getColor(getApplicationContext(), R.color.starFullySelected));
                             } else {
                                 mRecipesList = recipes;
                                 mRecipeRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
                                         .createRecyclerAdapter(recipes, mIntent.getStringExtra(RECIPE_LIST), mUsername);
                                 mRecyclerView.setAdapter(mRecipeRecyclerAdapter);
+                                mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext()).setSwipeForRecyclerView();
+                                ItemTouchHelper itemTouchHelper = new ItemTouchHelper(mSwipeHelper);
+                                itemTouchHelper.attachToRecyclerView(mRecyclerView);
+                                mSwipeHelper.setmLeftSwipeLable(getResources().getString(R.string.extraction));
+                                mSwipeHelper.setmLeftcolorCode(ContextCompat.getColor(getApplicationContext(), R.color.starFullySelected));
                             }
                         }
                     }).getUserRecipe(mRecipesList, mFirebaseDatabase, mReference);
