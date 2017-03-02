@@ -48,4 +48,7 @@
     <string name="send">Надіслати</string>
     <string name="describ">Короткий опис</string>
     <string name="detail">Детально</string>
+    
+    <string name="deleted">Видалено</string>
+    <string name="undo">Скасувати</string>
 </resources>
