@@ -21,21 +21,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<CategoryRecipeRecyclerAdapter.CustomViewHolder>
-        implements View.OnClickListener {
+public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<CategoryRecipeRecyclerAdapter.CustomViewHolder> {
 
     private Context mContext;
     private LayoutInflater mInflater;
     private List<CategoryRecipes> mItems = new ArrayList<>();
     private List<CategoryRecipes> mItemsPendingRemoval;
     private CategoryRecipes mItem;
-    private final ItemClickListener mClickListener;
+    private CategoryRecipeRecyclerAdapter.ItemClickListener mClickListener;
 
     private static final int PENDING_REMOVAL_TIMEOUT = 3000;
     private Handler mHandler = new Handler();
     private HashMap<CategoryRecipes, Runnable> pendingRunnables = new HashMap<>();
 
-    public CategoryRecipeRecyclerAdapter(Context context, List<CategoryRecipes> items, ItemClickListener clickListener) {
+    public CategoryRecipeRecyclerAdapter(Context context, List<CategoryRecipes> items,
+                                         CategoryRecipeRecyclerAdapter.ItemClickListener clickListener) {
         updateAdapter(items);
         mContext = context;
         mClickListener = clickListener;
@@ -55,42 +55,44 @@ public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<Category
         if (mInflater == null) {
             mInflater = LayoutInflater.from(mContext);
         }
-        return CustomViewHolder.create(mInflater, parent, mClickListener);
+        return CustomViewHolder.create(mInflater, parent);
     }
 
     @Override
     public void onBindViewHolder(CustomViewHolder holder, int position) {
         mItem = mItems.get(position);
-        if (mItemsPendingRemoval.contains( mItem)) {
+        if (mItemsPendingRemoval.contains(mItem)) {
             holder.regularLayout.setVisibility(View.GONE);
             holder.swipeLayout.setVisibility(View.VISIBLE);
         } else {
             /** {show regular layout} and {hide swipe layout} */
             holder.regularLayout.setVisibility(View.VISIBLE);
             holder.swipeLayout.setVisibility(View.GONE);
-            holder.textView.setText( mItem.getName());
-            Glide.with(mContext).load( mItem.getPhotoUrl()).into(holder.imageView);
+            holder.textView.setText(mItem.getName());
+            Glide.with(mContext).load(mItem.getPhotoUrl()).into(holder.imageView);
         }
-        holder.itemView.setOnClickListener(this);
-        holder.textView.setOnClickListener(this);
-        holder.undo.setOnClickListener(this);
+        holder.undo.setOnClickListener(listener);
+        holder.regularLayout.setOnClickListener(listener);
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.infoText | R.id.imageView:
-                if (mClickListener != null) {
-                    mClickListener.onItemClick(mItem);
-                }
-                break;
-            case R.id.undo:
-                undoOpt(mItem);
-                break;
-        }
-    }
+    private View.OnClickListener listener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.card:
+                    if (mClickListener != null) {
+                        mClickListener.onItemClick(mItem);
+                    }
+                    break;
+                case R.id.undo:
+                    undoOpt(mItem);
+                    break;
+            }
 
-    public void undoOpt(CategoryRecipes item) {
+        }
+    };
+
+    private void undoOpt(CategoryRecipes item) {
         Runnable pendingRemovalRunnable = pendingRunnables.get(item);
         pendingRunnables.remove(item);
         if (pendingRemovalRunnable != null)
@@ -119,7 +121,7 @@ public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<Category
         }
     }
 
-    public void remove(int position) {
+    private void remove(int position) {
         CategoryRecipes data = mItems.get(position);
         if (mItemsPendingRemoval.contains(data)) {
             mItemsPendingRemoval.remove(data);
@@ -146,16 +148,13 @@ public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<Category
         private TextView undo;
         private TextView textView;
         private ImageView imageView;
-        private final ItemClickListener clickListener;
-        private CategoryRecipes item;
 
-        static CustomViewHolder create(LayoutInflater inflater, ViewGroup parent, ItemClickListener clickListener) {
-            return new CustomViewHolder(inflater.inflate(R.layout.row_item, parent, false), clickListener);
+        static CustomViewHolder create(LayoutInflater inflater, ViewGroup parent) {
+            return new CustomViewHolder(inflater.inflate(R.layout.row_item, parent, false));
         }
 
-        CustomViewHolder(View v, ItemClickListener clickListener) {
+        CustomViewHolder(View v) {
             super(v);
-            this.clickListener = clickListener;
             this.regularLayout = (CardView) v.findViewById(R.id.card);
             this.textView = (TextView) v.findViewById(R.id.infoText);
             this.imageView = (ImageView) v.findViewById(R.id.imageView);

@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook;
+package com.exemple.android.cookbook.supporting;
 
 
 import android.content.Context;
@@ -12,6 +12,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
+
+import com.exemple.android.cookbook.R;
 
 public abstract class SwipeUtil extends ItemTouchHelper.SimpleCallback {
 

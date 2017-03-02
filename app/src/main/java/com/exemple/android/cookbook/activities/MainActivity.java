@@ -30,7 +30,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.crashlytics.android.Crashlytics;
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.SwipeUtil;
+import com.exemple.android.cookbook.supporting.SwipeUtil;
 import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.helpers.CreaterRecyclerAdapter;
@@ -139,7 +139,6 @@ public class MainActivity extends AppCompatActivity
         DatabaseReference databaseReference = mFirebaseDatabase.getReference("Сategory_Recipes");
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
-        mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext()).setSwipeForRecyclerView();
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -156,6 +155,7 @@ public class MainActivity extends AppCompatActivity
                             mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
                                     .createRecyclerAdapter(category);
                             mRecyclerView.setAdapter(mRecyclerAdapter);
+                            mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext()).setSwipeForRecyclerView();
                             ItemTouchHelper itemTouchHelper = new ItemTouchHelper(mSwipeHelper);
                             itemTouchHelper.attachToRecyclerView(mRecyclerView);
                         }
@@ -164,10 +164,11 @@ public class MainActivity extends AppCompatActivity
                     mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
                             .createRecyclerAdapter(mCategoryRecipesList);
                     mRecyclerView.setAdapter(mRecyclerAdapter);
+                    mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext()).setSwipeForRecyclerView();
                     ItemTouchHelper itemTouchHelper = new ItemTouchHelper(mSwipeHelper);
                     itemTouchHelper.attachToRecyclerView(mRecyclerView);
                 }
-                mSwipeHelper.setmLeftSwipeLable("Видалення");
+                mSwipeHelper.setmLeftSwipeLable(getResources().getString(R.string.extraction));
                 mSwipeHelper.setmLeftcolorCode(ContextCompat.getColor(getApplicationContext(), R.color.starFullySelected));
             }
 

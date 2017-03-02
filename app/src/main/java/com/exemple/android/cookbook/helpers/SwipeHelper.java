@@ -5,8 +5,8 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 
-import com.exemple.android.cookbook.SwipeUtil;
 import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
+import com.exemple.android.cookbook.supporting.SwipeUtil;
 
 public class SwipeHelper {
 
