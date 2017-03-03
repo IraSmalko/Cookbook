@@ -5,15 +5,19 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.SelectedRecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.entity.SelectedRecipe;
 import com.exemple.android.cookbook.helpers.DBHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
+import com.exemple.android.cookbook.helpers.SwipeHelper;
+import com.exemple.android.cookbook.supporting.SwipeUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,5 +64,10 @@ public class SelectedRecipeListActivity extends AppCompatActivity {
                     }
                 });
         recyclerView.setAdapter(recipeRecyclerAdapter);
+        SwipeUtil swipeHelper = new SwipeHelper(recyclerView, getApplicationContext()).setSwipeSelectedRecipe();
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeHelper);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+        swipeHelper.setmLeftSwipeLable(getResources().getString(R.string.extraction));
+        swipeHelper.setmLeftcolorCode(ContextCompat.getColor(getApplicationContext(), R.color.starFullySelected));
     }
 }

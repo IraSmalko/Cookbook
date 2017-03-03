@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity
                             mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
                                     .createRecyclerAdapter(category);
                             mRecyclerView.setAdapter(mRecyclerAdapter);
-                            mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext()).setSwipeForRecyclerView();
+                            mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext()).setSwipeForCategory();
                             ItemTouchHelper itemTouchHelper = new ItemTouchHelper(mSwipeHelper);
                             itemTouchHelper.attachToRecyclerView(mRecyclerView);
                             mSwipeHelper.setmLeftSwipeLable(getResources().getString(R.string.extraction));
@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity
                     mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
                             .createRecyclerAdapter(mCategoryRecipesList);
                     mRecyclerView.setAdapter(mRecyclerAdapter);
-                    mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext()).setSwipeForRecyclerView();
+                    mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext()).setSwipeForCategory();
                     ItemTouchHelper itemTouchHelper = new ItemTouchHelper(mSwipeHelper);
                     itemTouchHelper.attachToRecyclerView(mRecyclerView);
                     mSwipeHelper.setmLeftSwipeLable(getResources().getString(R.string.extraction));

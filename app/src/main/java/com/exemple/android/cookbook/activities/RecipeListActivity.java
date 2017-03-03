@@ -111,17 +111,12 @@ public class RecipeListActivity extends AppCompatActivity
                                 mRecipeRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
                                         .createRecyclerAdapter(mRecipesList, mIntent.getStringExtra(RECIPE_LIST), mUsername);
                                 mRecyclerView.setAdapter(mRecipeRecyclerAdapter);
-                                mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext()).setSwipeForRecyclerView();
-                                ItemTouchHelper itemTouchHelper = new ItemTouchHelper(mSwipeHelper);
-                                itemTouchHelper.attachToRecyclerView(mRecyclerView);
-                                mSwipeHelper.setmLeftSwipeLable(getResources().getString(R.string.extraction));
-                                mSwipeHelper.setmLeftcolorCode(ContextCompat.getColor(getApplicationContext(), R.color.starFullySelected));
                             } else {
                                 mRecipesList = recipes;
                                 mRecipeRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
                                         .createRecyclerAdapter(recipes, mIntent.getStringExtra(RECIPE_LIST), mUsername);
                                 mRecyclerView.setAdapter(mRecipeRecyclerAdapter);
-                                mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext()).setSwipeForRecyclerView();
+                                mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext()).setSwipeRecipe();
                                 ItemTouchHelper itemTouchHelper = new ItemTouchHelper(mSwipeHelper);
                                 itemTouchHelper.attachToRecyclerView(mRecyclerView);
                                 mSwipeHelper.setmLeftSwipeLable(getResources().getString(R.string.extraction));
@@ -133,6 +128,11 @@ public class RecipeListActivity extends AppCompatActivity
                     mRecipeRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
                             .createRecyclerAdapter(mRecipesList, mIntent.getStringExtra(RECIPE_LIST), mUsername);
                     mRecyclerView.setAdapter(mRecipeRecyclerAdapter);
+                    mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext()).setSwipeRecipe();
+                    ItemTouchHelper itemTouchHelper = new ItemTouchHelper(mSwipeHelper);
+                    itemTouchHelper.attachToRecyclerView(mRecyclerView);
+                    mSwipeHelper.setmLeftSwipeLable(getResources().getString(R.string.extraction));
+                    mSwipeHelper.setmLeftcolorCode(ContextCompat.getColor(getApplicationContext(), R.color.starFullySelected));
                 }
             }
 

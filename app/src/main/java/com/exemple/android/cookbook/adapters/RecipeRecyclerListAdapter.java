@@ -29,7 +29,7 @@ public class RecipeRecyclerListAdapter extends RecyclerView.Adapter<RecipeRecycl
     private List<Recipe> mItems = new ArrayList<>();
     private List<Recipe> mItemsPendingRemoval;
     private Recipe mItem;
-    private final RecipeRecyclerListAdapter.ItemClickListener mClickListener;
+    private RecipeRecyclerListAdapter.ItemClickListener mClickListener;
 
     private static final int PENDING_REMOVAL_TIMEOUT = 3000;
     private Handler mHandler = new Handler();
@@ -52,45 +52,42 @@ public class RecipeRecyclerListAdapter extends RecyclerView.Adapter<RecipeRecycl
     }
 
     @Override
-    public RecipeRecyclerListAdapter.CustomViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public CustomViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (mInflater == null) {
             mInflater = LayoutInflater.from(parent.getContext());
         }
-        return RecipeRecyclerListAdapter.CustomViewHolder.create(mInflater, parent);
+        return CustomViewHolder.create(mInflater, parent);
     }
 
     @Override
     public void onBindViewHolder(RecipeRecyclerListAdapter.CustomViewHolder holder, int position) {
-        mItem = mItems.get(position);
-        if (mItemsPendingRemoval.contains(mItem)) {
+        final Recipe item = mItems.get(position);
+        mItem = item;
+        if (mItemsPendingRemoval.contains(item)) {
             holder.regularLayout.setVisibility(View.GONE);
             holder.swipeLayout.setVisibility(View.VISIBLE);
         } else {
             /** {show regular layout} and {hide swipe layout} */
             holder.regularLayout.setVisibility(View.VISIBLE);
             holder.swipeLayout.setVisibility(View.GONE);
-            holder.textView.setText(mItem.getName());
-            Glide.with(mContext).load(mItem.getPhotoUrl()).into(holder.imageView);
+            holder.textView.setText(item.getName());
+            Glide.with(mContext).load(item.getPhotoUrl()).into(holder.imageView);
         }
-        holder.undo.setOnClickListener(listener);
-        holder.regularLayout.setOnClickListener(listener);
-    }
-
-    private View.OnClickListener listener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.card:
-                    if (mClickListener != null) {
-                        mClickListener.onItemClick(mItem);
-                    }
-                    break;
-                case R.id.undo:
-                    undoOpt(mItem);
-                    break;
+        holder.undo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                undoOpt(item);
             }
-        }
-    };
+        });
+        holder.regularLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mClickListener != null) {
+                    mClickListener.onItemClick(item);
+                }
+            }
+        });
+    }
 
     private void undoOpt(Recipe item) {
         Runnable pendingRemovalRunnable = pendingRunnables.get(item);
@@ -149,8 +146,8 @@ public class RecipeRecyclerListAdapter extends RecyclerView.Adapter<RecipeRecycl
         private TextView textView;
         private ImageView imageView;
 
-        static RecipeRecyclerListAdapter.CustomViewHolder create(LayoutInflater inflater, ViewGroup parent) {
-            return new RecipeRecyclerListAdapter.CustomViewHolder(inflater.inflate(R.layout.row_item, parent, false));
+        static CustomViewHolder create(LayoutInflater inflater, ViewGroup parent) {
+            return new CustomViewHolder(inflater.inflate(R.layout.row_item, parent, false));
         }
 
         CustomViewHolder(View v) {
