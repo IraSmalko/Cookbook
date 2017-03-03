@@ -4,6 +4,7 @@ package com.exemple.android.cookbook.helpers;
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.widget.Toast;
 
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.ImageCard;
@@ -11,10 +12,13 @@ import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.entity.StepRecipe;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -32,7 +36,7 @@ public class FirebaseHelper {
     private FirebaseHelper.OnUserRecipes mOnUserRecipes;
     private FirebaseHelper.OnSaveImage mOnSaveImage;
     private FirebaseHelper.OnStepRecipes mOnStepRecipes;
-    private Context cnx;
+    private Context mContext;
 
     public FirebaseHelper() {
     }
@@ -55,7 +59,7 @@ public class FirebaseHelper {
 
     public void getStepsRecipe(Context context, final int idRecipe, String recipeList,
                                String recipe, String username) {
-        cnx = context;
+        this.mContext = context;
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference;
         if (username != null) {
@@ -73,7 +77,7 @@ public class FirebaseHelper {
                     StepRecipe step = postSnapshot.getValue(StepRecipe.class);
                     mStepRecipe.add(step);
                 }
-                new DataSourceSQLite(cnx).saveStepsSQLite(mStepRecipe, idRecipe);
+                new DataSourceSQLite(FirebaseHelper.this.mContext).saveStepsSQLite(mStepRecipe, idRecipe);
             }
 
             @Override
@@ -104,10 +108,8 @@ public class FirebaseHelper {
         });
     }
 
-    public void getUserCategoryRecipe(List<CategoryRecipes> categoryRecipesList, String username,
+    public void getUserCategoryRecipe(String username,
                                       FirebaseDatabase firebaseDatabase) {
-        mCategory = categoryRecipesList;
-
         DatabaseReference databaseUserReference = firebaseDatabase.getReference(username + "/Сategory_Recipes");
         databaseUserReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -184,5 +186,29 @@ public class FirebaseHelper {
 
     public interface OnStepRecipes {
         void OnGet(List<StepRecipe> stepRecipes);
+    }
+
+    public void removeCategory(Context context, String item) {
+        mContext = context;
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        if (firebaseUser != null) {
+            String username = firebaseUser.getDisplayName();
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+            Query applesQuery = ref.child(username + "/Сategory_Recipes").orderByChild("name").equalTo(item);
+
+            applesQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        postSnapshot.getRef().removeValue();
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+        }
     }
 }

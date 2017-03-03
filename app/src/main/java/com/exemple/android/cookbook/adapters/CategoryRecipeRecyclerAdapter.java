@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
+import com.exemple.android.cookbook.helpers.FirebaseHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -99,7 +100,6 @@ public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<Category
     }
 
     public void pendingRemoval(int position) {
-
         final CategoryRecipes data = mItems.get(position);
         if (!mItemsPendingRemoval.contains(data)) {
             mItemsPendingRemoval.add(data);
@@ -115,6 +115,7 @@ public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<Category
             mHandler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);
             pendingRunnables.put(data, pendingRemovalRunnable);
         }
+
     }
 
     private void remove(int position) {
@@ -125,12 +126,13 @@ public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<Category
         if (mItems.contains(data)) {
             mItems.remove(position);
             notifyItemRemoved(position);
+            new FirebaseHelper().removeCategory(mContext, data.getName());
         }
     }
 
-    public boolean isPendingRemoval(int position) {
+    public boolean isPendingRemoval(int position, List<CategoryRecipes> categoryRecipes) {
         CategoryRecipes data = mItems.get(position);
-        return mItemsPendingRemoval.contains(data);
+        return categoryRecipes.contains(data) || mItemsPendingRemoval.contains(data);
     }
 
     @Override

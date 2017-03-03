@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity
     private SwipeHelper mSwipeHelper;
     private CategoryRecipeRecyclerAdapter mRecyclerAdapter;
     private List<CategoryRecipes> mCategoryRecipesList = new ArrayList<>();
+    private List<CategoryRecipes> mPublicCategoryRecipes = new ArrayList<>();
     private SensorManager mSensorManager;
     private Sensor mSensor;
 
@@ -146,24 +147,26 @@ public class MainActivity extends AppCompatActivity
                     CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
                     mCategoryRecipesList.add(categoryRecipes);
                 }
+                mPublicCategoryRecipes = mCategoryRecipesList;
                 if (mFirebaseUser != null) {
                     new FirebaseHelper(new FirebaseHelper.OnUserCategoryRecipe() {
                         @Override
                         public void OnGet(List<CategoryRecipes> category) {
-                            mCategoryRecipesList = category;
+                            category.addAll(mCategoryRecipesList);
                             mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
                                     .createRecyclerAdapter(category);
                             mRecyclerView.setAdapter(mRecyclerAdapter);
-                            mSwipeHelper.attachSwipeCategory();
+                            mSwipeHelper.attachSwipeCategory(mPublicCategoryRecipes);
                         }
-                    }).getUserCategoryRecipe(mCategoryRecipesList, mUsername, mFirebaseDatabase);
+                    }).getUserCategoryRecipe(mUsername, mFirebaseDatabase);
                 } else {
                     mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
                             .createRecyclerAdapter(mCategoryRecipesList);
                     mRecyclerView.setAdapter(mRecyclerAdapter);
-                    mSwipeHelper.attachSwipeCategory();
+                    mSwipeHelper.attachSwipeCategory(mCategoryRecipesList);
                 }
             }
+
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
