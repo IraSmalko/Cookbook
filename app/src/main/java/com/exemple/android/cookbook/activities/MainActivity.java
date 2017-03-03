@@ -19,7 +19,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,7 +29,6 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.crashlytics.android.Crashlytics;
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.supporting.SwipeUtil;
 import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.helpers.CreaterRecyclerAdapter;
@@ -73,7 +71,7 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_CODE = 1234;
 
     private RecyclerView mRecyclerView;
-    private SwipeUtil mSwipeHelper;
+    private SwipeHelper mSwipeHelper;
     private CategoryRecipeRecyclerAdapter mRecyclerAdapter;
     private List<CategoryRecipes> mCategoryRecipesList = new ArrayList<>();
     private SensorManager mSensorManager;
@@ -139,6 +137,7 @@ public class MainActivity extends AppCompatActivity
         DatabaseReference databaseReference = mFirebaseDatabase.getReference("Сategory_Recipes");
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
+        mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext());
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -155,22 +154,14 @@ public class MainActivity extends AppCompatActivity
                             mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
                                     .createRecyclerAdapter(category);
                             mRecyclerView.setAdapter(mRecyclerAdapter);
-                            mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext()).setSwipeForCategory();
-                            ItemTouchHelper itemTouchHelper = new ItemTouchHelper(mSwipeHelper);
-                            itemTouchHelper.attachToRecyclerView(mRecyclerView);
-                            mSwipeHelper.setmLeftSwipeLable(getResources().getString(R.string.extraction));
-                            mSwipeHelper.setmLeftcolorCode(ContextCompat.getColor(getApplicationContext(), R.color.starFullySelected));
+                            mSwipeHelper.attachSwipeCategory();
                         }
                     }).getUserCategoryRecipe(mCategoryRecipesList, mUsername, mFirebaseDatabase);
                 } else {
                     mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
                             .createRecyclerAdapter(mCategoryRecipesList);
                     mRecyclerView.setAdapter(mRecyclerAdapter);
-                    mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext()).setSwipeForCategory();
-                    ItemTouchHelper itemTouchHelper = new ItemTouchHelper(mSwipeHelper);
-                    itemTouchHelper.attachToRecyclerView(mRecyclerView);
-                    mSwipeHelper.setmLeftSwipeLable(getResources().getString(R.string.extraction));
-                    mSwipeHelper.setmLeftcolorCode(ContextCompat.getColor(getApplicationContext(), R.color.starFullySelected));
+                    mSwipeHelper.attachSwipeCategory();
                 }
             }
 

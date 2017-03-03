@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.Recipe;
 
 import java.util.ArrayList;
