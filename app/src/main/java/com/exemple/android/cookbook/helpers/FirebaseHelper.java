@@ -4,7 +4,6 @@ package com.exemple.android.cookbook.helpers;
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.widget.Toast;
 
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.ImageCard;
@@ -114,9 +113,13 @@ public class FirebaseHelper {
         databaseUserReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
-                    mCategory.add(categoryRecipes);
+                if (dataSnapshot.getValue() != null) {
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
+                        mCategory.add(categoryRecipes);
+                        mOnUserCategoryRecipe.OnGet(mCategory);
+                    }
+                } else {
                     mOnUserCategoryRecipe.OnGet(mCategory);
                 }
             }
