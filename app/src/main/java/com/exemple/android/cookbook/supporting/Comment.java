@@ -11,6 +11,9 @@ public class Comment {
     private String Id;
     private float rating;
 
+    public Comment(){
+
+    }
 
     public Comment(String text, String name, String photoUrl) {
         this.name = name;

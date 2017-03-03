@@ -185,11 +185,11 @@ public class RecipeActivity extends AppCompatActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.exists()) {
 
-                    mFirebaseDatabaseReference.child(RATING_CHILD).child("rating").setValue(2)
+                    mFirebaseDatabaseReference.child(RATING_CHILD).child("rating").setValue(0)
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            mFirebaseDatabaseReference.child(RATING_CHILD).child("numberOfUsers").setValue(1)
+                            mFirebaseDatabaseReference.child(RATING_CHILD).child("numberOfUsers").setValue(0)
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
