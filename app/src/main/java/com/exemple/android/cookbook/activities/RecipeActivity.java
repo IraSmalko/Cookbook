@@ -121,22 +121,6 @@ public class RecipeActivity extends AppCompatActivity
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
 
-//        LayerDrawable stars = (LayerDrawable) ratingBar.getProgressDrawable();
-//        stars.getDrawable(2).setColorFilter(ContextCompat.getColor(this, R.color.starFullySelected), PorterDuff.Mode.SRC_ATOP);
-//        stars.getDrawable(1).setColorFilter(ContextCompat.getColor(this, R.color.starPartiallySelected), PorterDuff.Mode.SRC_ATOP);
-//        stars.getDrawable(0).setColorFilter(ContextCompat.getColor(this, R.color.starNotSelected), PorterDuff.Mode.SRC_ATOP);
-//
-//        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
-//            @Override
-//            public void onRatingChanged(RatingBar ratingBar, float rating,
-//                                        boolean fromUser) {
-//
-//                Toast.makeText(RecipeActivity.this, getResources().getString(R.string.rating) + String.valueOf(rating),
-//                        Toast.LENGTH_LONG).show();
-//            }
-//        });
-
-
         mIntent = getIntent();
 
         if (actionBar != null) {
