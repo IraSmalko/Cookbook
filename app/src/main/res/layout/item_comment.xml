@@ -8,7 +8,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/messengerImageView"
@@ -19,9 +21,18 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:gravity="center_vertical"
             android:orientation="vertical">
+
+            <RatingBar
+                android:id="@+id/ratingBar_small"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:isIndicator="true"
+                android:numStars="5" />
 
             <TextView
                 android:id="@+id/messageTextView"
