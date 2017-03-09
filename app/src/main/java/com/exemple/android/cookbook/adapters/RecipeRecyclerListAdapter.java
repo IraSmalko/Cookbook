@@ -128,9 +128,9 @@ public class RecipeRecyclerListAdapter extends RecyclerView.Adapter<RecipeRecycl
         }
     }
 
-    public boolean isPendingRemoval(int position) {
+    public boolean isPendingRemoval(int position, List<Recipe> recipeList) {
         Recipe data = mItems.get(position);
-        return mItemsPendingRemoval.contains(data);
+        return recipeList.contains(data) || mItemsPendingRemoval.contains(data);
     }
 
     @Override

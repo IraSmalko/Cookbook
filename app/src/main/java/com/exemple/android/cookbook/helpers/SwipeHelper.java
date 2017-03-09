@@ -11,6 +11,7 @@ import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
 import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.adapters.SelectedRecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
+import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.supporting.SwipeUtil;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.List;
 public class SwipeHelper {
 
     private List<CategoryRecipes> mCategoryRecipesList = new ArrayList<>();
+    private List<Recipe> mRecipesList = new ArrayList<>();
     private RecyclerView mRecyclerView;
     private Context mContext;
 
@@ -49,8 +51,8 @@ public class SwipeHelper {
         };
     }
 
-    private SwipeUtil setSwipeRecipe() {
-
+    private SwipeUtil setSwipeRecipe(List<Recipe> recipeList) {
+        mRecipesList = recipeList;
         return new SwipeUtil(0, ItemTouchHelper.LEFT, mContext) {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
@@ -63,7 +65,7 @@ public class SwipeHelper {
             public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
                 int position = viewHolder.getAdapterPosition();
                 RecipeRecyclerListAdapter adapter = (RecipeRecyclerListAdapter) mRecyclerView.getAdapter();
-                if (adapter.isPendingRemoval(position)) {
+                if (adapter.isPendingRemoval(position, mRecipesList)) {
                     return 0;
                 }
                 return super.getSwipeDirs(recyclerView, viewHolder);
@@ -101,8 +103,8 @@ public class SwipeHelper {
         swipeHelper.setmLeftcolorCode(ContextCompat.getColor(mContext, R.color.starFullySelected));
     }
 
-    public void attachSwipeRecipe() {
-        SwipeUtil swipeHelper = new SwipeHelper(mRecyclerView, mContext).setSwipeRecipe();
+    public void attachSwipeRecipe(List<Recipe> recipeList) {
+        SwipeUtil swipeHelper = new SwipeHelper(mRecyclerView, mContext).setSwipeRecipe(recipeList);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeHelper);
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
         swipeHelper.setmLeftSwipeLable(mContext.getResources().getString(R.string.extraction));

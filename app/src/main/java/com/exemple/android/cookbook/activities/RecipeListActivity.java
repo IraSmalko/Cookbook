@@ -39,6 +39,7 @@ public class RecipeListActivity extends AppCompatActivity
     private static final String RECIPE_LIST = "recipeList";
 
     private List<Recipe> mRecipesList = new ArrayList<>();
+    private List<Recipe> mPublicListRecipes = new ArrayList<>();
     private RecipeRecyclerListAdapter mRecipeRecyclerAdapter;
     private SwipeHelper mSwipeHelper;
     private Intent mIntent;
@@ -101,28 +102,23 @@ public class RecipeListActivity extends AppCompatActivity
                     Recipe recipes = postSnapshot.getValue(Recipe.class);
                     mRecipesList.add(recipes);
                 }
+                mPublicListRecipes = mRecipesList;
                 if (mUsername != null) {
                     new FirebaseHelper(new FirebaseHelper.OnUserRecipes() {
                         @Override
                         public void OnGet(List<Recipe> recipes) {
-                            if (recipes.isEmpty()) {
-                                mRecipeRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
-                                        .createRecyclerAdapter(mRecipesList, mIntent.getStringExtra(RECIPE_LIST), mUsername);
-                                mRecyclerView.setAdapter(mRecipeRecyclerAdapter);
-                            } else {
-                                mRecipesList = recipes;
-                                mRecipeRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
-                                        .createRecyclerAdapter(recipes, mIntent.getStringExtra(RECIPE_LIST), mUsername);
-                                mRecyclerView.setAdapter(mRecipeRecyclerAdapter);
-                                mSwipeHelper.attachSwipeRecipe();
-                            }
+                            recipes.addAll(mRecipesList);
+                            mRecipeRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
+                                    .createRecyclerAdapter(recipes, mIntent.getStringExtra(RECIPE_LIST), mUsername);
+                            mRecyclerView.setAdapter(mRecipeRecyclerAdapter);
+                            mSwipeHelper.attachSwipeRecipe(mPublicListRecipes);
                         }
-                    }).getUserRecipe(mRecipesList, mFirebaseDatabase, mReference);
+                    }).getUserRecipe(mFirebaseDatabase, mReference);
                 } else {
                     mRecipeRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
                             .createRecyclerAdapter(mRecipesList, mIntent.getStringExtra(RECIPE_LIST), mUsername);
                     mRecyclerView.setAdapter(mRecipeRecyclerAdapter);
-                    mSwipeHelper.attachSwipeRecipe();
+                    mSwipeHelper.attachSwipeRecipe(mPublicListRecipes);
                 }
             }
 

@@ -131,9 +131,8 @@ public class FirebaseHelper {
         });
     }
 
-    public void getUserRecipe(List<Recipe> recipesList, FirebaseDatabase firebaseDatabase,
+    public void getUserRecipe(FirebaseDatabase firebaseDatabase,
                               String reference) {
-        mRecipes = recipesList;
 
         DatabaseReference databaseUserReference = firebaseDatabase.getReference(reference);
         databaseUserReference.addValueEventListener(new ValueEventListener() {
