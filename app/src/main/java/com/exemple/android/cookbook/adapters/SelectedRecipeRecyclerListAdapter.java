@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.SelectedRecipe;
+import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -125,6 +126,7 @@ public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<Sele
         if (mItems.contains(data)) {
             mItems.remove(position);
             notifyItemRemoved(position);
+            new DataSourceSQLite(mContext).removeRecipe(data.getIdRecipe());
         }
     }
 

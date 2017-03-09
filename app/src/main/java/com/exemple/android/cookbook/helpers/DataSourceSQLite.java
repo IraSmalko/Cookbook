@@ -101,7 +101,8 @@ public class DataSourceSQLite {
     public List<SelectedStepRecipe> readStepRecipe(int idRecipe) {
         open();
         SelectedStepRecipe sSR = new SelectedStepRecipe();
-        Cursor c = mDatabase.rawQuery("SELECT * FROM step_recipe WHERE id_recipe" + " == " + idRecipe, null);
+        Cursor c = mDatabase.rawQuery("SELECT * FROM " + DBHelper
+                .TABLE_STEP_RECIPE + " WHERE " + ID_RECIPE + " == " + idRecipe, null);
 
         if (c.moveToFirst()) {
             do {
@@ -123,5 +124,13 @@ public class DataSourceSQLite {
                     .no_information_available), Toast.LENGTH_SHORT).show();
         }
         return mSelectedStepRecipes;
+    }
+
+    public void removeRecipe(int id) {
+        open();
+        mDatabase.delete(DBHelper.TABLE_RECIPE, "id = " + id, null);
+        mDatabase.execSQL("DELETE FROM " + DBHelper
+                .TABLE_STEP_RECIPE + " WHERE " + ID_RECIPE + "='" + id + "'");
+        close();
     }
 }
