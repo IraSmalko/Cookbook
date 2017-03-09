@@ -213,4 +213,28 @@ public class FirebaseHelper {
             });
         }
     }
+
+    public void removeRecipe(Context context, String item, String nameRecipeList) {
+        mContext = context;
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        if (firebaseUser != null) {
+            String username = firebaseUser.getDisplayName();
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+            Query applesQuery = ref.child(username + "/Recipe_lists/" + nameRecipeList).orderByChild("name").equalTo(item);
+
+            applesQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        postSnapshot.getRef().removeValue();
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+        }
+    }
 }

@@ -24,7 +24,7 @@ public class CreaterRecyclerAdapter {
                                                            String recipesListIntent, String username) {
         mUser = username;
         mRecipes = recipesListIntent;
-        return new RecipeRecyclerListAdapter(mContext, recipesList,
+        return new RecipeRecyclerListAdapter(mContext, recipesList, recipesListIntent,
                 new RecipeRecyclerListAdapter.ItemClickListener() {
                     @Override
                     public void onItemClick(Recipe item) {

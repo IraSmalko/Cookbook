@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.helpers.FirebaseHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,17 +29,19 @@ public class RecipeRecyclerListAdapter extends RecyclerView.Adapter<RecipeRecycl
     private List<Recipe> mItems = new ArrayList<>();
     private List<Recipe> mItemsPendingRemoval;
     private Recipe mItem;
+    private String mNameRecipesList;
     private RecipeRecyclerListAdapter.ItemClickListener mClickListener;
 
     private static final int PENDING_REMOVAL_TIMEOUT = 3000;
     private Handler mHandler = new Handler();
     private HashMap<Recipe, Runnable> pendingRunnables = new HashMap<>();
 
-    public RecipeRecyclerListAdapter(Context context, List<Recipe> items,
+    public RecipeRecyclerListAdapter(Context context, List<Recipe> items, String nameRecipesList,
                                      RecipeRecyclerListAdapter.ItemClickListener clickListener) {
         updateAdapter(items);
         mContext = context;
         mClickListener = clickListener;
+        mNameRecipesList = nameRecipesList;
         mItemsPendingRemoval = new ArrayList<>();
     }
 
@@ -125,6 +128,7 @@ public class RecipeRecyclerListAdapter extends RecyclerView.Adapter<RecipeRecycl
         if (mItems.contains(data)) {
             mItems.remove(position);
             notifyItemRemoved(position);
+            new FirebaseHelper().removeRecipe(mContext, data.getName(), mNameRecipesList);
         }
     }
 
