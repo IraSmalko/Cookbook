@@ -235,6 +235,27 @@ public class FirebaseHelper {
                 public void onCancelled(DatabaseError databaseError) {
                 }
             });
+            removeSteps(item, username, nameRecipeList);
         }
+    }
+
+    private void removeSteps(String item, String username, String nameRecipeList) {
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+        Query applesQuery = ref.child(username + "/Step_recipe/" + nameRecipeList).child(item);
+
+        applesQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    postSnapshot.getRef().removeValue();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+
     }
 }
