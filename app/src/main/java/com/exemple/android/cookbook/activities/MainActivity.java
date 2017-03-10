@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = MainActivity.class.getSimpleName();
     public static final String ANONYMOUS = "anonymous";
-    private static final String RECIPE_LIST = "recipeList";
     private static final int VOICE_REQUEST_CODE = 1234;
 
     private RecyclerView mRecyclerView;
@@ -78,8 +77,6 @@ public class MainActivity extends AppCompatActivity
     private List<CategoryRecipes> mForVoice = new ArrayList<>();
     private SensorManager mSensorManager;
     private Sensor mSensor;
-
-    private FloatingActionButton mFab;
 
     private NavigationView mNavigationView;
     private TextView mUserNameTV;
@@ -97,8 +94,8 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mFab = (FloatingActionButton) findViewById(R.id.fab);
-        mFab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getApplicationContext(), AddCategoryRecipeActivity.class));
@@ -296,7 +293,6 @@ public class MainActivity extends AppCompatActivity
         if (mFirebaseUser == null) {
             mNavigationView.getMenu().findItem(R.id.nav_sign_in).setVisible(true);
             mNavigationView.getMenu().findItem(R.id.nav_sign_out).setVisible(false);
-            //     mFab.setVisibility(View.GONE);
             mUsername = ANONYMOUS;
             mUserNameTV.setText(mUsername);
             mUserPhotoIV.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.a));

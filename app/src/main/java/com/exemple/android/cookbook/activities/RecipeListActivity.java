@@ -49,9 +49,6 @@ public class RecipeListActivity extends AppCompatActivity
     private String mReference;
     private String mUsername;
 
-    private FirebaseUser mFirebaseUser;
-    private FloatingActionButton mFab;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,14 +59,13 @@ public class RecipeListActivity extends AppCompatActivity
         Log.d("LOG", "InListCreate");
         Log.d("LOG", recipeCategory);
 
-        mFab = (FloatingActionButton) findViewById(R.id.fab1);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab1);
 
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = firebaseAuth.getCurrentUser();
-//        userRefresh();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
-        mFab.setOnClickListener(new View.OnClickListener() {
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ArrayList<String> nameRecipesList = new ArrayList<>();
@@ -86,8 +82,8 @@ public class RecipeListActivity extends AppCompatActivity
         mReference = "Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST);
         DatabaseReference databaseReference = mFirebaseDatabase.getReference().child(mReference);
 
-        if (mFirebaseUser != null) {
-            mUsername = mFirebaseUser.getDisplayName();
+        if (firebaseUser != null) {
+            mUsername = firebaseUser.getDisplayName();
             mReference = mUsername + "/" + mReference;
         }
 
@@ -126,7 +122,6 @@ public class RecipeListActivity extends AppCompatActivity
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-
     }
 
     @Override
@@ -166,10 +161,4 @@ public class RecipeListActivity extends AppCompatActivity
         mRecipeRecyclerAdapter.updateAdapter(newList);
         return true;
     }
-
-//    public void userRefresh() {
-//        if (mFirebaseUser == null) {
-//            mFab.setVisibility(View.GONE);
-//        }
-//    }
 }
