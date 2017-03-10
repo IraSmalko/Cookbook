@@ -10,16 +10,18 @@ public class Comment {
     private String photoUrl;
     private String Id;
     private float rating;
+    private String userId;
 
     public Comment() {
 
     }
 
-    public Comment(String text, String name, String photoUrl, float rating) {
+    public Comment(String text, String name, String photoUrl, float rating, String userId) {
         this.name = name;
         this.text = text;
         this.photoUrl = photoUrl;
         this.rating = rating;
+        this.userId = userId;
     }
 
     public String getName() {
@@ -42,19 +44,19 @@ public class Comment {
         return photoUrl;
     }
 
-    public void setPhotoUrl(String photoUrl) {
-        this.photoUrl = photoUrl;
-    }
-
     public String getId() {
         return Id;
     }
 
     public void setId(String id) {
-        Id = id;
+        this.Id = id;
     }
 
     public float getRating() {
         return rating;
+    }
+
+    public String getUserId() {
+        return userId;
     }
 }
