@@ -35,6 +35,7 @@ public class FirebaseHelper {
     private FirebaseHelper.OnUserRecipes mOnUserRecipes;
     private FirebaseHelper.OnSaveImage mOnSaveImage;
     private FirebaseHelper.OnStepRecipes mOnStepRecipes;
+    private int mIdRecipe;
     private Context mContext;
 
     public FirebaseHelper() {
@@ -56,9 +57,10 @@ public class FirebaseHelper {
         mOnUserCategoryRecipe = onUserCategoryRecipe;
     }
 
-    public void getStepsRecipe(Context context, final int idRecipe, String recipeList,
+    public void getStepsRecipe(Context context, int idRecipe, String recipeList,
                                String recipe, String username) {
-        this.mContext = context;
+        mContext = context;
+        mIdRecipe = idRecipe;
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference;
         if (username != null) {
@@ -76,7 +78,7 @@ public class FirebaseHelper {
                     StepRecipe step = postSnapshot.getValue(StepRecipe.class);
                     mStepRecipe.add(step);
                 }
-                new DataSourceSQLite(FirebaseHelper.this.mContext).saveStepsSQLite(mStepRecipe, idRecipe);
+                new DataSourceSQLite(FirebaseHelper.this.mContext).saveStepsSQLite(mStepRecipe, mIdRecipe);
             }
 
             @Override
@@ -112,12 +114,13 @@ public class FirebaseHelper {
         databaseUserReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                mCategory.clear();
                 if (dataSnapshot.getValue() != null) {
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                         CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
                         mCategory.add(categoryRecipes);
-                        mOnUserCategoryRecipe.OnGet(mCategory);
                     }
+                    mOnUserCategoryRecipe.OnGet(mCategory);
                 } else {
                     mOnUserCategoryRecipe.OnGet(mCategory);
                 }
@@ -138,15 +141,16 @@ public class FirebaseHelper {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                mRecipes.clear();
                 if (dataSnapshot.getValue() != null) {
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                         Recipe recipe = postSnapshot.getValue(Recipe.class);
                         mRecipes.add(recipe);
-                        mOnUserRecipes.OnGet(mRecipes);
                     }
                 } else {
                     mOnUserRecipes.OnGet(mRecipes);
                 }
+                mOnUserRecipes.OnGet(mRecipes);
             }
 
             @Override

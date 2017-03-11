@@ -332,9 +332,10 @@ public class RecipeActivity extends AppCompatActivity
                     public void onDataReady(Integer integer) {
                         new FirebaseHelper().getStepsRecipe(getApplicationContext(), integer, mIntent
                                 .getStringExtra(RECIPE_LIST), mIntent.getStringExtra(RECIPE), mIntent.getStringExtra(USERNAME));
+                        mProgressDialog.dismiss();
                     }
                 }).execute(new Recipe(mIntent.getStringExtra(RECIPE), path, mIntent.getStringExtra(DESCRIPTION)));
-                mProgressDialog.dismiss();
+
             } else {
                 Toast.makeText(RecipeActivity.this, getResources()
                         .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
