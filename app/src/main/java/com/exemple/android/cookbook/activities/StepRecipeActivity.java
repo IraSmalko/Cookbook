@@ -79,14 +79,14 @@ public class StepRecipeActivity extends AppCompatActivity {
                     new FirebaseHelper(new FirebaseHelper.OnStepRecipes() {
                         @Override
                         public void OnGet(List<StepRecipe> stepRecipes) {
-                            if (mStepRecipe.size() != 0) {
-                                updateData(mIndex);
-                            } else {
+                            mStepRecipe = stepRecipes;
+                            updateData(mIndex);
+                            if (mStepRecipe.isEmpty()) {
                                 Toast.makeText(mContext, getResources().getString(R
                                         .string.no_information_available), Toast.LENGTH_SHORT).show();
                             }
                         }
-                    }).getStepsRecipe(mStepRecipe, mReference);
+                    }).getStepsRecipe(mReference);
                 } else if (mStepRecipe.size() != 0) {
                     updateData(mIndex);
                 } else {

@@ -28,7 +28,7 @@ import java.util.Random;
 
 public class FirebaseHelper {
 
-    private static List<StepRecipe> mStepRecipe = new ArrayList<>();
+    private List<StepRecipe> mStepRecipe = new ArrayList<>();
     private List<CategoryRecipes> mCategory = new ArrayList<>();
     private List<Recipe> mRecipes = new ArrayList<>();
     private FirebaseHelper.OnUserCategoryRecipe mOnUserCategoryRecipe;
@@ -85,8 +85,7 @@ public class FirebaseHelper {
         });
     }
 
-    public void getStepsRecipe(List<StepRecipe> stepRecipes, String reference) {
-        mStepRecipe = stepRecipes;
+    public void getStepsRecipe(String reference) {
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = firebaseDatabase.getReference(reference);
@@ -97,8 +96,8 @@ public class FirebaseHelper {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     StepRecipe step = postSnapshot.getValue(StepRecipe.class);
                     mStepRecipe.add(step);
-                    mOnStepRecipes.OnGet(mStepRecipe);
                 }
+                mOnStepRecipes.OnGet(mStepRecipe);
             }
 
             @Override
