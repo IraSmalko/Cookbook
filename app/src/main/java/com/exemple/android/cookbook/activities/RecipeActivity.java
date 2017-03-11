@@ -97,6 +97,7 @@ public class RecipeActivity extends AppCompatActivity
     private String mUserId;
 
     private Button mSendButton;
+    private Button mEditButton;
     private RecyclerView mCommentsRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
     private EditText mCommentEditText;
@@ -108,9 +109,6 @@ public class RecipeActivity extends AppCompatActivity
     private FirebaseRecyclerAdapter<Comment, CommentViewHolder> mFirebaseAdapter;
     private GoogleApiClient mGoogleApiClient;
     private RecipeRating mRecipeRating;
-
-
-    private List<String> mUsersIds = new ArrayList<>();
 
 
     @Override
@@ -158,6 +156,7 @@ public class RecipeActivity extends AppCompatActivity
         mCommentsRecyclerView = (RecyclerView) findViewById(R.id.commentsRecyclerView);
         mCommentEditText = (EditText) findViewById(R.id.editTextComent);
         mSendButton = (Button) findViewById(R.id.save_comments);
+        mEditButton = (Button) findViewById(R.id.edit_comments);
 
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
@@ -217,18 +216,30 @@ public class RecipeActivity extends AppCompatActivity
         });
 
 
-
-
         mFirebaseDatabaseReference.child(MESSAGES_CHILD).addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot data: dataSnapshot.getChildren()
-                     ) {
-                    if (mUserId.equals(data.getValue(Comment.class).getUserId())){
-                        Toast.makeText(RecipeActivity.this,"AAAAAAAAAAAAAA",Toast.LENGTH_SHORT).show();
-                        mCommentEditText.setEnabled(false);
-                        mSendButton.setEnabled(false);
+                for (DataSnapshot data : dataSnapshot.getChildren()) {
+                    final Comment comment = data.getValue(Comment.class);
+                    final DatabaseReference ref = data.getRef();
+                    if (mUserId.equals(comment.getUserId())) {
+                        if (mSendButton.getVisibility()==View.VISIBLE) {
+                            mSendButton.setVisibility(View.INVISIBLE);
+                        }
+                        if (mEditButton.getVisibility()==View.INVISIBLE) {
+                            mEditButton.setVisibility(View.VISIBLE);
+                        }
+                        mCommentEditText.setText(comment.getText());
+
+                        mEditButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                ref.child("text").setValue(mCommentEditText.getText().toString());
+                                showEditRatingDialog(comment,ref);
+                            }
+                        });
+
                         break;
                     }
                 }
@@ -241,7 +252,6 @@ public class RecipeActivity extends AppCompatActivity
         });
 
         //        Comments
-
 
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -310,7 +320,6 @@ public class RecipeActivity extends AppCompatActivity
         });
 
 
-
         mCommentsRecyclerView.setLayoutManager(mLinearLayoutManager);
         mCommentsRecyclerView.setAdapter(mFirebaseAdapter);
         Log.d("LLL3", "" + mCommentsRecyclerView.getAdapter().getItemCount());
@@ -341,6 +350,7 @@ public class RecipeActivity extends AppCompatActivity
                 showRatingDialog();
             }
         });
+
     }
 
     @Override
@@ -415,6 +425,10 @@ public class RecipeActivity extends AppCompatActivity
         public int getNumberOfUsers() {
             return numberOfUsers;
         }
+
+        public void editRating(float oldRating, float newRating) {
+            rating = (rating*numberOfUsers - oldRating + newRating)/numberOfUsers;
+        }
     }
 
     public void showRatingDialog() {
@@ -445,6 +459,35 @@ public class RecipeActivity extends AppCompatActivity
                         mRecipeRating.addRating(ratingInDialog.getRating());
                         mFirebaseDatabaseReference.child(RATING_CHILD).child("rating").setValue(mRecipeRating.getRating());
                         mFirebaseDatabaseReference.child(RATING_CHILD).child("numberOfUsers").setValue(mRecipeRating.getNumberOfUsers());
+                        dialog.dismiss();
+                    }
+                });
+
+        ratingDialog.create();
+        ratingDialog.show();
+    }
+
+    public void showEditRatingDialog(final Comment comment,final DatabaseReference ref) {
+        final AlertDialog.Builder ratingDialog = new AlertDialog.Builder(this);
+        ratingDialog.setIcon(android.R.drawable.btn_star_big_on);
+        ratingDialog.setTitle("Редагування оцінки");
+        ratingDialog.setCancelable(false);
+
+        View linearlayout = getLayoutInflater().inflate(R.layout.rating_dialog, null);
+        ratingDialog.setView(linearlayout);
+
+        final RatingBar ratingInDialog = (RatingBar) linearlayout.findViewById(R.id.dialogRatingBar);
+
+        ratingDialog.setPositiveButton("Готово",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        mRecipeRating.editRating(comment.getRating(), ratingInDialog.getRating());
+                        mFirebaseDatabaseReference.child(RATING_CHILD).child("rating").setValue(mRecipeRating.getRating());
+                        mFirebaseDatabaseReference.child(RATING_CHILD).child("numberOfUsers").setValue(mRecipeRating.getNumberOfUsers());
+
+                        ref.child("rating").setValue(ratingInDialog.getRating());
+                        mCommentEditText.setText("");
                         dialog.dismiss();
                     }
                 });
