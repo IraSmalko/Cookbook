@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -47,11 +48,15 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -84,20 +89,22 @@ public class RecipeActivity extends AppCompatActivity
         }
     }
 
-    private static final String MESSAGE_URL = "https://cookbook-6cce5.firebaseio.com/Support/";
     private static final String TAG = "RecipeActivity";
-    public static final String ANONYMOUS = "anonymous";
     public String MESSAGES_CHILD;
     public String RATING_CHILD;
 
     private String mUsername;
     private String mPhotoUrl;
+    private String mUserId;
 
     private Button mSendButton;
+    private Button mEditButton;
     private RecyclerView mCommentsRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
     private EditText mCommentEditText;
     private RatingBar mRatingBar;
+    private TextInputLayout mTextInputLayout;
+
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
@@ -149,12 +156,11 @@ public class RecipeActivity extends AppCompatActivity
             }
         });
 
-
-        MESSAGES_CHILD = "comments/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/comments";
-
         mCommentsRecyclerView = (RecyclerView) findViewById(R.id.commentsRecyclerView);
+        mTextInputLayout = (TextInputLayout) findViewById(R.id.textInputLayout1);
         mCommentEditText = (EditText) findViewById(R.id.editTextComent);
         mSendButton = (Button) findViewById(R.id.save_comments);
+        mEditButton = (Button) findViewById(R.id.edit_comments);
 
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
@@ -165,18 +171,18 @@ public class RecipeActivity extends AppCompatActivity
         mCommentsRecyclerView.setLayoutManager(mLinearLayoutManager);
 
         if (mFirebaseUser == null) {
-            mCommentEditText.setFocusable(false);
-            mRatingBar.isIndicator();
-            return;
+            mTextInputLayout.setVisibility(View.INVISIBLE);
+            mSendButton.setVisibility(View.INVISIBLE);
         } else {
             Log.d("USER", mFirebaseUser.toString());
-            mCommentEditText.setFocusable(true);
             mUsername = mFirebaseUser.getDisplayName();
+            mUserId = mFirebaseUser.getUid();
             if (mFirebaseUser.getPhotoUrl() != null) {
                 mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
             }
         }
 
+        MESSAGES_CHILD = "Support/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/comments";
         RATING_CHILD = "Support/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/recipeRating";
 
         //        Rating
@@ -213,9 +219,45 @@ public class RecipeActivity extends AppCompatActivity
             }
         });
 
+
+        mFirebaseDatabaseReference.child(MESSAGES_CHILD).addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot data : dataSnapshot.getChildren()) {
+                    final Comment comment = data.getValue(Comment.class);
+                    final DatabaseReference ref = data.getRef();
+                    if (mUserId.equals(comment.getUserId())) {
+                        if (mSendButton.getVisibility()==View.VISIBLE) {
+                            mSendButton.setVisibility(View.INVISIBLE);
+                        }
+                        if (mTextInputLayout.getVisibility()==View.VISIBLE){
+                            mTextInputLayout.setVisibility(View.INVISIBLE);
+                        }
+                        if (mEditButton.getVisibility()==View.INVISIBLE) {
+                            mEditButton.setVisibility(View.VISIBLE);
+                        }
+
+                        mEditButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                showEditRatingDialog(comment,ref);
+                            }
+                        });
+
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
         //        Comments
 
-        MESSAGES_CHILD = "Support/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/comments";
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
@@ -260,11 +302,14 @@ public class RecipeActivity extends AppCompatActivity
             }
         };
 
+        Log.d("LLL", "" + mFirebaseAdapter.getItemCount());
+
         mFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
                 int commentCount = mFirebaseAdapter.getItemCount();
+                Log.d("LLLLL", "" + mFirebaseAdapter.getItemCount());
                 int lastVisiblePosition =
                         mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
                 // If the recycler view is initially being loaded or the
@@ -276,10 +321,13 @@ public class RecipeActivity extends AppCompatActivity
                     mCommentsRecyclerView.scrollToPosition(positionStart);
                 }
             }
+
         });
+
 
         mCommentsRecyclerView.setLayoutManager(mLinearLayoutManager);
         mCommentsRecyclerView.setAdapter(mFirebaseAdapter);
+        Log.d("LLL3", "" + mCommentsRecyclerView.getAdapter().getItemCount());
 
         mSendButton.setEnabled(false);
         mCommentEditText.addTextChangedListener(new TextWatcher() {
@@ -307,6 +355,7 @@ public class RecipeActivity extends AppCompatActivity
                 showRatingDialog();
             }
         });
+
     }
 
     @Override
@@ -378,16 +427,12 @@ public class RecipeActivity extends AppCompatActivity
             return rating;
         }
 
-        public void setRating(float rating) {
-            this.rating = rating;
-        }
-
         public int getNumberOfUsers() {
             return numberOfUsers;
         }
 
-        public void setNumberOfUsers(int numberOfUsers) {
-            this.numberOfUsers = numberOfUsers;
+        public void editRating(float oldRating, float newRating) {
+            rating = (rating*numberOfUsers - oldRating + newRating)/numberOfUsers;
         }
     }
 
@@ -410,16 +455,48 @@ public class RecipeActivity extends AppCompatActivity
                                 Comment(mCommentEditText.getText().toString(),
                                 mUsername,
                                 mPhotoUrl,
-                                ratingInDialog.getRating());
+                                ratingInDialog.getRating(),
+                                mUserId);
                         mFirebaseDatabaseReference.child(MESSAGES_CHILD)
                                 .push().setValue(comment);
                         mCommentEditText.setText("");
 
-
                         mRecipeRating.addRating(ratingInDialog.getRating());
                         mFirebaseDatabaseReference.child(RATING_CHILD).child("rating").setValue(mRecipeRating.getRating());
                         mFirebaseDatabaseReference.child(RATING_CHILD).child("numberOfUsers").setValue(mRecipeRating.getNumberOfUsers());
+                        dialog.dismiss();
+                    }
+                });
 
+        ratingDialog.create();
+        ratingDialog.show();
+    }
+
+    public void showEditRatingDialog(final Comment comment,final DatabaseReference ref) {
+        final AlertDialog.Builder ratingDialog = new AlertDialog.Builder(this);
+        ratingDialog.setIcon(android.R.drawable.btn_star_big_on);
+        ratingDialog.setTitle("Редагування оцінки");
+        ratingDialog.setCancelable(false);
+
+        View linearlayout = getLayoutInflater().inflate(R.layout.edit_rating_dialog, null);
+        ratingDialog.setView(linearlayout);
+
+        final RatingBar ratingInEditDialog = (RatingBar) linearlayout.findViewById(R.id.editDialogRatingBar);
+        final EditText editTextInEditDialog = (EditText) linearlayout.findViewById(R.id.editTextComentInDialog);
+
+        ratingInEditDialog.setRating(comment.getRating());
+        editTextInEditDialog.setText(comment.getText());
+
+        ratingDialog.setPositiveButton("Готово",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        mRecipeRating.editRating(comment.getRating(), ratingInEditDialog.getRating());
+                        mFirebaseDatabaseReference.child(RATING_CHILD).child("rating").setValue(mRecipeRating.getRating());
+                        mFirebaseDatabaseReference.child(RATING_CHILD).child("numberOfUsers").setValue(mRecipeRating.getNumberOfUsers());
+
+                        ref.child("text").setValue(editTextInEditDialog.getText().toString());
+                        ref.child("rating").setValue(ratingInEditDialog.getRating());
                         dialog.dismiss();
                     }
                 });
