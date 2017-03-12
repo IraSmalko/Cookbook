@@ -17,18 +17,6 @@
             android:scaleType="fitXY"
             app:srcCompat="@drawable/ic_launcher" />
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/commentsRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/save_comments" />
-
-        <ListView
-            android:id="@+id/listView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/save_comments" />
-
         <RatingBar
             android:id="@+id/ratingBar"
             android:layout_width="wrap_content"
@@ -98,6 +86,19 @@
                 android:inputType="textAutoCorrect"
                 android:textColorHint="#9000" />
         </android.support.design.widget.TextInputLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/ingredients_list"
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
+            android:layout_below="@id/textInputLayout1"
+            android:paddingLeft="10dp"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/commentsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/ingredients_list" />
 
     </RelativeLayout>
 </ScrollView>

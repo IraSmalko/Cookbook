@@ -4,8 +4,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -34,6 +32,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
@@ -48,15 +47,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -89,9 +84,23 @@ public class RecipeActivity extends AppCompatActivity
         }
     }
 
+    public static class IngredientViewHolder extends RecyclerView.ViewHolder {
+        public TextView ingredientNameTextView;
+        public TextView ingredientQuantityTextView;
+        public TextView ingredientUnitTextView;
+
+        public IngredientViewHolder(View v) {
+            super(v);
+            ingredientNameTextView = (TextView) itemView.findViewById(R.id.ingredient_name);
+            ingredientQuantityTextView = (TextView) itemView.findViewById(R.id.ingredient_quantity);
+            ingredientUnitTextView = (TextView) itemView.findViewById(R.id.ingredient_unit);
+        }
+    }
+
     private static final String TAG = "RecipeActivity";
     public String MESSAGES_CHILD;
     public String RATING_CHILD;
+    public String INGREDIENTS_CHILD;
 
     private String mUsername;
     private String mPhotoUrl;
@@ -101,17 +110,20 @@ public class RecipeActivity extends AppCompatActivity
     private Button mEditButton;
     private RecyclerView mCommentsRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
+    private LinearLayoutManager mLinearLayoutManagerForIngredients;
     private EditText mCommentEditText;
     private RatingBar mRatingBar;
     private TextInputLayout mTextInputLayout;
+    private RecyclerView mIngredientsRecyclerView;
 
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     private DatabaseReference mFirebaseDatabaseReference;
-    private FirebaseRecyclerAdapter<Comment, CommentViewHolder> mFirebaseAdapter;
+    private FirebaseRecyclerAdapter<Comment, CommentViewHolder> mCommentsFirebaseAdapter;
     private GoogleApiClient mGoogleApiClient;
     private RecipeRating mRecipeRating;
+    private FirebaseRecyclerAdapter<Ingredient, IngredientViewHolder> mIngredientsFirebaseAdapter;
 
 
     @Override
@@ -161,6 +173,7 @@ public class RecipeActivity extends AppCompatActivity
         mCommentEditText = (EditText) findViewById(R.id.editTextComent);
         mSendButton = (Button) findViewById(R.id.save_comments);
         mEditButton = (Button) findViewById(R.id.edit_comments);
+        mIngredientsRecyclerView = (RecyclerView) findViewById(R.id.ingredients_list);
 
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
@@ -168,7 +181,10 @@ public class RecipeActivity extends AppCompatActivity
 
         mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(true);
+        mLinearLayoutManagerForIngredients = new LinearLayoutManager(this);
+        mLinearLayoutManagerForIngredients.setStackFromEnd(true);
         mCommentsRecyclerView.setLayoutManager(mLinearLayoutManager);
+        mIngredientsRecyclerView.setLayoutManager(mLinearLayoutManagerForIngredients);
 
         if (mFirebaseUser == null) {
             mTextInputLayout.setVisibility(View.INVISIBLE);
@@ -184,6 +200,8 @@ public class RecipeActivity extends AppCompatActivity
 
         MESSAGES_CHILD = "Support/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/comments";
         RATING_CHILD = "Support/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/recipeRating";
+        INGREDIENTS_CHILD = "Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/ingredients";
+
 
         //        Rating
 
@@ -219,29 +237,42 @@ public class RecipeActivity extends AppCompatActivity
             }
         });
 
+        mFirebaseDatabaseReference.child(INGREDIENTS_CHILD).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists()) {
+                    dataSnapshot.getRef().push().setValue(new Ingredient());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
 
         mFirebaseDatabaseReference.child(MESSAGES_CHILD).addValueEventListener(new ValueEventListener() {
-
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot data : dataSnapshot.getChildren()) {
                     final Comment comment = data.getValue(Comment.class);
                     final DatabaseReference ref = data.getRef();
                     if (mUserId.equals(comment.getUserId())) {
-                        if (mSendButton.getVisibility()==View.VISIBLE) {
+                        if (mSendButton.getVisibility() == View.VISIBLE) {
                             mSendButton.setVisibility(View.INVISIBLE);
                         }
-                        if (mTextInputLayout.getVisibility()==View.VISIBLE){
+                        if (mTextInputLayout.getVisibility() == View.VISIBLE) {
                             mTextInputLayout.setVisibility(View.INVISIBLE);
                         }
-                        if (mEditButton.getVisibility()==View.INVISIBLE) {
+                        if (mEditButton.getVisibility() == View.INVISIBLE) {
                             mEditButton.setVisibility(View.VISIBLE);
                         }
 
                         mEditButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                showEditRatingDialog(comment,ref);
+                                showEditRatingDialog(comment, ref);
                             }
                         });
 
@@ -265,7 +296,10 @@ public class RecipeActivity extends AppCompatActivity
                 .build();
 
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
-        mFirebaseAdapter = new FirebaseRecyclerAdapter<Comment,
+
+//        COMMENTS_ADAPTER
+
+        mCommentsFirebaseAdapter = new FirebaseRecyclerAdapter<Comment,
                 CommentViewHolder>(
                 Comment.class,
                 R.layout.item_comment,
@@ -302,14 +336,11 @@ public class RecipeActivity extends AppCompatActivity
             }
         };
 
-        Log.d("LLL", "" + mFirebaseAdapter.getItemCount());
-
-        mFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+        mCommentsFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
-                int commentCount = mFirebaseAdapter.getItemCount();
-                Log.d("LLLLL", "" + mFirebaseAdapter.getItemCount());
+                int commentCount = mCommentsFirebaseAdapter.getItemCount();
                 int lastVisiblePosition =
                         mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
                 // If the recycler view is initially being loaded or the
@@ -324,10 +355,62 @@ public class RecipeActivity extends AppCompatActivity
 
         });
 
-
         mCommentsRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mCommentsRecyclerView.setAdapter(mFirebaseAdapter);
-        Log.d("LLL3", "" + mCommentsRecyclerView.getAdapter().getItemCount());
+        mCommentsRecyclerView.setAdapter(mCommentsFirebaseAdapter);
+
+
+
+//      INGREDIENTS_ADAPTER
+
+        mIngredientsFirebaseAdapter = new FirebaseRecyclerAdapter<Ingredient, IngredientViewHolder>(
+                Ingredient.class,
+                R.layout.item_ingridient,
+                IngredientViewHolder.class,
+                mFirebaseDatabaseReference.child(INGREDIENTS_CHILD)) {
+
+            @Override
+            protected Ingredient parseSnapshot(DataSnapshot snapshot) {
+                Ingredient ingredient = super.parseSnapshot(snapshot);
+                if (ingredient != null) {
+                    ingredient.setId(snapshot.getKey());
+                }
+                return ingredient;
+            }
+
+            @Override
+            protected void populateViewHolder(IngredientViewHolder viewHolder,
+                                              Ingredient ingredient, int position) {
+//                mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+                viewHolder.ingredientNameTextView.setText(ingredient.getName());
+                viewHolder.ingredientQuantityTextView.setText(String.valueOf(ingredient.getQuantity()));
+                viewHolder.ingredientUnitTextView.setText(ingredient.getUnit());
+            }
+        };
+
+        mIngredientsFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                int ingredientCount = mIngredientsFirebaseAdapter.getItemCount();
+                int lastVisiblePosition =
+                        mLinearLayoutManagerForIngredients.findLastCompletelyVisibleItemPosition();
+                // If the recycler view is initially being loaded or the
+                // user is at the bottom of the list, scroll to the bottom
+                // of the list to show the newly added message.
+                if (lastVisiblePosition == -1 ||
+                        (positionStart >= (ingredientCount - 1) &&
+                                lastVisiblePosition == (positionStart - 1))) {
+                    mIngredientsRecyclerView.scrollToPosition(positionStart);
+                }
+            }
+
+        });
+
+        mIngredientsRecyclerView.setLayoutManager(mLinearLayoutManagerForIngredients);
+        mIngredientsRecyclerView.setAdapter(mIngredientsFirebaseAdapter);
+
+
+
 
         mSendButton.setEnabled(false);
         mCommentEditText.addTextChangedListener(new TextWatcher() {
@@ -432,7 +515,7 @@ public class RecipeActivity extends AppCompatActivity
         }
 
         public void editRating(float oldRating, float newRating) {
-            rating = (rating*numberOfUsers - oldRating + newRating)/numberOfUsers;
+            rating = (rating * numberOfUsers - oldRating + newRating) / numberOfUsers;
         }
     }
 
@@ -472,7 +555,7 @@ public class RecipeActivity extends AppCompatActivity
         ratingDialog.show();
     }
 
-    public void showEditRatingDialog(final Comment comment,final DatabaseReference ref) {
+    public void showEditRatingDialog(final Comment comment, final DatabaseReference ref) {
         final AlertDialog.Builder ratingDialog = new AlertDialog.Builder(this);
         ratingDialog.setIcon(android.R.drawable.btn_star_big_on);
         ratingDialog.setTitle("Редагування оцінки");
