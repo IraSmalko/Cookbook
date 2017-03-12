@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -102,6 +103,8 @@ public class RecipeActivity extends AppCompatActivity
     private LinearLayoutManager mLinearLayoutManager;
     private EditText mCommentEditText;
     private RatingBar mRatingBar;
+    private TextInputLayout mTextInputLayout;
+
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
@@ -154,6 +157,7 @@ public class RecipeActivity extends AppCompatActivity
         });
 
         mCommentsRecyclerView = (RecyclerView) findViewById(R.id.commentsRecyclerView);
+        mTextInputLayout = (TextInputLayout) findViewById(R.id.textInputLayout1);
         mCommentEditText = (EditText) findViewById(R.id.editTextComent);
         mSendButton = (Button) findViewById(R.id.save_comments);
         mEditButton = (Button) findViewById(R.id.edit_comments);
@@ -167,10 +171,10 @@ public class RecipeActivity extends AppCompatActivity
         mCommentsRecyclerView.setLayoutManager(mLinearLayoutManager);
 
         if (mFirebaseUser == null) {
-            mCommentEditText.setFocusable(false);
+            mTextInputLayout.setVisibility(View.INVISIBLE);
+            mSendButton.setVisibility(View.INVISIBLE);
         } else {
             Log.d("USER", mFirebaseUser.toString());
-            mCommentEditText.setFocusable(true);
             mUsername = mFirebaseUser.getDisplayName();
             mUserId = mFirebaseUser.getUid();
             if (mFirebaseUser.getPhotoUrl() != null) {
@@ -227,15 +231,16 @@ public class RecipeActivity extends AppCompatActivity
                         if (mSendButton.getVisibility()==View.VISIBLE) {
                             mSendButton.setVisibility(View.INVISIBLE);
                         }
+                        if (mTextInputLayout.getVisibility()==View.VISIBLE){
+                            mTextInputLayout.setVisibility(View.INVISIBLE);
+                        }
                         if (mEditButton.getVisibility()==View.INVISIBLE) {
                             mEditButton.setVisibility(View.VISIBLE);
                         }
-                        mCommentEditText.setText(comment.getText());
 
                         mEditButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                ref.child("text").setValue(mCommentEditText.getText().toString());
                                 showEditRatingDialog(comment,ref);
                             }
                         });
@@ -473,21 +478,25 @@ public class RecipeActivity extends AppCompatActivity
         ratingDialog.setTitle("Редагування оцінки");
         ratingDialog.setCancelable(false);
 
-        View linearlayout = getLayoutInflater().inflate(R.layout.rating_dialog, null);
+        View linearlayout = getLayoutInflater().inflate(R.layout.edit_rating_dialog, null);
         ratingDialog.setView(linearlayout);
 
-        final RatingBar ratingInDialog = (RatingBar) linearlayout.findViewById(R.id.dialogRatingBar);
+        final RatingBar ratingInEditDialog = (RatingBar) linearlayout.findViewById(R.id.editDialogRatingBar);
+        final EditText editTextInEditDialog = (EditText) linearlayout.findViewById(R.id.editTextComentInDialog);
+
+        ratingInEditDialog.setRating(comment.getRating());
+        editTextInEditDialog.setText(comment.getText());
 
         ratingDialog.setPositiveButton("Готово",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
 
-                        mRecipeRating.editRating(comment.getRating(), ratingInDialog.getRating());
+                        mRecipeRating.editRating(comment.getRating(), ratingInEditDialog.getRating());
                         mFirebaseDatabaseReference.child(RATING_CHILD).child("rating").setValue(mRecipeRating.getRating());
                         mFirebaseDatabaseReference.child(RATING_CHILD).child("numberOfUsers").setValue(mRecipeRating.getNumberOfUsers());
 
-                        ref.child("rating").setValue(ratingInDialog.getRating());
-                        mCommentEditText.setText("");
+                        ref.child("text").setValue(editTextInEditDialog.getText().toString());
+                        ref.child("rating").setValue(ratingInEditDialog.getRating());
                         dialog.dismiss();
                     }
                 });
