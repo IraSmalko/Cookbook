@@ -28,13 +28,14 @@ import java.util.Random;
 
 public class FirebaseHelper {
 
-    private static List<StepRecipe> mStepRecipe = new ArrayList<>();
+    private List<StepRecipe> mStepRecipe = new ArrayList<>();
     private List<CategoryRecipes> mCategory = new ArrayList<>();
     private List<Recipe> mRecipes = new ArrayList<>();
     private FirebaseHelper.OnUserCategoryRecipe mOnUserCategoryRecipe;
     private FirebaseHelper.OnUserRecipes mOnUserRecipes;
     private FirebaseHelper.OnSaveImage mOnSaveImage;
     private FirebaseHelper.OnStepRecipes mOnStepRecipes;
+    private int mIdRecipe;
     private Context mContext;
 
     public FirebaseHelper() {
@@ -56,12 +57,13 @@ public class FirebaseHelper {
         mOnUserCategoryRecipe = onUserCategoryRecipe;
     }
 
-    public void getStepsRecipe(Context context, final int idRecipe, String recipeList,
+    public void getStepsRecipe(Context context, int idRecipe, int isPersonal, String recipeList,
                                String recipe, String username) {
-        this.mContext = context;
+        mContext = context;
+        mIdRecipe = idRecipe;
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference;
-        if (username != null) {
+        if (isPersonal == 1) {
             databaseReference = firebaseDatabase.getReference()
                     .child(username + "/Step_recipe/" + recipeList + "/" + recipe);
         } else {
@@ -76,7 +78,7 @@ public class FirebaseHelper {
                     StepRecipe step = postSnapshot.getValue(StepRecipe.class);
                     mStepRecipe.add(step);
                 }
-                new DataSourceSQLite(FirebaseHelper.this.mContext).saveStepsSQLite(mStepRecipe, idRecipe);
+                new DataSourceSQLite(mContext).saveStepsSQLite(mStepRecipe, mIdRecipe);
             }
 
             @Override
@@ -85,8 +87,7 @@ public class FirebaseHelper {
         });
     }
 
-    public void getStepsRecipe(List<StepRecipe> stepRecipes, String reference) {
-        mStepRecipe = stepRecipes;
+    public void getStepsRecipe(String reference) {
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = firebaseDatabase.getReference(reference);
@@ -97,8 +98,8 @@ public class FirebaseHelper {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     StepRecipe step = postSnapshot.getValue(StepRecipe.class);
                     mStepRecipe.add(step);
-                    mOnStepRecipes.OnGet(mStepRecipe);
                 }
+                mOnStepRecipes.OnGet(mStepRecipe);
             }
 
             @Override
@@ -113,12 +114,13 @@ public class FirebaseHelper {
         databaseUserReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                mCategory.clear();
                 if (dataSnapshot.getValue() != null) {
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                         CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
                         mCategory.add(categoryRecipes);
-                        mOnUserCategoryRecipe.OnGet(mCategory);
                     }
+                    mOnUserCategoryRecipe.OnGet(mCategory);
                 } else {
                     mOnUserCategoryRecipe.OnGet(mCategory);
                 }
@@ -139,12 +141,14 @@ public class FirebaseHelper {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                mRecipes.clear();
                 if (dataSnapshot.getValue() != null) {
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                         Recipe recipe = postSnapshot.getValue(Recipe.class);
+                        recipe.setIsPersonal(1);
                         mRecipes.add(recipe);
-                        mOnUserRecipes.OnGet(mRecipes);
                     }
+                    mOnUserRecipes.OnGet(mRecipes);
                 } else {
                     mOnUserRecipes.OnGet(mRecipes);
                 }

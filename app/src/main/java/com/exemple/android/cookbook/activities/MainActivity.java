@@ -6,7 +6,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -34,6 +33,7 @@ import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.helpers.CreaterRecyclerAdapter;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.SwipeHelper;
+import com.exemple.android.cookbook.helpers.VoiceRecognitionHelper;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -67,18 +67,16 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = MainActivity.class.getSimpleName();
     public static final String ANONYMOUS = "anonymous";
-    private static final String RECIPE_LIST = "recipeList";
-    private static final int REQUEST_CODE = 1234;
+    private static final int VOICE_REQUEST_CODE = 1234;
 
     private RecyclerView mRecyclerView;
     private SwipeHelper mSwipeHelper;
     private CategoryRecipeRecyclerAdapter mRecyclerAdapter;
     private List<CategoryRecipes> mCategoryRecipesList = new ArrayList<>();
     private List<CategoryRecipes> mPublicCategoryRecipes = new ArrayList<>();
+    private List<CategoryRecipes> mForVoice = new ArrayList<>();
     private SensorManager mSensorManager;
     private Sensor mSensor;
-
-    private FloatingActionButton mFab;
 
     private NavigationView mNavigationView;
     private TextView mUserNameTV;
@@ -96,8 +94,8 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mFab = (FloatingActionButton) findViewById(R.id.fab);
-        mFab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getApplicationContext(), AddCategoryRecipeActivity.class));
@@ -153,6 +151,7 @@ public class MainActivity extends AppCompatActivity
                         @Override
                         public void OnGet(List<CategoryRecipes> category) {
                             category.addAll(mCategoryRecipesList);
+                            mForVoice = category;
                             mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
                                     .createRecyclerAdapter(category);
                             mRecyclerView.setAdapter(mRecyclerAdapter);
@@ -275,15 +274,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
-            ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            Toast.makeText(getApplicationContext(), matches.get(0),
-                    Toast.LENGTH_LONG).show();
-            if (matches.contains(getResources().getString(R.string.example_voice_recognition))) {
-                Intent intent = new Intent(getApplicationContext(), RecipeListActivity.class);
-                intent.putExtra(RECIPE_LIST, getResources().getString(R.string.example_voice_recognition));
-                startActivity(intent);
-            }
+        if (requestCode == VOICE_REQUEST_CODE) {
+            mForVoice = null != mForVoice ? mForVoice : mCategoryRecipesList;
+            new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data, mForVoice);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -300,7 +293,6 @@ public class MainActivity extends AppCompatActivity
         if (mFirebaseUser == null) {
             mNavigationView.getMenu().findItem(R.id.nav_sign_in).setVisible(true);
             mNavigationView.getMenu().findItem(R.id.nav_sign_out).setVisible(false);
-            //     mFab.setVisibility(View.GONE);
             mUsername = ANONYMOUS;
             mUserNameTV.setText(mUsername);
             mUserPhotoIV.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.a));

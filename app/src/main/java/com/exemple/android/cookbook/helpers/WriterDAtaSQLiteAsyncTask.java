@@ -22,8 +22,7 @@ public class WriterDAtaSQLiteAsyncTask {
 
         @Override
         protected Integer doInBackground(Recipe... recipes) {
-            DataSourceSQLite dataSourceSQLite = new DataSourceSQLite(mContext);
-            return dataSourceSQLite.saveRecipe(recipes[0].getName(), recipes[0]
+            return new DataSourceSQLite(mContext).saveRecipe(recipes[0].getName(), recipes[0]
                     .getPhotoUrl(), recipes[0].getDescription());
         }
 
@@ -48,8 +47,7 @@ public class WriterDAtaSQLiteAsyncTask {
 
         @Override
         protected ForWriterStepsRecipe doInBackground(ForWriterStepsRecipe... forWriterStepsRecipes) {
-            DataSourceSQLite dataSourceSQLite = new DataSourceSQLite(mContext);
-            return dataSourceSQLite.saveSteps(forWriterStepsRecipes[0]);
+            return new DataSourceSQLite(mContext).saveSteps(forWriterStepsRecipes[0]);
         }
 
         @Override

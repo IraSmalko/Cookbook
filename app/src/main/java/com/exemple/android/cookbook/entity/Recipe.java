@@ -8,6 +8,7 @@ import java.util.List;
 public class Recipe extends CategoryRecipes {
 
     protected String description;
+    protected int isPersonal;
 
     private HashMap<String, Ingredient> ingredientsHashMap;
 
@@ -16,10 +17,11 @@ public class Recipe extends CategoryRecipes {
     public Recipe() {
     }
 
-    public Recipe(String name, String photoUrl, String description) {
+    public Recipe(String name, String photoUrl, String description, int isPersonal) {
         this.name = name;
         this.photoUrl = photoUrl;
         this.description = description;
+        this.isPersonal = isPersonal;
         for (String key : ingredientsHashMap.keySet()) {
                 ingredients.add(ingredientsHashMap.get(key));
         }
@@ -49,4 +51,12 @@ public class Recipe extends CategoryRecipes {
 //        return ingredients.size();
 //    }
 
+
+    public int getIsPersonal() {
+        return isPersonal;
+    }
+
+    public void setIsPersonal(int isPersonal) {
+        this.isPersonal = isPersonal;
+    }
 }

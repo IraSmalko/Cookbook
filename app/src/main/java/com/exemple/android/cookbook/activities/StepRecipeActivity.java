@@ -35,6 +35,8 @@ public class StepRecipeActivity extends AppCompatActivity {
     private static final String RECIPE = "recipe";
     private static final String PHOTO = "photo";
     private static final String DESCRIPTION = "description";
+    private static final String IS_PERSONAL = "isPersonal";
+    private static final int INT_EXTRA = 0;
 
     private Intent mIntent;
     private List<StepRecipe> mStepRecipe = new ArrayList<>();
@@ -79,14 +81,14 @@ public class StepRecipeActivity extends AppCompatActivity {
                     new FirebaseHelper(new FirebaseHelper.OnStepRecipes() {
                         @Override
                         public void OnGet(List<StepRecipe> stepRecipes) {
-                            if (mStepRecipe.size() != 0) {
-                                updateData(mIndex);
-                            } else {
+                            mStepRecipe = stepRecipes;
+                            updateData(mIndex);
+                            if (mStepRecipe.isEmpty()) {
                                 Toast.makeText(mContext, getResources().getString(R
                                         .string.no_information_available), Toast.LENGTH_SHORT).show();
                             }
                         }
-                    }).getStepsRecipe(mStepRecipe, mReference);
+                    }).getStepsRecipe(mReference);
                 } else if (mStepRecipe.size() != 0) {
                     updateData(mIndex);
                 } else {
@@ -117,7 +119,8 @@ public class StepRecipeActivity extends AppCompatActivity {
             Glide.with(mContext).load(mStepRecipe.get(i).getPhotoUrlStep()).into(mImgStepRecipe);
         } else {
             IntentHelper.intentRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
-                    .getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent.getStringExtra(RECIPE_LIST), null);
+                    .getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
+                    .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST), mUsername);
         }
     }
 }

@@ -63,6 +63,8 @@ public class RecipeActivity extends AppCompatActivity
     private static final String PHOTO = "photo";
     private static final String DESCRIPTION = "description";
     private static final String USERNAME = "username";
+    private static final String IS_PERSONAL = "isPersonal";
+    private static final int INT_EXTRA = 0;
 
     private Intent mIntent;
     private ImageView mImageView;
@@ -164,7 +166,8 @@ public class RecipeActivity extends AppCompatActivity
             public void onClick(View view) {
                 IntentHelper.intentStepRecipeActivity(getApplicationContext(), mIntent
                         .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent
-                        .getStringExtra(DESCRIPTION), mIntent.getStringExtra(RECIPE_LIST));
+                        .getStringExtra(DESCRIPTION), mIntent.getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent
+                        .getStringExtra(RECIPE_LIST));
             }
         });
 
@@ -454,19 +457,18 @@ public class RecipeActivity extends AppCompatActivity
         if (id == R.id.action_save) {
             boolean isOnline = new CheckOnlineHelper(this).isOnline();
             if (isOnline) {
-                mProgressDialog.show();
-                mProgressDialog.setMessage(getResources().getString(R.string.progress_vait));
-
                 String path = MediaStore.Images.Media.insertImage(getContentResolver(),
                         mLoadPhotoStep, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
                 new WriterDAtaSQLiteAsyncTask.WriterRecipe(this, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
                     @Override
                     public void onDataReady(Integer integer) {
                         new FirebaseHelper().getStepsRecipe(getApplicationContext(), integer, mIntent
-                                .getStringExtra(RECIPE_LIST), mIntent.getStringExtra(RECIPE), mIntent.getStringExtra(USERNAME));
+                                .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST), mIntent
+                                .getStringExtra(RECIPE), mIntent.getStringExtra(USERNAME));
                     }
-                }).execute(new Recipe(mIntent.getStringExtra(RECIPE), path, mIntent.getStringExtra(DESCRIPTION)));
-                mProgressDialog.dismiss();
+                }).execute(new Recipe(mIntent.getStringExtra(RECIPE), path, mIntent
+                        .getStringExtra(DESCRIPTION), 0));
+
             } else {
                 Toast.makeText(RecipeActivity.this, getResources()
                         .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
