@@ -28,6 +28,7 @@ public class IntentHelper {
     private static final String USERNAME = "username";
     private static final String ARRAY_LIST_RECIPE = "ArrayListRecipe";
     private static final String ID_RECIPE = "id_recipe";
+    private static final String IS_PERSONAL = "isPersonal";
 
     public IntentHelper() {
     }
@@ -66,23 +67,25 @@ public class IntentHelper {
     }
 
     static public void intentStepRecipeActivity(Context context, String recipe, String photo,
-                                                String description, String recipeList) {
+                                                String description, int isPersonal, String recipeList) {
         Intent intent = new Intent(context, StepRecipeActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(RECIPE, recipe);
         intent.putExtra(PHOTO, photo);
         intent.putExtra(DESCRIPTION, description);
+        intent.putExtra(IS_PERSONAL, isPersonal);
         intent.putExtra(RECIPE_LIST, recipeList);
         ActivityCompat.startActivity(context, intent, null);
     }
 
     static public void intentRecipeActivity(Context context, String recipe, String photo,
-                                            String description, String recipeList, String username) {
+                                            String description, int isPersonal, String recipeList, String username) {
         Intent intent = new Intent(context, RecipeActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(RECIPE, recipe);
         intent.putExtra(PHOTO, photo);
         intent.putExtra(DESCRIPTION, description);
+        intent.putExtra(IS_PERSONAL, isPersonal);
         intent.putExtra(RECIPE_LIST, recipeList);
         intent.putExtra(USERNAME, username);
         ActivityCompat.startActivity(context, intent, null);

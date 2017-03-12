@@ -35,6 +35,8 @@ public class StepRecipeActivity extends AppCompatActivity {
     private static final String RECIPE = "recipe";
     private static final String PHOTO = "photo";
     private static final String DESCRIPTION = "description";
+    private static final String IS_PERSONAL = "isPersonal";
+    private static final int INT_EXTRA = 0;
 
     private Intent mIntent;
     private List<StepRecipe> mStepRecipe = new ArrayList<>();
@@ -117,7 +119,8 @@ public class StepRecipeActivity extends AppCompatActivity {
             Glide.with(mContext).load(mStepRecipe.get(i).getPhotoUrlStep()).into(mImgStepRecipe);
         } else {
             IntentHelper.intentRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
-                    .getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent.getStringExtra(RECIPE_LIST), null);
+                    .getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
+                    .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST), mUsername);
         }
     }
 }

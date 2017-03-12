@@ -92,7 +92,7 @@ public class DataSourceSQLite {
                     new WriterDAtaSQLiteAsyncTask.WriterStepsRecipe(mContext)
                             .execute(mWriterStepsRecipe);
                 }
-            }).execute(mWriterStepsRecipe.getStepRecipes().get(mIterator).getPhotoUrlStep());
+            }).execute(mWriterStepsRecipe.getStepRecipes().get(mWriterStepsRecipe.getIterator()).getPhotoUrlStep());
         } else {
             close();
         }

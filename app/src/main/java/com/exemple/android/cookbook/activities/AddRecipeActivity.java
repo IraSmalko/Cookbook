@@ -142,7 +142,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                     } else if (!mNameRecipesList.contains(mInputNameRecipe.getText().toString())) {
                         if (mDownloadUrlCamera != null) {
                             Recipe recipes = new Recipe(mInputNameRecipe.getText().toString(),
-                                    mDownloadUrlCamera.toString(), mInputIngredients.getText().toString());
+                                    mDownloadUrlCamera.toString(), mInputIngredients.getText().toString(), 0);
                             String recipeId = mDatabaseReference.push().getKey();
                             mDatabaseReference.child(recipeId).setValue(recipes);
                             Toast.makeText(mContext, getResources().getString(R.string.data_save), Toast.LENGTH_SHORT).show();
