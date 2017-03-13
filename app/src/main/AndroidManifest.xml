@@ -67,6 +67,7 @@
             android:parentActivityName=".activities.MainActivity" />
         <activity android:name=".activities.SelectedStepRecipeActivity" />
         <activity android:name="com.android.camera.CropImage" />
+        <activity android:name=".activities.ShoppingActivity" />
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"

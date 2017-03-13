@@ -1,6 +1,7 @@
 package com.exemple.android.cookbook.activities;
 
 import android.app.ProgressDialog;
+import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -477,6 +478,10 @@ public class RecipeActivity extends AppCompatActivity
         } else if (id == android.R.id.home) {
             IntentHelper.intentRecipeListActivity(this, mIntent.getStringExtra(RECIPE_LIST));
             return true;
+        } else if (id == R.id.action_shop) {
+            Intent intent = mIntent;
+            intent.setClass(this, ShoppingActivity.class);
+            startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }

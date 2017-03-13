@@ -9,4 +9,11 @@
         yourapp:showAsAction="always"
         android:title="@string/save" />
 
+    <item
+        android:id="@+id/action_shop"
+        android:icon="@android:drawable/ic_dialog_info"
+        yourapp:showAsAction="ifRoom"
+        android:title="Shop" />
+
+
 </menu>

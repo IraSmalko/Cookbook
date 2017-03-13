@@ -22,9 +22,9 @@ public class Recipe extends CategoryRecipes {
         this.photoUrl = photoUrl;
         this.description = description;
         this.isPersonal = isPersonal;
-        for (String key : ingredientsHashMap.keySet()) {
-                ingredients.add(ingredientsHashMap.get(key));
-        }
+//        for (String key : ingredientsHashMap.keySet()) {
+//                ingredients.add(ingredientsHashMap.get(key));
+//        }
     }
 
     public String getDescription() {
