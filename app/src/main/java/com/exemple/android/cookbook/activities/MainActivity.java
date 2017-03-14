@@ -34,6 +34,7 @@ import com.exemple.android.cookbook.helpers.CreaterRecyclerAdapter;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.SwipeHelper;
 import com.exemple.android.cookbook.helpers.VoiceRecognitionHelper;
+import com.exemple.android.cookbook.models.RealmTestActivity;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -242,6 +243,8 @@ public class MainActivity extends AppCompatActivity
                 mFirebaseUser = null;
                 userRefresh();
             }
+        } else if (id==R.id.nav_send){
+            startActivity(new Intent(MainActivity.this, RealmTestActivity.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);

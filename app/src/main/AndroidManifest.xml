@@ -7,9 +7,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
 
-
     <application
-        android:name=".supporting.MyFirebaseApp"
+        android:name=".models.MyApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic"
         android:label="@string/app_name"
@@ -42,8 +41,8 @@
             android:parentActivityName=".activities.MainActivity" />
         <activity
             android:name=".activities.RecipeActivity"
-            android:parentActivityName=".activities.RecipeListActivity"
-            android:configChanges="orientation"/>
+            android:configChanges="orientation"
+            android:parentActivityName=".activities.RecipeListActivity" />
         <activity android:name=".activities.StepRecipeActivity" />
         <activity
             android:name=".activities.AuthenticationActivity"
@@ -56,7 +55,6 @@
 
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
-
         </activity>
         <activity
             android:name=".activities.SelectedRecipeActivity"
@@ -77,6 +75,7 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="49038910b9ef574b84a5121e68a07e8b94810ed3" />
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.exemple.android.cookbook"
@@ -86,9 +85,13 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/photo_provider_path" />
         </provider>
+
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/fb_app_id" />
+
+        <activity android:name=".models.RealmTestActivity" />
+        <activity android:name=".models.RealmTest2Activity"></activity>
     </application>
 
 </manifest>
