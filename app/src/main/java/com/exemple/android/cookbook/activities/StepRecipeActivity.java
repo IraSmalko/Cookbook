@@ -47,6 +47,7 @@ public class StepRecipeActivity extends AppCompatActivity {
     private int mIndex = 0;
     private String mReference;
     private String mUsername;
+    private FirebaseUser mFirebaseUser;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,16 +60,11 @@ public class StepRecipeActivity extends AppCompatActivity {
 
         mIntent = getIntent();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        mFirebaseUser = firebaseAuth.getCurrentUser();
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
 
         mReference = "Step_recipe/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE);
         DatabaseReference databaseReference = firebaseDatabase.getReference().child(mReference);
-
-        if (firebaseUser != null) {
-            mUsername = firebaseUser.getDisplayName();
-            mReference = mUsername + "/" + mReference;
-        }
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -77,7 +73,9 @@ public class StepRecipeActivity extends AppCompatActivity {
                     StepRecipe step = postSnapshot.getValue(StepRecipe.class);
                     mStepRecipe.add(step);
                 }
-                if (mUsername != null) {
+                if (mStepRecipe.isEmpty() && mFirebaseUser != null) {
+                    mUsername = mFirebaseUser.getDisplayName();
+                    mReference = mUsername + "/" + mReference;
                     new FirebaseHelper(new FirebaseHelper.OnStepRecipes() {
                         @Override
                         public void OnGet(List<StepRecipe> stepRecipes) {
