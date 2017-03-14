@@ -32,6 +32,7 @@ import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.helpers.CreaterRecyclerAdapter;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
+import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.helpers.SwipeHelper;
 import com.exemple.android.cookbook.helpers.VoiceRecognitionHelper;
 import com.google.android.gms.auth.api.Auth;
@@ -166,7 +167,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }
 
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
@@ -263,10 +263,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-//        if (sensorEvent.values[0] == 0) {
-//            IntentHelper.startVoiceRecognitionActivity(getApplicationContext());
-//            // near
-//        }
+        if (sensorEvent.values[0] == 0) {
+            IntentHelper.startVoiceRecognitionActivity(MainActivity.this);
+            // near
+        }
     }
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {

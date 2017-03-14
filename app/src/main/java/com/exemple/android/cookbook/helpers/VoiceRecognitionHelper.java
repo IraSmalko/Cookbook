@@ -27,7 +27,7 @@ public class VoiceRecognitionHelper {
             Toast.makeText(mContext, matches.get(0),
                     Toast.LENGTH_LONG).show();
             for (CategoryRecipes recipeList : mForVoice) {
-                if (matches.contains(recipeList.getName())) {
+                if (matches.contains(recipeList.getName().toLowerCase())) {
                     IntentHelper.intentRecipeListActivity(mContext, recipeList.getName());
                 }
             }
