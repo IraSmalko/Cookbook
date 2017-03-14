@@ -57,7 +57,7 @@
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:background="#99ECEFF1"
-            android:text="@string/describ"
+            android:text="@string/brief_description"
             android:textColor="#000" />
 
         <Button

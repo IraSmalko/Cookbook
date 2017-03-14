@@ -63,7 +63,7 @@
             android:layout_marginTop="42dp"
             android:layout_toEndOf="@+id/imageView"
             android:background="#99ECEFF1"
-            android:text="@string/describ"
+            android:text="@string/brief_description"
             android:textColor="#000" />
 
         <Button

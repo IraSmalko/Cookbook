@@ -40,17 +40,18 @@
     <string name="example_voice_recognition">Супи</string>
     <string name="rating">рейтинг: </string>
 
-    <string name="voice_recognition_intent">AndroidBite Voice Recognition…</string>
+    <string name="voice_recognition_intent">Голосовий пошук…</string>
 
     <string name="fb_login_protocol_scheme">fb1224969314223075</string>
 
     <string name="fb_app_id">1224969314223075</string>
     <string name="send">Надіслати</string>
     <string name="edit">Редагувати відгук</string>
-    <string name="describ">Короткий опис</string>
+    <string name="brief_description">Короткий опис</string>
     <string name="detail">Детально</string>
     
     <string name="deleted">Видалено</string>
     <string name="undo">Скасувати</string>
     <string name="extraction">Видалення</string>
+    <string name="voice_recognition">Голосовий пошук</string>
 </resources>
