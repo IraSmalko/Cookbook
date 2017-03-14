@@ -54,4 +54,10 @@
     <string name="undo">Скасувати</string>
     <string name="extraction">Видалення</string>
     <string name="voice_recognition">Голосовий пошук</string>
+
+    <string name="on_voice_alert_message">Увімкнути голосове управління?</string>
+    <string name="off_voice_alert_message">Вимкнути голосове управління?</string>
+    <string name="positive_button">так</string>
+    <string name="negative_button">ні</string>
+    <string name="info">інфо…</string>
 </resources>

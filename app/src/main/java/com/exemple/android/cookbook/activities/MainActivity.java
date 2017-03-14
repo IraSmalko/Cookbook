@@ -198,6 +198,8 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.action_search:
                 return true;
+            case R.id.voice_recognition:
+                new VoiceRecognitionHelper(MainActivity.this).createdAlertDialog().show();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -264,8 +266,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         if (sensorEvent.values[0] == 0) {
-            IntentHelper.startVoiceRecognitionActivity(MainActivity.this);
-            // near
+            new VoiceRecognitionHelper(MainActivity.this).startVoiceRecognition();
         }
     }
 
