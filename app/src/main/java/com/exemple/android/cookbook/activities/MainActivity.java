@@ -34,16 +34,14 @@ import java.util.List;
 
 import io.fabric.sdk.android.Fabric;
 
-public class MainActivity extends BaseActivity
-        implements SearchView.OnQueryTextListener {
-
-    private FirebaseDatabase mFirebaseDatabase;
-
-    private String mUsername;
-    private FirebaseUser mFirebaseUser;
+public class MainActivity extends BaseActivity {
 
     public static final String ANONYMOUS = "anonymous";
     private static final int VOICE_REQUEST_CODE = 1234;
+
+    private FirebaseDatabase mFirebaseDatabase;
+    private String mUsername;
+    private FirebaseUser mFirebaseUser;
 
     private RecyclerView mRecyclerView;
     private SwipeHelper mSwipeHelper;
@@ -73,7 +71,6 @@ public class MainActivity extends BaseActivity
                 startActivity(new Intent(getApplicationContext(), AddCategoryRecipeActivity.class));
             }
         });
-
 
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = firebaseAuth.getCurrentUser();
@@ -127,32 +124,6 @@ public class MainActivity extends BaseActivity
     @Override
     public int getLayoutResource() {
         return R.layout.activity_main;
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-
-        MenuItem searchItem = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-        searchView.setOnQueryTextListener(this);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_search:
-                return true;
-            case R.id.voice_recognition:
-                new VoiceRecognitionHelper(this).createdAlertDialog().show();
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onQueryTextSubmit(String query) {
-        return false;
     }
 
     @Override
