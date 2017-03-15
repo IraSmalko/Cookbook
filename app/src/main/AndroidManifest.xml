@@ -22,7 +22,6 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -39,11 +38,11 @@
         <activity
             android:name=".activities.RecipeListActivity"
             android:configChanges="orientation"
-            android:parentActivityName=".activities.MainActivity" />
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".activities.RecipeActivity"
-            android:parentActivityName=".activities.RecipeListActivity"
-            android:configChanges="orientation"/>
+            android:configChanges="orientation"
+            android:parentActivityName=".activities.RecipeListActivity" />
         <activity android:name=".activities.StepRecipeActivity" />
         <activity
             android:name=".activities.AuthenticationActivity"
