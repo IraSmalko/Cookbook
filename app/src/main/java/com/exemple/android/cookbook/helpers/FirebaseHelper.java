@@ -4,7 +4,9 @@ package com.exemple.android.cookbook.helpers;
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
 
+import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.ImageCard;
 import com.exemple.android.cookbook.entity.Recipe;
@@ -31,14 +33,31 @@ public class FirebaseHelper {
     private List<StepRecipe> mStepRecipe = new ArrayList<>();
     private List<CategoryRecipes> mCategory = new ArrayList<>();
     private List<Recipe> mRecipes = new ArrayList<>();
+    private List<Recipe> mForVoice = new ArrayList<>();
     private FirebaseHelper.OnUserCategoryRecipe mOnUserCategoryRecipe;
     private FirebaseHelper.OnUserRecipes mOnUserRecipes;
     private FirebaseHelper.OnSaveImage mOnSaveImage;
     private FirebaseHelper.OnStepRecipes mOnStepRecipes;
+    private FirebaseHelper.OnRecipeRecyclerAdapter mOnRecipeRecyclerAdapter;
     private int mIdRecipe;
     private Context mContext;
 
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mDatabaseReference;
+    private List<Recipe> mRecipesList = new ArrayList<>();
+    private List<Recipe> mPublicListRecipes = new ArrayList<>();
+    private RecipeRecyclerListAdapter mRecipeRecyclerAdapter;
+    private SwipeHelper mSwipeHelper;
+    private String mUsername;
+    private String mRecipeCategory;
+    private RecyclerView mRecyclerView;
+    private String mReference;
+
     public FirebaseHelper() {
+    }
+
+    public FirebaseHelper(FirebaseHelper.OnRecipeRecyclerAdapter onRecipeRecyclerAdapter) {
+        mOnRecipeRecyclerAdapter = onRecipeRecyclerAdapter;
     }
 
     public FirebaseHelper(FirebaseHelper.OnStepRecipes onStepRecipes) {
@@ -194,6 +213,10 @@ public class FirebaseHelper {
         void OnGet(List<StepRecipe> stepRecipes);
     }
 
+    public interface OnRecipeRecyclerAdapter {
+        void OnGet(RecipeRecyclerListAdapter recyclerListAdapter, List<Recipe> forVoice);
+    }
+
     public void removeCategory(Context context, String item) {
         mContext = context;
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
@@ -261,5 +284,57 @@ public class FirebaseHelper {
             }
         });
 
+    }
+
+    public void getRecipeList(String reference, Context context, String username,
+                              String recipeCategory, RecyclerView recyclerView, SwipeHelper swipeHelper){
+        mContext = context;
+        mUsername = username;
+        mReference = reference;
+        mSwipeHelper = swipeHelper;
+        mRecipeCategory = recipeCategory;
+        mRecyclerView = recyclerView;
+
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mDatabaseReference = mFirebaseDatabase.getReference().child(mReference);
+
+        if (mUsername != null) {
+            mReference = mUsername + "/" + mReference;
+        }
+        mDatabaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mRecipesList.clear();
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    Recipe recipes = postSnapshot.getValue(Recipe.class);
+                    mRecipesList.add(recipes);
+                }
+                mPublicListRecipes = mRecipesList;
+                if (mUsername != null) {
+                    new FirebaseHelper(new FirebaseHelper.OnUserRecipes() {
+                        @Override
+                        public void OnGet(List<Recipe> recipes) {
+                            recipes.addAll(mRecipesList);
+                            mForVoice = recipes;
+                            mRecipeRecyclerAdapter = new CreaterRecyclerAdapter(mContext)
+                                    .createRecyclerAdapter(recipes, mRecipeCategory, mUsername);
+                            mRecyclerView.setAdapter(mRecipeRecyclerAdapter);
+                            mSwipeHelper.attachSwipeRecipe(mPublicListRecipes);
+                            mOnRecipeRecyclerAdapter.OnGet(mRecipeRecyclerAdapter, mForVoice);
+                        }
+                    }).getUserRecipe(mFirebaseDatabase, mReference);
+                } else {
+                    mRecipeRecyclerAdapter = new CreaterRecyclerAdapter(mContext)
+                            .createRecyclerAdapter(mRecipesList, mRecipeCategory, mUsername);
+                    mRecyclerView.setAdapter(mRecipeRecyclerAdapter);
+                    mSwipeHelper.attachSwipeRecipe(mPublicListRecipes);
+                    mOnRecipeRecyclerAdapter.OnGet( mRecipeRecyclerAdapter, mRecipesList);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
     }
 }
