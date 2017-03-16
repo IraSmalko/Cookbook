@@ -33,13 +33,14 @@ public class FirebaseHelper {
     private List<StepRecipe> mStepRecipe = new ArrayList<>();
     private List<CategoryRecipes> mCategory = new ArrayList<>();
     private List<Recipe> mRecipes = new ArrayList<>();
-    private List<Recipe> mForVoice = new ArrayList<>();
+    private List<CategoryRecipes> mCategoryRecipesList = new ArrayList<>();
     private OnUserCategoryRecipe mOnUserCategoryRecipe;
     private OnUserRecipes mOnUserRecipes;
     private OnSaveImage mOnSaveImage;
     private OnStepRecipes mOnStepRecipes;
     private OnGetRecipeList mOnGetRecipeList;
     private OnGetRecipeListForVR mOnGetRecipeListForVR;
+    private OnGetCategoryListForVR mOnGetCategoryListForVR;
     private int mIdRecipe;
     private Context mContext;
 
@@ -80,6 +81,10 @@ public class FirebaseHelper {
 
     public FirebaseHelper(OnGetRecipeListForVR onGetRecipeListForVR) {
         mOnGetRecipeListForVR = onGetRecipeListForVR;
+    }
+
+    public FirebaseHelper(OnGetCategoryListForVR onGetCategoryListForVR) {
+        mOnGetCategoryListForVR = onGetCategoryListForVR;
     }
 
     public String getUsername() {
@@ -307,12 +312,11 @@ public class FirebaseHelper {
                         @Override
                         public void OnGet(List<Recipe> recipes) {
                             recipes.addAll(mRecipesList);
-                            mForVoice = recipes;
                             mRecipeRecyclerAdapter = new CreaterRecyclerAdapter(mContext)
                                     .createRecyclerAdapter(recipes, mRecipeCategory, mUsername);
                             mRecyclerView.setAdapter(mRecipeRecyclerAdapter);
                             mSwipeHelper.attachSwipeRecipe(mPublicListRecipes);
-                            mOnGetRecipeList.OnGet(mRecipeRecyclerAdapter, mForVoice);
+                            mOnGetRecipeList.OnGet(mRecipeRecyclerAdapter, recipes);
                         }
                     }).getUserRecipe(mFirebaseDatabase, mReference);
                 } else {
@@ -333,8 +337,10 @@ public class FirebaseHelper {
     public void getRecipeListForVR(String recipeList, Context context) {
         mContext = context;
         mRecipeList = recipeList;
+
+        mReference = "Recipe_lists/" + recipeList;
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mDatabaseReference = mFirebaseDatabase.getReference().child("Recipe_lists/" + recipeList);
+        mDatabaseReference = mFirebaseDatabase.getReference().child(mReference);
 
         mUsername = getUsername();
         if (mUsername != null) {
@@ -354,12 +360,41 @@ public class FirebaseHelper {
                         @Override
                         public void OnGet(List<Recipe> recipes) {
                             recipes.addAll(mRecipesList);
-                            mForVoice = recipes;
-                            mOnGetRecipeListForVR.OnGet(mForVoice, mRecipeList);
+                            mOnGetRecipeListForVR.OnGet(recipes, mRecipeList);
                         }
                     }).getUserRecipe(mFirebaseDatabase, mReference);
                 } else {
                     mOnGetRecipeListForVR.OnGet(mRecipesList, mRecipeList);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
+
+    public void getCategoryListForVR() {
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference databaseReference = mFirebaseDatabase.getReference("Сategory_Recipes");
+
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
+                    mCategoryRecipesList.add(categoryRecipes);
+                }
+                if (getUsername() != null) {
+                    new FirebaseHelper(new FirebaseHelper.OnUserCategoryRecipe() {
+                        @Override
+                        public void OnGet(List<CategoryRecipes> category) {
+                            category.addAll(mCategoryRecipesList);
+                            mOnGetCategoryListForVR.OnGet(category);
+                        }
+                    }).getUserCategoryRecipe(getUsername(), mFirebaseDatabase);
+                } else {
+                    mOnGetCategoryListForVR.OnGet(mCategoryRecipesList);
                 }
             }
 
@@ -391,5 +426,9 @@ public class FirebaseHelper {
 
     public interface OnGetRecipeListForVR {
         void OnGet(List<Recipe> forVoice, String recipeList);
+    }
+
+    public interface OnGetCategoryListForVR {
+        void OnGet(List<CategoryRecipes> forVoice);
     }
 }

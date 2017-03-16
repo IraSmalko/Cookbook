@@ -40,6 +40,7 @@ public abstract class BaseActivity extends AppCompatActivity
         SearchView.OnQueryTextListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int VOICE_REQUEST_CODE = 1234;
     public static final String ANONYMOUS = "anonymous";
 
     private FirebaseAuth mFirebaseAuth;
@@ -193,4 +194,12 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     protected abstract int getLayoutResource();
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == VOICE_REQUEST_CODE) {
+            new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }

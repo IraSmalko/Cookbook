@@ -106,6 +106,6 @@ public class RecipeListActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(this, RecipeListActivity.class));
+        startActivity(new Intent(this, MainActivity.class));
     }
 }

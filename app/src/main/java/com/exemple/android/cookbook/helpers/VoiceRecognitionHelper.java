@@ -30,6 +30,7 @@ public class VoiceRecognitionHelper {
     private int mStatus;
     private int mOn = 1;
     private ArrayList<String> mVRResult;
+    private List<CategoryRecipes> mForVoice;
 
     public VoiceRecognitionHelper(Context context) {
         mContext = context;
@@ -95,29 +96,39 @@ public class VoiceRecognitionHelper {
         return status;
     }
 
-    public void onActivityResult(int resultCode, Intent data, List<CategoryRecipes> forVoice) {
+    public void getDataForVR() {
+        new FirebaseHelper(new FirebaseHelper.OnGetCategoryListForVR() {
+            @Override
+            public void OnGet(List<CategoryRecipes> forVoice) {
+                mForVoice = forVoice;
+                for (CategoryRecipes recipeList : mForVoice) {
+                    if (mVRResult.contains(recipeList.getName().toLowerCase())) {
+                        IntentHelper.intentRecipeListActivity(mContext, recipeList.getName());
+                    } else {
+                        new FirebaseHelper(new FirebaseHelper.OnGetRecipeListForVR() {
+                            @Override
+                            public void OnGet(List<Recipe> recipeForVoice, String recipeList) {
+                                for (Recipe recipe : recipeForVoice) {
+                                    if (mVRResult.contains(recipe.getName().toLowerCase())) {
+                                        IntentHelper.intentRecipeActivity(mContext, recipe.getName(), recipe
+                                                .getPhotoUrl(), recipe.getDescription(), recipe
+                                                .getIsPersonal(), recipeList, new FirebaseHelper().getUsername());
+                                    }
+                                }
+                            }
+                        }).getRecipeListForVR(recipeList.getName(), mContext);
+                    }
+                }
+            }
+        }).getCategoryListForVR();
+    }
+
+    public void onActivityResult(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             mVRResult = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             Toast.makeText(mContext, mVRResult.get(0),
                     Toast.LENGTH_LONG).show();
-            for (CategoryRecipes recipeList : forVoice) {
-                if (mVRResult.contains(recipeList.getName().toLowerCase())) {
-                    IntentHelper.intentRecipeListActivity(mContext, recipeList.getName());
-                } else {
-                    new FirebaseHelper(new FirebaseHelper.OnGetRecipeListForVR() {
-                        @Override
-                        public void OnGet(List<Recipe> recipeForVoice, String recipeList) {
-                            for (Recipe recipe : recipeForVoice) {
-                                if (mVRResult.contains(recipe.getName().toLowerCase())) {
-                                    IntentHelper.intentRecipeActivity(mContext, recipe.getName(), recipe
-                                            .getPhotoUrl(), recipe.getDescription(), recipe
-                                            .getIsPersonal(), recipeList, new FirebaseHelper().getUsername());
-                                }
-                            }
-                        }
-                    }).getRecipeListForVR(recipeList.getName(), mContext);
-                }
-            }
+            getDataForVR();
         }
     }
 }

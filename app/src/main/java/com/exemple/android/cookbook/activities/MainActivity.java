@@ -37,7 +37,6 @@ import io.fabric.sdk.android.Fabric;
 public class MainActivity extends BaseActivity {
 
     public static final String ANONYMOUS = "anonymous";
-    private static final int VOICE_REQUEST_CODE = 1234;
 
     private FirebaseDatabase mFirebaseDatabase;
     private String mUsername;
@@ -48,13 +47,14 @@ public class MainActivity extends BaseActivity {
     private CategoryRecipeRecyclerAdapter mRecyclerAdapter;
     private List<CategoryRecipes> mCategoryRecipesList = new ArrayList<>();
     private List<CategoryRecipes> mPublicCategoryRecipes = new ArrayList<>();
-    private List<CategoryRecipes> mForVoice = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
 
+        mRecyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
+        mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext());
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -84,9 +84,6 @@ public class MainActivity extends BaseActivity {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = mFirebaseDatabase.getReference("Сategory_Recipes");
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
-        mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext());
-
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -100,7 +97,6 @@ public class MainActivity extends BaseActivity {
                         @Override
                         public void OnGet(List<CategoryRecipes> category) {
                             category.addAll(mCategoryRecipesList);
-                            mForVoice = category;
                             mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
                                     .createRecyclerAdapter(category);
                             mRecyclerView.setAdapter(mRecyclerAdapter);
@@ -138,14 +134,5 @@ public class MainActivity extends BaseActivity {
         }
         mRecyclerAdapter.updateAdapter(newList);
         return true;
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == VOICE_REQUEST_CODE) {
-            mForVoice = null != mForVoice ? mForVoice : mCategoryRecipesList;
-            new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data, mForVoice);
-        }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 }
