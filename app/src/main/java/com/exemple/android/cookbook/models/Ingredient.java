@@ -1,35 +1,46 @@
 package com.exemple.android.cookbook.models;
 
-import com.exemple.android.cookbook.entity.Ingredient;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
 
 import io.realm.RealmObject;
 
 /**
- * Created by Sakurov on 14.03.2017.
+ * Created by Sakurov on 15.03.2017.
  */
 
-public class RealmIngredient extends RealmObject {
+public class Ingredient extends RealmObject {
 
     private String name;
     private float quantity;
     private String unit;
 
-    public RealmIngredient() {
-        name = "test";
-        quantity = 0;
-        unit = "kg";
+    public Ingredient() {
     }
 
-    public RealmIngredient(Ingredient ingredient){
+    public Ingredient(FirebaseIngredient firebaseIngredient) {
+        name = firebaseIngredient.getName();
+        quantity = firebaseIngredient.getQuantity();
+        unit = firebaseIngredient.getUnit();
+    }
+
+    public Ingredient(Ingredient ingredient){
         name = ingredient.getName();
         quantity = ingredient.getQuantity();
         unit = ingredient.getUnit();
     }
 
-    public RealmIngredient(String name, float quantity, String unit) {
+    public Ingredient(String name, float quantity, String unit) {
         this.name = name;
         this.quantity = quantity;
         this.unit = unit;
+    }
+
+    public Ingredient(DataSnapshot dataSnapshot) {
+        Ingredient ingredient = dataSnapshot.getValue(Ingredient.class);
+        name = ingredient.getName();
+        quantity = ingredient.getQuantity();
+        unit = ingredient.getUnit();
     }
 
     public String getName() {

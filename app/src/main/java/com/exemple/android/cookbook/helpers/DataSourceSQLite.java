@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.ForWriterStepsRecipe;
+import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.entity.SelectedStepRecipe;
 import com.exemple.android.cookbook.entity.StepRecipe;
 
@@ -27,6 +28,10 @@ public class DataSourceSQLite {
     private static final String TEXT_STEP = "text_step";
     private static final String PHOTO_STEP = "photo_step";
     private static final String NUMBER_STEP = "number_step";
+
+    private static final String INGREDIENT_NAME = "ingredient_name";
+    private static final String INGREDIENT_QUANTITY = "ingredient_quantity";
+    private static final String INGREDIENT_UNIT = "ingredient_unit";
 
     private SQLiteDatabase mDatabase;
     private DBHelper mDBHelper;
@@ -57,6 +62,14 @@ public class DataSourceSQLite {
         cvRecipe.put(PHOTO, path);
         cvRecipe.put(DESCRIPTION, description);
         long rowID = mDatabase.insertOrThrow(DBHelper.TABLE_RECIPE, null, cvRecipe);
+
+//        ContentValues cvIngredients = new ContentValues();
+//        for (FirebaseIngredient ingredient : ingredients) {
+//            cvIngredients.put(INGREDIENT_NAME, ingredient.getName());
+//            cvIngredients.put(INGREDIENT_QUANTITY, ingredient.getQuantity());
+//            cvIngredients.put(INGREDIENT_UNIT, ingredient.getUnit());
+//            mDatabase.insertOrThrow(DBHelper.TABLE_INGREDIENTS, null, cvIngredients);
+//        }
 
         close();
         return (int) rowID;

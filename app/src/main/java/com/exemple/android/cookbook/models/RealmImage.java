@@ -1,5 +1,7 @@
 package com.exemple.android.cookbook.models;
 
+import android.graphics.Bitmap;
+
 import io.realm.RealmObject;
 
 /**

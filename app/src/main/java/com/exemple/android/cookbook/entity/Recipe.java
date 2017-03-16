@@ -35,15 +35,15 @@ public class Recipe extends CategoryRecipes {
         this.description = description;
     }
 
-//    public void setIngredients(List<Ingredient> ingredients){
+//    public void setIngredients(List<FirebaseIngredient> ingredients){
 //        this.ingredients = ingredients;
 //    }
 //
-//    public void addIngredient(Ingredient ingredient){
+//    public void addIngredient(FirebaseIngredient ingredient){
 //        ingredients.add(ingredient);
 //    }
 //
-//    public List<Ingredient> getIngredients(){
+//    public List<FirebaseIngredient> getIngredients(){
 //        return ingredients;
 //    }
 //

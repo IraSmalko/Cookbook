@@ -8,7 +8,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.Ingredient;
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ public class RealmTest2Activity extends AppCompatActivity {
     DatabaseReference mFirebaseDatabaseReference;
 
     List<Ingredient> ingredients = new ArrayList<>();
-    RealmList<RealmIngredient> realmIngredients;
+    RealmList<Ingredient> realmIngredients;
     LinearLayout mLinearLayout;
     Bitmap photo;
     byte[] byteArray;
@@ -39,15 +38,15 @@ public class RealmTest2Activity extends AppCompatActivity {
 
         mRealm = Realm.getDefaultInstance();
 
-        RealmResults<RealmRecipe> recipes = mRealm.where(RealmRecipe.class).findAll();
-
-        if (!recipes.isEmpty()) {
-            for (int i = recipes.size() - 1; i >= 0; i--) {
-                TextView textView = new TextView(this);
-                textView.setText(recipes.get(i).getRecipeName());
-                mLinearLayout.addView(textView);
-            }
-        }
+//        RealmResults<RealmRecipe> recipes = mRealm.where(RealmRecipe.class).findAll();
+//
+//        if (!recipes.isEmpty()) {
+//            for (int i = recipes.size() - 1; i >= 0; i--) {
+//                TextView textView = new TextView(this);
+//                textView.setText(recipes.get(i).getRecipeName());
+//                mLinearLayout.addView(textView);
+//            }
+//        }
 
     }
 

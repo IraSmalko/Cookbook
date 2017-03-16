@@ -9,6 +9,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static final String TABLE_RECIPE = "recipe";
     public static final String TABLE_STEP_RECIPE = "step_recipe";
+    public static final String TABLE_INGREDIENTS = "ingredients";
     private static final String DATABASE_NAME = "myDB.db";
     private static final int DATABASE_VERSION = 1;
 
@@ -30,6 +31,13 @@ public class DBHelper extends SQLiteOpenHelper {
                 + "number_step text,"
                 + "text_step text,"
                 + "photo_step text" + ");");
+
+//        db.execSQL("create table " + TABLE_INGREDIENTS + " ("
+//                + "id integer primary key autoincrement,"
+//                + "id_recipe integer,"
+//                + "ingredient_name text,"
+//                + "ingredient_quantity float,"
+//                + "ingredient_unit text," + ");");
     }
 
     @Override
