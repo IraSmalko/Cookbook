@@ -50,6 +50,10 @@ public class RecipeListActivity extends BaseActivity {
         mIntent = getIntent();
         final String recipeCategory = mIntent.getStringExtra(RECIPE_LIST);
 
+        if(recipeCategory == null){
+            startActivity(new Intent(this, MainActivity.class));
+        }
+
         Log.d("LOG", "InListCreate");
         Log.d("LOG", recipeCategory);
 

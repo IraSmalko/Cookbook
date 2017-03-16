@@ -7,13 +7,20 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.speech.RecognizerIntent;
+import android.support.v4.app.ActivityCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.activities.AddCategoryRecipeActivity;
+import com.exemple.android.cookbook.activities.AuthenticationActivity;
+import com.exemple.android.cookbook.activities.SelectedRecipeListActivity;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.Recipe;
 
@@ -31,6 +38,8 @@ public class VoiceRecognitionHelper {
     private int mOn = 1;
     private ArrayList<String> mVRResult;
     private List<CategoryRecipes> mForVoice;
+    private int mIsPersonal;
+    private String mRecipeList, mRecipeName;
 
     public VoiceRecognitionHelper(Context context) {
         mContext = context;
@@ -121,6 +130,49 @@ public class VoiceRecognitionHelper {
                 }
             }
         }).getCategoryListForVR();
+
+//            for (SelectedRecipe recipe : new DataSourceSQLite(mContext).getRecipe()) {
+//                if (mVRResult.contains(recipe.getName().toLowerCase())) {
+//                    IntentHelper.intentSelectedRecipeActivity(mContext, recipe.getName(), recipe
+//                            .getPhotoUrl(), recipe.getDescription(), recipe.getIdRecipe());
+//                }
+    }
+
+    public void getLocalDataForVR(ArrayList<String> vRResult) {
+        if (vRResult.contains(mContext.getResources().getString(R.string.saved_vr))) {
+            ActivityCompat.startActivity(mContext, new Intent(mContext, SelectedRecipeListActivity.class), null);
+        } else if (vRResult.contains(mContext.getResources().getString(R.string.authorization_vr))) {
+            ActivityCompat.startActivity(mContext, new Intent(mContext, AuthenticationActivity.class), null);
+        } else if (vRResult.contains(mContext.getResources().getString(R.string.add_category_vr))) {
+            ActivityCompat.startActivity(mContext, new Intent(mContext, AddCategoryRecipeActivity.class), null);
+        }
+    }
+
+    public void addRecipeFromVR(ArrayList<String> vRResult, ArrayList<String> categoryList) {
+        if (vRResult.contains(mContext.getResources().getString(R.string.add_recipe_vr))) {
+            IntentHelper.intentAddRecipeActivity(mContext, categoryList, null);
+        }
+    }
+
+    public void saveRecipeFromVR(int isPersonal, String recipeList, String recipeName, Bitmap photo, String description) {
+        mIsPersonal = isPersonal;
+        mRecipeList = recipeList;
+        mRecipeName = recipeName;
+
+        if (new CheckOnlineHelper(mContext).isOnline()) {
+            String path = MediaStore.Images.Media.insertImage(mContext.getContentResolver(),
+                    photo, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
+            new WriterDAtaSQLiteAsyncTask.WriterRecipe(mContext, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
+                @Override
+                public void onDataReady(Integer integer) {
+                    new FirebaseHelper().getStepsRecipe(mContext, integer, mIsPersonal, mRecipeList,
+                            mRecipeName, new FirebaseHelper().getUsername());
+                }
+            }).execute(new Recipe(recipeName, path, description, 0));
+
+        } else {
+            Toast.makeText(mContext, mContext.getResources().getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void onActivityResult(int resultCode, Intent data) {
@@ -128,6 +180,7 @@ public class VoiceRecognitionHelper {
             mVRResult = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             Toast.makeText(mContext, mVRResult.get(0),
                     Toast.LENGTH_LONG).show();
+
             getDataForVR();
         }
     }

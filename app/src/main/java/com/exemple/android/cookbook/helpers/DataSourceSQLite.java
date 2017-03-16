@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.ForWriterStepsRecipe;
+import com.exemple.android.cookbook.entity.SelectedRecipe;
 import com.exemple.android.cookbook.entity.SelectedStepRecipe;
 import com.exemple.android.cookbook.entity.StepRecipe;
 
@@ -27,6 +28,7 @@ public class DataSourceSQLite {
     private static final String TEXT_STEP = "text_step";
     private static final String PHOTO_STEP = "photo_step";
     private static final String NUMBER_STEP = "number_step";
+    private static final String ID = "id";
 
     private SQLiteDatabase mDatabase;
     private DBHelper mDBHelper;
@@ -132,5 +134,27 @@ public class DataSourceSQLite {
         mDatabase.execSQL("DELETE FROM " + DBHelper
                 .TABLE_STEP_RECIPE + " WHERE " + ID_RECIPE + "='" + id + "'");
         close();
+    }
+
+    public List<SelectedRecipe> getRecipe (){
+        List<SelectedRecipe> recipesList = new ArrayList<>();
+        open();
+        Cursor c = mDatabase.query(RECIPE, null, null, null, null, null, null);
+
+        if (c.moveToFirst()) {
+            do {
+                int idColIndex = c.getColumnIndex(ID);
+                int recipeColIndex = c.getColumnIndex(RECIPE);
+                int photoColIndex = c.getColumnIndex(PHOTO);
+                int descriptionColIndex = c.getColumnIndex(DESCRIPTION);
+
+                recipesList.add(new SelectedRecipe(c.getString(recipeColIndex), c
+                        .getString(photoColIndex), c.getString(descriptionColIndex), c.getInt(idColIndex)));
+            } while (c.moveToNext());
+        } else {
+            c.close();
+        }
+        close();
+     return recipesList;
     }
 }
