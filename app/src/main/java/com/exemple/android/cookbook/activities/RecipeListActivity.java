@@ -75,7 +75,7 @@ public class RecipeListActivity extends BaseActivity {
             mUsername = firebaseUser.getDisplayName();
         }
 
-        new FirebaseHelper(new FirebaseHelper.OnRecipeRecyclerAdapter() {
+        new FirebaseHelper(new FirebaseHelper.OnGetRecipeList() {
             @Override
             public void OnGet(RecipeRecyclerListAdapter recyclerListAdapter, List<Recipe> recipesList) {
                 mRecipeRecyclerAdapter = recyclerListAdapter;
@@ -102,5 +102,10 @@ public class RecipeListActivity extends BaseActivity {
     @Override
     public int getLayoutResource() {
         return R.layout.recipe_list_activity;
+    }
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(this, RecipeListActivity.class));
     }
 }

@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
+import com.exemple.android.cookbook.entity.Recipe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public class VoiceRecognitionHelper {
     private Context mContext;
     private int mStatus;
     private int mOn = 1;
+    private ArrayList<String> mVRResult;
 
     public VoiceRecognitionHelper(Context context) {
         mContext = context;
@@ -37,8 +39,9 @@ public class VoiceRecognitionHelper {
         if (getStatusVoiceRecognition() == mOn) {
             if (new CheckOnlineHelper(mContext).isOnline()) {
                 IntentHelper.startVoiceRecognitionActivity(mContext);
+            } else {
+                Toast.makeText(mContext, mContext.getString(R.string.not_online), Toast.LENGTH_SHORT).show();
             }
-            Toast.makeText(mContext, mContext.getString(R.string.not_online), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -92,14 +95,27 @@ public class VoiceRecognitionHelper {
         return status;
     }
 
-    public void onActivityResult(int resultCode, Intent data, List<CategoryRecipes> mForVoice) {
+    public void onActivityResult(int resultCode, Intent data, List<CategoryRecipes> forVoice) {
         if (resultCode == Activity.RESULT_OK) {
-            ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            Toast.makeText(mContext, matches.get(0),
+            mVRResult = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            Toast.makeText(mContext, mVRResult.get(0),
                     Toast.LENGTH_LONG).show();
-            for (CategoryRecipes recipeList : mForVoice) {
-                if (matches.contains(recipeList.getName().toLowerCase())) {
+            for (CategoryRecipes recipeList : forVoice) {
+                if (mVRResult.contains(recipeList.getName().toLowerCase())) {
                     IntentHelper.intentRecipeListActivity(mContext, recipeList.getName());
+                } else {
+                    new FirebaseHelper(new FirebaseHelper.OnGetRecipeListForVR() {
+                        @Override
+                        public void OnGet(List<Recipe> recipeForVoice, String recipeList) {
+                            for (Recipe recipe : recipeForVoice) {
+                                if (mVRResult.contains(recipe.getName().toLowerCase())) {
+                                    IntentHelper.intentRecipeActivity(mContext, recipe.getName(), recipe
+                                            .getPhotoUrl(), recipe.getDescription(), recipe
+                                            .getIsPersonal(), recipeList, new FirebaseHelper().getUsername());
+                                }
+                            }
+                        }
+                    }).getRecipeListForVR(recipeList.getName(), mContext);
                 }
             }
         }
