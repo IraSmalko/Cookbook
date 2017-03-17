@@ -42,7 +42,8 @@
         <activity
             android:name=".activities.RecipeActivity"
             android:configChanges="orientation"
-            android:parentActivityName=".activities.RecipeListActivity" />
+            android:parentActivityName=".activities.RecipeListActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".activities.StepRecipeActivity" />
         <activity
             android:name=".activities.AuthenticationActivity"

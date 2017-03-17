@@ -10,11 +10,14 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -58,7 +61,7 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class RecipeActivity extends AppCompatActivity
+public class RecipeActivity extends  BaseActivity
         implements GoogleApiClient.OnConnectionFailedListener {
 
     private static final String RECIPE_LIST = "recipeList";
@@ -73,6 +76,11 @@ public class RecipeActivity extends AppCompatActivity
     private ImageView mImageView;
     private Bitmap mLoadPhotoStep;
     private ProgressDialog mProgressDialog;
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        return false;
+    }
 
     public static class CommentViewHolder extends RecyclerView.ViewHolder {
         public TextView commentTextView;
@@ -110,29 +118,30 @@ public class RecipeActivity extends AppCompatActivity
     private FirebaseUser mFirebaseUser;
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseRecyclerAdapter<Comment, CommentViewHolder> mFirebaseAdapter;
-    private GoogleApiClient mGoogleApiClient;
     private RecipeRating mRecipeRating;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_recipe);
 
         TextView descriptionRecipe = (TextView) findViewById(R.id.textView);
         mImageView = (ImageView) findViewById(R.id.imageView);
         Button btnDetailRecipe = (Button) findViewById(R.id.btnDetailRecipe);
         mRatingBar = (RatingBar) findViewById(R.id.ratingBar);
-        ActionBar actionBar = getSupportActionBar();
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
 
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
 
         mIntent = getIntent();
-
-        if (actionBar != null) {
-            actionBar.setTitle(mIntent.getStringExtra(RECIPE));
-        }
+        getSupportActionBar().setTitle(mIntent.getStringExtra(RECIPE));
 
         Glide.with(getApplicationContext())
                 .load(mIntent.getStringExtra(PHOTO))
@@ -258,12 +267,6 @@ public class RecipeActivity extends AppCompatActivity
         });
 
         //        Comments
-
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-                .addApi(Auth.GOOGLE_SIGN_IN_API)
-                .build();
 
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
         mFirebaseAdapter = new FirebaseRecyclerAdapter<Comment,
@@ -397,6 +400,9 @@ public class RecipeActivity extends AppCompatActivity
     }
 
     @Override
+    protected int getLayoutResource() { return R.layout.activity_recipe; }
+
+    @Override
     public void onBackPressed() {
         IntentHelper.intentRecipeListActivity(this, mIntent.getStringExtra(RECIPE_LIST));
     }
@@ -518,5 +524,4 @@ public class RecipeActivity extends AppCompatActivity
             }
         });
     }
-
 }

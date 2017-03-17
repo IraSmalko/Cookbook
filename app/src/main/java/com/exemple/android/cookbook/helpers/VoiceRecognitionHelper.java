@@ -175,6 +175,11 @@ public class VoiceRecognitionHelper {
         }
     }
 
+    public void detailRecipeVR(String recipe, String photo, String description, int isPersonal, String recipeList){
+        IntentHelper.intentStepRecipeActivity(mContext, recipe, photo, description, isPersonal, recipeList);
+
+    }
+
     public void onActivityResult(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             mVRResult = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
