@@ -40,11 +40,12 @@ public class StepRecipeActivity extends AppCompatActivity {
 
     private Intent mIntent;
     private List<StepRecipe> mStepRecipe = new ArrayList<>();
+    private List<StepRecipe> mPersonalStepRecipe = new ArrayList<>();
     private TextView mTxtStepRecipe;
     private ImageView mImgStepRecipe;
     private ActionBar mActionBar;
     private Context mContext = StepRecipeActivity.this;
-    private int mIndex = 0;
+    private int mIterator = 0;
     private String mReference;
     private String mUsername;
 
@@ -81,8 +82,8 @@ public class StepRecipeActivity extends AppCompatActivity {
                     new FirebaseHelper(new FirebaseHelper.OnStepRecipes() {
                         @Override
                         public void OnGet(List<StepRecipe> stepRecipes) {
-                            mStepRecipe = stepRecipes;
-                            updateData(mIndex);
+                            mStepRecipe.addAll(stepRecipes);
+                            updateData(mIterator);
                             if (mStepRecipe.isEmpty()) {
                                 Toast.makeText(mContext, getResources().getString(R
                                         .string.no_information_available), Toast.LENGTH_SHORT).show();
@@ -90,7 +91,7 @@ public class StepRecipeActivity extends AppCompatActivity {
                         }
                     }).getStepsRecipe(mReference);
                 } else if (mStepRecipe.size() != 0) {
-                    updateData(mIndex);
+                    updateData(mIterator);
                 } else {
                     Toast.makeText(mContext, getResources().getString(R
                             .string.no_information_available), Toast.LENGTH_SHORT).show();
@@ -106,8 +107,7 @@ public class StepRecipeActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mIndex = ++mIndex;
-                updateData(mIndex);
+                updateData(++mIterator);
             }
         });
     }
@@ -121,6 +121,17 @@ public class StepRecipeActivity extends AppCompatActivity {
             IntentHelper.intentRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
                     .getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
                     .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST), mUsername);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(mIterator == 0) {
+            IntentHelper.intentRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
+                    .getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
+                    .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST), mUsername);
+        }else {
+            updateData(--mIterator);
         }
     }
 }
