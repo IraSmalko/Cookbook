@@ -193,6 +193,11 @@ public abstract class BaseActivity extends AppCompatActivity
         return false;
     }
 
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        return false;
+    }
+
     protected abstract int getLayoutResource();
 
     @Override

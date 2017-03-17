@@ -65,6 +65,7 @@
     <string name="authorization_vr">авторизація</string>
     <string name="add_category_vr">додати категорію</string>
     <string name="add_recipe_vr">додати рецепт</string>
+    <string name="detail_vr">детально</string>
     <string name="save_vr">зберегти</string>
     <string name="next_step">наступний крок</string>
     <string name="step_back">крок назад</string>

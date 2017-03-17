@@ -175,7 +175,7 @@ public class VoiceRecognitionHelper {
         }
     }
 
-    public void detailRecipeVR(String recipe, String photo, String description, int isPersonal, String recipeList){
+    public void detailRecipeVR(String recipe, String photo, String description, int isPersonal, String recipeList) {
         IntentHelper.intentStepRecipeActivity(mContext, recipe, photo, description, isPersonal, recipeList);
 
     }
@@ -183,10 +183,22 @@ public class VoiceRecognitionHelper {
     public void onActivityResult(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             mVRResult = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            Toast.makeText(mContext, mVRResult.get(0),
-                    Toast.LENGTH_LONG).show();
+            Toast.makeText(mContext, mVRResult.get(0), Toast.LENGTH_LONG).show();
 
             getDataForVR();
+        }
+    }
+
+    public void onActivityResult(int resultCode, Intent data, Recipe recipe, String recipeList) {
+        if (resultCode == Activity.RESULT_OK) {
+            mVRResult = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            Toast.makeText(mContext, mVRResult.get(0), Toast.LENGTH_LONG).show();
+            if (mVRResult.contains(mContext.getResources().getString(R.string.detail_vr))){
+                IntentHelper.intentStepRecipeActivity(mContext, recipe.getName(), recipe.getPhotoUrl(),
+                        recipe.getDescription(), recipe.getIsPersonal(), recipeList);
+            }else {
+                getDataForVR();
+            }
         }
     }
 }

@@ -11,10 +11,8 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -39,25 +37,21 @@ import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
+import com.exemple.android.cookbook.helpers.VoiceRecognitionHelper;
 import com.exemple.android.cookbook.helpers.WriterDAtaSQLiteAsyncTask;
 import com.exemple.android.cookbook.supporting.Comment;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -71,16 +65,12 @@ public class RecipeActivity extends  BaseActivity
     private static final String USERNAME = "username";
     private static final String IS_PERSONAL = "isPersonal";
     private static final int INT_EXTRA = 0;
+    private static final int VOICE_REQUEST_CODE = 1234;
 
     private Intent mIntent;
     private ImageView mImageView;
     private Bitmap mLoadPhotoStep;
     private ProgressDialog mProgressDialog;
-
-    @Override
-    public boolean onQueryTextChange(String newText) {
-        return false;
-    }
 
     public static class CommentViewHolder extends RecyclerView.ViewHolder {
         public TextView commentTextView;
@@ -523,5 +513,15 @@ public class RecipeActivity extends  BaseActivity
             public void onCancelled(DatabaseError databaseError) {
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == VOICE_REQUEST_CODE) {
+            new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data, new Recipe(mIntent
+                    .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
+                    .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST) );
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
