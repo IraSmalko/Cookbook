@@ -15,9 +15,11 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.entity.StepRecipe;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
+import com.exemple.android.cookbook.helpers.VoiceRecognitionHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -37,10 +39,10 @@ public class StepRecipeActivity extends AppCompatActivity {
     private static final String DESCRIPTION = "description";
     private static final String IS_PERSONAL = "isPersonal";
     private static final int INT_EXTRA = 0;
+    private static final int VOICE_REQUEST_CODE = 1234;
 
     private Intent mIntent;
     private List<StepRecipe> mStepRecipe = new ArrayList<>();
-    private List<StepRecipe> mPersonalStepRecipe = new ArrayList<>();
     private TextView mTxtStepRecipe;
     private ImageView mImgStepRecipe;
     private ActionBar mActionBar;
@@ -112,11 +114,11 @@ public class StepRecipeActivity extends AppCompatActivity {
         });
     }
 
-    public void updateData(int i) {
-        if (i < mStepRecipe.size()) {
-            mActionBar.setTitle(mStepRecipe.get(i).getNumberStep());
-            mTxtStepRecipe.setText(mStepRecipe.get(i).getTextStep());
-            Glide.with(mContext).load(mStepRecipe.get(i).getPhotoUrlStep()).into(mImgStepRecipe);
+    public void updateData(int iterator) {
+        if (iterator < mStepRecipe.size()) {
+            mActionBar.setTitle(mStepRecipe.get(iterator).getNumberStep());
+            mTxtStepRecipe.setText(mStepRecipe.get(iterator).getTextStep());
+            Glide.with(mContext).load(mStepRecipe.get(iterator).getPhotoUrlStep()).into(mImgStepRecipe);
         } else {
             IntentHelper.intentRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
                     .getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
@@ -133,5 +135,16 @@ public class StepRecipeActivity extends AppCompatActivity {
         }else {
             updateData(--mIterator);
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == VOICE_REQUEST_CODE) {
+            new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data, new Recipe(mIntent
+                    .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
+                    .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST), mIterator, mStepRecipe,
+                    mActionBar, mTxtStepRecipe, mImgStepRecipe);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

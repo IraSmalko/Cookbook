@@ -67,6 +67,7 @@
     <string name="add_recipe_vr">додати рецепт</string>
     <string name="detail_vr">детально</string>
     <string name="save_vr">зберегти</string>
+    <string name="save_recipe_vr">зберегти рецепт</string>
     <string name="next_step">наступний крок</string>
     <string name="step_back">крок назад</string>
 </resources>

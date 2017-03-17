@@ -12,17 +12,23 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.speech.RecognizerIntent;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.activities.AddCategoryRecipeActivity;
 import com.exemple.android.cookbook.activities.AuthenticationActivity;
 import com.exemple.android.cookbook.activities.SelectedRecipeListActivity;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.entity.StepRecipe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +45,7 @@ public class VoiceRecognitionHelper {
     private ArrayList<String> mVRResult;
     private List<CategoryRecipes> mForVoice;
     private int mIsPersonal;
-    private String mRecipeList, mRecipeName;
+    private String mRecipeList, mRecipeName, mDescription;
 
     public VoiceRecognitionHelper(Context context) {
         mContext = context;
@@ -154,29 +160,46 @@ public class VoiceRecognitionHelper {
         }
     }
 
-    public void saveRecipeFromVR(int isPersonal, String recipeList, String recipeName, Bitmap photo, String description) {
-        mIsPersonal = isPersonal;
+    private void saveRecipeFromVR(Recipe recipe, String recipeList) {
+        mIsPersonal = recipe.getIsPersonal();
         mRecipeList = recipeList;
-        mRecipeName = recipeName;
+        mRecipeName = recipe.getName();
+        mDescription = recipe.getDescription();
 
         if (new CheckOnlineHelper(mContext).isOnline()) {
-            String path = MediaStore.Images.Media.insertImage(mContext.getContentResolver(),
-                    photo, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
-            new WriterDAtaSQLiteAsyncTask.WriterRecipe(mContext, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
-                @Override
-                public void onDataReady(Integer integer) {
-                    new FirebaseHelper().getStepsRecipe(mContext, integer, mIsPersonal, mRecipeList,
-                            mRecipeName, new FirebaseHelper().getUsername());
-                }
-            }).execute(new Recipe(recipeName, path, description, 0));
-
+            Glide.with(mContext)
+                    .load(recipe.getPhotoUrl())
+                    .asBitmap()
+                    .into(new SimpleTarget<Bitmap>(660, 480) {
+                        @Override
+                        public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
+                            String path = MediaStore.Images.Media.insertImage(mContext.getContentResolver(),
+                                    resource, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
+                            new WriterDAtaSQLiteAsyncTask.WriterRecipe(mContext, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
+                                @Override
+                                public void onDataReady(Integer integer) {
+                                    new FirebaseHelper().getStepsRecipe(mContext, integer, mIsPersonal, mRecipeList,
+                                            mRecipeName, new FirebaseHelper().getUsername());
+                                }
+                            }).execute(new Recipe(mRecipeName, path, mDescription, 0));
+                        }
+                    });
         } else {
             Toast.makeText(mContext, mContext.getResources().getString(R.string.not_online), Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void detailRecipeVR(String recipe, String photo, String description, int isPersonal, String recipeList) {
-        IntentHelper.intentStepRecipeActivity(mContext, recipe, photo, description, isPersonal, recipeList);
+    public void nextStepVR (int iterator, List<StepRecipe> stepRecipe, Recipe recipe, String recipeList,
+                            ActionBar actionBar, TextView textView, ImageView imageView){
+            if (iterator < stepRecipe.size()) {
+                actionBar.setTitle(stepRecipe.get(iterator).getNumberStep());
+                textView.setText(stepRecipe.get(iterator).getTextStep());
+                Glide.with(mContext).load(stepRecipe.get(iterator).getPhotoUrlStep()).into(imageView);
+            } else {
+                IntentHelper.intentRecipeActivity(mContext, recipe.getName(), recipe.getPhotoUrl(),
+                        recipe.getDescription(), recipe.getIsPersonal(), recipeList, new FirebaseHelper()
+                                .getUsername());
+            }
 
     }
 
@@ -193,10 +216,32 @@ public class VoiceRecognitionHelper {
         if (resultCode == Activity.RESULT_OK) {
             mVRResult = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             Toast.makeText(mContext, mVRResult.get(0), Toast.LENGTH_LONG).show();
-            if (mVRResult.contains(mContext.getResources().getString(R.string.detail_vr))){
+            if (mVRResult.contains(mContext.getResources().getString(R.string.detail_vr))) {
                 IntentHelper.intentStepRecipeActivity(mContext, recipe.getName(), recipe.getPhotoUrl(),
                         recipe.getDescription(), recipe.getIsPersonal(), recipeList);
-            }else {
+            } else if (mVRResult.contains(mContext.getResources().getString(R.string.save_vr)) ||
+                    mVRResult.contains(mContext.getResources().getString(R.string.save_recipe_vr))) {
+                saveRecipeFromVR(recipe, recipeList);
+            } else {
+                getDataForVR();
+            }
+        }
+    }
+
+    public void onActivityResult(int resultCode, Intent data, Recipe recipe, String recipeList,
+                                 int iterator, List<StepRecipe> stepRecipe, ActionBar actionBar,
+                                 TextView textView, ImageView imageView) {
+        if (resultCode == Activity.RESULT_OK) {
+            mVRResult = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            Toast.makeText(mContext, mVRResult.get(0), Toast.LENGTH_LONG).show();
+            if (mVRResult.contains(mContext.getResources().getString(R.string.save_vr)) ||
+                    mVRResult.contains(mContext.getResources().getString(R.string.save_recipe_vr))) {
+                saveRecipeFromVR(recipe, recipeList);
+            } else if (mVRResult.contains(mContext.getResources().getString(R.string.next_step))) {
+                nextStepVR(++iterator, stepRecipe, recipe, recipeList, actionBar,textView, imageView);
+            } else if (mVRResult.contains(mContext.getResources().getString(R.string.step_back))) {
+                nextStepVR(--iterator, stepRecipe, recipe, recipeList, actionBar,textView, imageView);
+            } else {
                 getDataForVR();
             }
         }
