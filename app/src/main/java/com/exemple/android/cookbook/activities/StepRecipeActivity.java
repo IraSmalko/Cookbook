@@ -3,6 +3,10 @@ package com.exemple.android.cookbook.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -31,7 +35,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StepRecipeActivity extends AppCompatActivity {
+public class StepRecipeActivity extends AppCompatActivity
+        implements SensorEventListener {
 
     private static final String RECIPE_LIST = "recipeList";
     private static final String RECIPE = "recipe";
@@ -50,12 +55,16 @@ public class StepRecipeActivity extends AppCompatActivity {
     private int mIterator = 0;
     private String mReference;
     private String mUsername;
+    private SensorManager mSensorManager;
+    private Sensor mSensor;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.step_recipe_activity);
 
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
         mTxtStepRecipe = (TextView) findViewById(R.id.txtStepRecipe);
         mImgStepRecipe = (ImageView) findViewById(R.id.imgStepRecipe);
         mActionBar = getSupportActionBar();
@@ -128,21 +137,43 @@ public class StepRecipeActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(mIterator == 0) {
+        if (mIterator == 0) {
             IntentHelper.intentRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
                     .getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
                     .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST), mUsername);
-        }else {
+        } else {
             updateData(--mIterator);
         }
+    }
+
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(this, mSensor,
+                SensorManager.SENSOR_DELAY_NORMAL);
+
+    }
+
+    protected void onPause() {
+        super.onPause();
+        mSensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if (sensorEvent.values[0] == 0) {
+            new VoiceRecognitionHelper(this).startVoiceRecognition();
+        }
+    }
+
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == VOICE_REQUEST_CODE) {
-            new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data, new Recipe(mIntent
-                    .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
-                    .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST), mIterator, mStepRecipe,
+            mIterator = new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data, new Recipe(mIntent
+                            .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
+                            .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST), mIterator, mStepRecipe,
                     mActionBar, mTxtStepRecipe, mImgStepRecipe);
         }
         super.onActivityResult(requestCode, resultCode, data);

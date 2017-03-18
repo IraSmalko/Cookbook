@@ -44,7 +44,7 @@ public class VoiceRecognitionHelper {
     private int mOn = 1;
     private ArrayList<String> mVRResult;
     private List<CategoryRecipes> mForVoice;
-    private int mIsPersonal;
+    private int mIsPersonal, mIterator;
     private String mRecipeList, mRecipeName, mDescription;
 
     public VoiceRecognitionHelper(Context context) {
@@ -189,18 +189,19 @@ public class VoiceRecognitionHelper {
         }
     }
 
-    public void nextStepVR (int iterator, List<StepRecipe> stepRecipe, Recipe recipe, String recipeList,
-                            ActionBar actionBar, TextView textView, ImageView imageView){
-            if (iterator < stepRecipe.size()) {
-                actionBar.setTitle(stepRecipe.get(iterator).getNumberStep());
-                textView.setText(stepRecipe.get(iterator).getTextStep());
-                Glide.with(mContext).load(stepRecipe.get(iterator).getPhotoUrlStep()).into(imageView);
-            } else {
-                IntentHelper.intentRecipeActivity(mContext, recipe.getName(), recipe.getPhotoUrl(),
-                        recipe.getDescription(), recipe.getIsPersonal(), recipeList, new FirebaseHelper()
-                                .getUsername());
-            }
-
+    public int nextStepVR(int iterator, List<StepRecipe> stepRecipe, Recipe recipe, String recipeList,
+                          ActionBar actionBar, TextView textView, ImageView imageView) {
+        int noSteps = -1;
+        if (iterator < stepRecipe.size() && iterator != noSteps) {
+            actionBar.setTitle(stepRecipe.get(iterator).getNumberStep());
+            textView.setText(stepRecipe.get(iterator).getTextStep());
+            Glide.with(mContext).load(stepRecipe.get(iterator).getPhotoUrlStep()).into(imageView);
+        } else {
+            IntentHelper.intentRecipeActivity(mContext, recipe.getName(), recipe.getPhotoUrl(),
+                    recipe.getDescription(), recipe.getIsPersonal(), recipeList, new FirebaseHelper()
+                            .getUsername());
+        }
+        return iterator;
     }
 
     public void onActivityResult(int resultCode, Intent data) {
@@ -228,9 +229,9 @@ public class VoiceRecognitionHelper {
         }
     }
 
-    public void onActivityResult(int resultCode, Intent data, Recipe recipe, String recipeList,
-                                 int iterator, List<StepRecipe> stepRecipe, ActionBar actionBar,
-                                 TextView textView, ImageView imageView) {
+    public int onActivityResult(int resultCode, Intent data, Recipe recipe, String recipeList,
+                                int iterator, List<StepRecipe> stepRecipe, ActionBar actionBar,
+                                TextView textView, ImageView imageView) {
         if (resultCode == Activity.RESULT_OK) {
             mVRResult = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             Toast.makeText(mContext, mVRResult.get(0), Toast.LENGTH_LONG).show();
@@ -238,12 +239,13 @@ public class VoiceRecognitionHelper {
                     mVRResult.contains(mContext.getResources().getString(R.string.save_recipe_vr))) {
                 saveRecipeFromVR(recipe, recipeList);
             } else if (mVRResult.contains(mContext.getResources().getString(R.string.next_step))) {
-                nextStepVR(++iterator, stepRecipe, recipe, recipeList, actionBar,textView, imageView);
+                mIterator = nextStepVR(++iterator, stepRecipe, recipe, recipeList, actionBar, textView, imageView);
             } else if (mVRResult.contains(mContext.getResources().getString(R.string.step_back))) {
-                nextStepVR(--iterator, stepRecipe, recipe, recipeList, actionBar,textView, imageView);
+                mIterator = nextStepVR(--iterator, stepRecipe, recipe, recipeList, actionBar, textView, imageView);
             } else {
                 getDataForVR();
             }
         }
+        return mIterator;
     }
 }
