@@ -30,7 +30,8 @@
                 android:id="@+id/commentsRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@+id/save_comments" />
+                android:layout_below="@+id/save_comments"
+                android:layout_marginBottom="16dp"/>
 
             <ListView
                 android:id="@+id/listView"
