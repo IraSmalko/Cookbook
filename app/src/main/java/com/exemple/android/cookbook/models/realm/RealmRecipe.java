@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook.models;
+package com.exemple.android.cookbook.models.realm;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -8,6 +8,9 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.exemple.android.cookbook.models.firebase.FirebaseIngredient;
+import com.exemple.android.cookbook.models.firebase.FirebaseRecipe;
+import com.exemple.android.cookbook.models.firebase.FirebaseStepRecipe;
 
 import java.io.ByteArrayOutputStream;
 
@@ -19,14 +22,14 @@ import io.realm.RealmObject;
  * Created by Sakurov on 15.03.2017.
  */
 
-public class Recipe extends RealmObject {
+public class RealmRecipe extends RealmObject {
 
     private String recipeName;
     private String description;
     private String photoUrl;
 
-    private RealmList<Ingredient> ingredients;
-    private RealmList<StepRecipe> steps;
+    private RealmList<RealmIngredient> realmIngredients;
+    private RealmList<RealmStepRecipe> steps;
 
     private byte[] photo;
 
@@ -36,23 +39,23 @@ public class Recipe extends RealmObject {
     public void setRecipe(String recipeName,
                           String description,
                           String photoUrl,
-                          RealmList<Ingredient> ingredients,
-                          RealmList<StepRecipe> steps) {
+                          RealmList<RealmIngredient> realmIngredients,
+                          RealmList<RealmStepRecipe> steps) {
         this.recipeName = recipeName;
         this.description = description;
         this.photoUrl = photoUrl;
-        this.ingredients = ingredients;
+        this.realmIngredients = realmIngredients;
         this.steps = steps;
     }
 
-    public void setRecipe(Recipe recipe) {
-        this.recipeName = recipe.getRecipeName();
-        this.description = recipe.getDescription();
-        this.photoUrl = recipe.getPhotoUrl();
-        this.ingredients = recipe.getIngredients();
-        this.steps = recipe.getSteps();
-        if (recipe.getPhoto() != null) {
-            this.photo = recipe.getPhotoByteArray();
+    public void setRecipe(RealmRecipe realmRecipe) {
+        this.recipeName = realmRecipe.getRecipeName();
+        this.description = realmRecipe.getDescription();
+        this.photoUrl = realmRecipe.getPhotoUrl();
+        this.realmIngredients = realmRecipe.getIngredients();
+        this.steps = realmRecipe.getSteps();
+        if (realmRecipe.getPhoto() != null) {
+            this.photo = realmRecipe.getPhotoByteArray();
         }
     }
 
@@ -63,12 +66,12 @@ public class Recipe extends RealmObject {
 
         for (FirebaseIngredient firebaseIngredient :
                 firebaseRecipe.getIngredients().values()) {
-            ingredients.add(new Ingredient(firebaseIngredient));
+            realmIngredients.add(new RealmIngredient(firebaseIngredient));
         }
 
         for (FirebaseStepRecipe firebaseStepRecipe :
                 firebaseRecipe.getSteps().values()) {
-            steps.add(new StepRecipe(firebaseStepRecipe));
+            steps.add(new RealmStepRecipe(firebaseStepRecipe));
         }
     }
 
@@ -97,19 +100,19 @@ public class Recipe extends RealmObject {
         this.photoUrl = photoUrl;
     }
 
-    public RealmList<Ingredient> getIngredients() {
-        return ingredients;
+    public RealmList<RealmIngredient> getIngredients() {
+        return realmIngredients;
     }
 
-    public void setIngredients(RealmList<Ingredient> ingredients) {
-        this.ingredients = ingredients;
+    public void setIngredients(RealmList<RealmIngredient> realmIngredients) {
+        this.realmIngredients = realmIngredients;
     }
 
-    public RealmList<StepRecipe> getSteps() {
+    public RealmList<RealmStepRecipe> getSteps() {
         return steps;
     }
 
-    public void setSteps(RealmList<StepRecipe> steps) {
+    public void setSteps(RealmList<RealmStepRecipe> steps) {
         this.steps = steps;
     }
 
@@ -139,7 +142,7 @@ public class Recipe extends RealmObject {
 
     public void saveStepsPhoto(Context context) {
         if (context != null && steps != null) {
-            for (StepRecipe step : steps) {
+            for (RealmStepRecipe step : steps) {
                 step.saveStepPhoto(context);
             }
         }

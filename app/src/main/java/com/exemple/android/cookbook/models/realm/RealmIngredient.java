@@ -1,7 +1,7 @@
-package com.exemple.android.cookbook.models;
+package com.exemple.android.cookbook.models.realm;
 
+import com.exemple.android.cookbook.models.firebase.FirebaseIngredient;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
 
 import io.realm.RealmObject;
 
@@ -9,38 +9,38 @@ import io.realm.RealmObject;
  * Created by Sakurov on 15.03.2017.
  */
 
-public class Ingredient extends RealmObject {
+public class RealmIngredient extends RealmObject {
 
     private String name;
     private float quantity;
     private String unit;
 
-    public Ingredient() {
+    public RealmIngredient() {
     }
 
-    public Ingredient(FirebaseIngredient firebaseIngredient) {
+    public RealmIngredient(FirebaseIngredient firebaseIngredient) {
         name = firebaseIngredient.getName();
         quantity = firebaseIngredient.getQuantity();
         unit = firebaseIngredient.getUnit();
     }
 
-    public Ingredient(Ingredient ingredient){
-        name = ingredient.getName();
-        quantity = ingredient.getQuantity();
-        unit = ingredient.getUnit();
+    public RealmIngredient(RealmIngredient realmIngredient){
+        name = realmIngredient.getName();
+        quantity = realmIngredient.getQuantity();
+        unit = realmIngredient.getUnit();
     }
 
-    public Ingredient(String name, float quantity, String unit) {
+    public RealmIngredient(String name, float quantity, String unit) {
         this.name = name;
         this.quantity = quantity;
         this.unit = unit;
     }
 
-    public Ingredient(DataSnapshot dataSnapshot) {
-        Ingredient ingredient = dataSnapshot.getValue(Ingredient.class);
-        name = ingredient.getName();
-        quantity = ingredient.getQuantity();
-        unit = ingredient.getUnit();
+    public RealmIngredient(DataSnapshot dataSnapshot) {
+        RealmIngredient realmIngredient = dataSnapshot.getValue(RealmIngredient.class);
+        name = realmIngredient.getName();
+        quantity = realmIngredient.getQuantity();
+        unit = realmIngredient.getUnit();
     }
 
     public String getName() {

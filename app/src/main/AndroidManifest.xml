@@ -91,7 +91,6 @@
             android:value="@string/fb_app_id" />
 
         <activity android:name=".models.RealmTestActivity" />
-        <activity android:name=".models.RealmTest2Activity"></activity>
     </application>
 
 </manifest>

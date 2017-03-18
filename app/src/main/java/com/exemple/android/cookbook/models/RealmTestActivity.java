@@ -8,9 +8,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.models.firebase.FirebaseRecipe;
+import com.exemple.android.cookbook.models.realm.RealmRecipe;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,7 +28,7 @@ public class RealmTestActivity extends AppCompatActivity {
 
     LinearLayout mLinearLayout;
 
-    Recipe recipe;
+    RealmRecipe realmRecipe;
     FirebaseRecipe firebaseRecipe;
     Button button;
 
@@ -58,10 +59,10 @@ public class RealmTestActivity extends AppCompatActivity {
                     Log.d("LOG", firebaseRecipe.getPhotoUrl());
                     button.setVisibility(View.VISIBLE);
                     mRealm.beginTransaction();
-                    Recipe newRecipe = mRealm.createObject(Recipe.class);
-                    newRecipe.setRecipe(firebaseRecipe);
+                    RealmRecipe newRealmRecipe = mRealm.createObject(RealmRecipe.class);
+                    newRealmRecipe.setRecipe(firebaseRecipe);
                     mRealm.commitTransaction();
-                    newRecipe.savePhoto(RealmTestActivity.this, mRealm);
+                    newRealmRecipe.savePhoto(RealmTestActivity.this, mRealm);
                 }
             }
 
@@ -74,12 +75,12 @@ public class RealmTestActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for (Recipe realmRecipe : mRealm.allObjects(Recipe.class)) {
+                for (RealmRecipe realmRealmRecipe : mRealm.allObjects(RealmRecipe.class)) {
                     TextView textView = new TextView(RealmTestActivity.this);
-                    textView.setText(realmRecipe.getRecipeName());
+                    textView.setText(realmRealmRecipe.getRecipeName());
                     mLinearLayout.addView(textView);
                     ImageView imageView = new ImageView(RealmTestActivity.this);
-                    imageView.setImageBitmap(realmRecipe.getPhoto());
+                    imageView.setImageBitmap(realmRealmRecipe.getPhoto());
                     mLinearLayout.addView(imageView);
                 }
             }
