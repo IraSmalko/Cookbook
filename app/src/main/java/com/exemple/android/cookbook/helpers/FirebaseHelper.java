@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.ImageCard;
+import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.entity.StepRecipe;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -28,6 +29,8 @@ import java.util.Random;
 
 public class FirebaseHelper {
 
+
+    private List<Ingredient> mIngredients = new ArrayList<>();
     private List<StepRecipe> mStepRecipe = new ArrayList<>();
     private List<CategoryRecipes> mCategory = new ArrayList<>();
     private List<Recipe> mRecipes = new ArrayList<>();
@@ -261,5 +264,30 @@ public class FirebaseHelper {
             }
         });
 
+    }
+
+    public void getIngredients(Context context, int idRecipe, String recipeList, String recipe) {
+
+        mContext = context;
+        mIdRecipe = idRecipe;
+
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference()
+                .child("Step_recipe/" + recipeList + "/" + recipe + "/ingredients");
+
+
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    Ingredient ingredient = postSnapshot.getValue(Ingredient.class);
+                    mIngredients.add(ingredient);
+                }
+                new DataSourceSQLite(mContext).saveIngredientsSQLite(mIngredients, mIdRecipe);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
     }
 }

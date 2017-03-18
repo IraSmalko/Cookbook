@@ -24,6 +24,10 @@ public class ShoppingAdapters {
     private List<Ingredient> mShopDataset;
     private List<Ingredient> mBasketDataset;
 
+    public ShoppingAdapters() {
+
+    }
+
     public ShoppingAdapters(List<Ingredient> shopDataset, List<Ingredient> basketDataset) {
         mShopDataset = shopDataset;
         mBasketDataset = basketDataset;
@@ -41,7 +45,7 @@ public class ShoppingAdapters {
             mAdapter = adapter;
         }
 
-        public void setmAdapter(BasketRecyclerAdapter adapter){
+        public void setmAdapter(BasketRecyclerAdapter adapter) {
             mAdapter = adapter;
         }
 
@@ -171,12 +175,61 @@ public class ShoppingAdapters {
         }
     }
 
-    public void setShoppingAdaptersToRecyclers(RecyclerView shopRecycler, RecyclerView basketRecycler){
+    public void setShoppingAdaptersToRecyclers(RecyclerView shopRecycler, RecyclerView basketRecycler) {
         ShopRecyclerAdapter shopRecyclerAdapter = new ShopRecyclerAdapter();
         BasketRecyclerAdapter basketRecyclerAdapter = new BasketRecyclerAdapter(shopRecyclerAdapter);
         shopRecyclerAdapter.setmAdapter(basketRecyclerAdapter);
         shopRecycler.setAdapter(shopRecyclerAdapter);
         basketRecycler.setAdapter(basketRecyclerAdapter);
+    }
+
+    public static class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.ViewHolder> {
+
+        List<Ingredient> mIngredients;
+
+        public IngredientsAdapter(List<Ingredient> ingredients) {
+            mIngredients = ingredients;
+        }
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+
+            public TextView ingredientNameTextView;
+            public TextView ingredientQuantityTextView;
+            public TextView ingredientUnitTextView;
+
+            public ViewHolder(View v) {
+
+                super(v);
+                ingredientNameTextView = (TextView) itemView.findViewById(R.id.ingredient_name);
+                ingredientQuantityTextView = (TextView) itemView.findViewById(R.id.ingredient_quantity);
+                ingredientUnitTextView = (TextView) itemView.findViewById(R.id.ingredient_unit);
+            }
+        }
+
+        @Override
+        public IngredientsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+                                                                int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_ingridient, parent, false);
+
+            // тут можно программно менять атрибуты лэйаута (size, margins, paddings и др.)
+
+            ViewHolder vh = new ViewHolder(v);
+            return vh;
+        }
+
+        @Override
+        public void onBindViewHolder(IngredientsAdapter.ViewHolder holder, final int position) {
+            holder.ingredientNameTextView.setText(mIngredients.get(position).getName());
+            holder.ingredientQuantityTextView.setText(String.valueOf(mIngredients.get(position).getQuantity()));
+            holder.ingredientUnitTextView.setText(mIngredients.get(position).getUnit());
+        }
+
+        @Override
+        public int getItemCount() {
+            return mIngredients.size();
+        }
+
     }
 
 }

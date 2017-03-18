@@ -363,7 +363,6 @@ public class RecipeActivity extends AppCompatActivity
         mCommentsRecyclerView.setAdapter(mCommentsFirebaseAdapter);
 
 
-
 //      INGREDIENTS_ADAPTER
 
         mIngredientsFirebaseAdapter = new FirebaseRecyclerAdapter<Ingredient, IngredientViewHolder>(
@@ -414,8 +413,6 @@ public class RecipeActivity extends AppCompatActivity
         mIngredientsRecyclerView.setAdapter(mIngredientsFirebaseAdapter);
 
 
-
-
         mSendButton.setEnabled(false);
         mCommentEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -463,9 +460,19 @@ public class RecipeActivity extends AppCompatActivity
                 new WriterDAtaSQLiteAsyncTask.WriterRecipe(this, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
                     @Override
                     public void onDataReady(Integer integer) {
-                        new FirebaseHelper().getStepsRecipe(getApplicationContext(), integer, mIntent
-                                .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST), mIntent
-                                .getStringExtra(RECIPE), mIntent.getStringExtra(USERNAME));
+                        FirebaseHelper fbHelper = new FirebaseHelper();
+                        fbHelper.getStepsRecipe(
+                                getApplicationContext(),
+                                integer,
+                                mIntent.getIntExtra(IS_PERSONAL, INT_EXTRA),
+                                mIntent.getStringExtra(RECIPE_LIST),
+                                mIntent.getStringExtra(RECIPE),
+                                mIntent.getStringExtra(USERNAME));
+                        fbHelper.getIngredients(
+                                getApplicationContext(),
+                                integer,
+                                mIntent.getStringExtra(RECIPE_LIST),
+                                mIntent.getStringExtra(RECIPE));
                     }
                 }).execute(new Recipe(mIntent.getStringExtra(RECIPE), path, mIntent
                         .getStringExtra(DESCRIPTION), 0));
