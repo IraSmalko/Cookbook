@@ -22,7 +22,6 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -39,11 +38,12 @@
         <activity
             android:name=".activities.RecipeListActivity"
             android:configChanges="orientation"
-            android:parentActivityName=".activities.MainActivity" />
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".activities.RecipeActivity"
+            android:configChanges="orientation"
             android:parentActivityName=".activities.RecipeListActivity"
-            android:configChanges="orientation"/>
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".activities.StepRecipeActivity" />
         <activity
             android:name=".activities.AuthenticationActivity"
@@ -67,6 +67,8 @@
             android:parentActivityName=".activities.MainActivity" />
         <activity android:name=".activities.SelectedStepRecipeActivity" />
         <activity android:name="com.android.camera.CropImage" />
+        <activity android:name=".activities.InfoVRActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"

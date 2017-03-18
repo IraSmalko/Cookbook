@@ -40,17 +40,38 @@
     <string name="example_voice_recognition">Супи</string>
     <string name="rating">рейтинг: </string>
 
-    <string name="voice_recognition_intent">AndroidBite Voice Recognition…</string>
+    <string name="voice_recognition_intent">Голосовий пошук…</string>
 
     <string name="fb_login_protocol_scheme">fb1224969314223075</string>
 
     <string name="fb_app_id">1224969314223075</string>
     <string name="send">Надіслати</string>
     <string name="edit">Редагувати відгук</string>
-    <string name="describ">Короткий опис</string>
+    <string name="brief_description">Короткий опис</string>
     <string name="detail">Детально</string>
-    
+
     <string name="deleted">Видалено</string>
     <string name="undo">Скасувати</string>
     <string name="extraction">Видалення</string>
+    <string name="voice_recognition">Голосовий пошук</string>
+
+    <string name="on_voice_alert_message">Увімкнути голосове управління?</string>
+    <string name="off_voice_alert_message">Вимкнути голосове управління?</string>
+    <string name="positive_button">так</string>
+    <string name="negative_button">ні</string>
+    <string name="info">інфо…</string>
+
+    <string name="saved_vr">збережені рецепти</string>
+    <string name="authorization_vr">авторизація</string>
+    <string name="add_category_vr">додати категорію</string>
+    <string name="add_recipe_vr">додати рецепт</string>
+    <string name="detail_vr">детально</string>
+    <string name="save_vr">зберегти</string>
+    <string name="save_recipe_vr">зберегти рецепт</string>
+    <string name="next_step">наступний крок</string>
+    <string name="previous_step">попередній крок</string>
+    <string name="step_back">крок назад</string>
+    <string name="info_vr1">Для активування функції “голосове управління”, необхідно виконати рух рукою, зображений на малюнку.</string>
+    <string name="info_vr2">Для управління додатком доступні такі команди: авторизація, збережені рецепти, додати категорію, додати рецепт, зберегти рецепт, зберегти, детально, наступний крок, попередній крок, крок назад.</string>
 </resources>
+

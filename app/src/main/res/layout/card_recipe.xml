@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:cardview="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="5dp"
     cardview:cardCornerRadius="2dp"
     cardview:cardElevation="3dp"
-    cardview:cardUseCompatPadding="true"
-    android:id="@+id/card">
+    cardview:cardUseCompatPadding="true">
 
     <ImageView
         android:id="@+id/imageView"
@@ -21,6 +21,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="#99616161"
+        android:ellipsize="end"
+        android:maxLines="3"
         android:paddingBottom="16dp"
         android:paddingLeft="8dp"
         android:textColor="#F5F5F5"

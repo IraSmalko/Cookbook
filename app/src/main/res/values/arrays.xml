@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="for_voice_recognition">
+        <item>збережені</item>
+        <item>авторизація</item>
+        <item>додати категорію</item>
+        <item>додати рецепт</item>
+        <item>зберегти</item>
+        <item>детально</item>
+        <item>наступний крок</item>
+        <item>крок назад</item>
+        </string-array>
+</resources>
