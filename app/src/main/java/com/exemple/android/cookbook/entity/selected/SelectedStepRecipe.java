@@ -1,5 +1,7 @@
-package com.exemple.android.cookbook.entity;
+package com.exemple.android.cookbook.entity.selected;
 
+
+import com.exemple.android.cookbook.entity.StepRecipe;
 
 public class SelectedStepRecipe extends StepRecipe {
 

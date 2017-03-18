@@ -1,6 +1,6 @@
-package com.exemple.android.cookbook.entity;
+package com.exemple.android.cookbook.entity.selected;
 
-
+import com.exemple.android.cookbook.entity.Recipe;
 
 public class SelectedRecipe extends Recipe {
 

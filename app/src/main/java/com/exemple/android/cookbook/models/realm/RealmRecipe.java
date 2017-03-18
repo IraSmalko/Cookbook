@@ -60,6 +60,7 @@ public class RealmRecipe extends RealmObject {
     }
 
     public void setRecipe(FirebaseRecipe firebaseRecipe) {
+
         this.recipeName = firebaseRecipe.getName();
         this.description = firebaseRecipe.getDescription();
         this.photoUrl = firebaseRecipe.getPhotoUrl();
@@ -69,10 +70,11 @@ public class RealmRecipe extends RealmObject {
             realmIngredients.add(new RealmIngredient(firebaseIngredient));
         }
 
-        for (FirebaseStepRecipe firebaseStepRecipe :
-                firebaseRecipe.getSteps().values()) {
-            steps.add(new RealmStepRecipe(firebaseStepRecipe));
-        }
+//        for (FirebaseStepRecipe firebaseStepRecipe : firebaseRecipe.getSteps().values()) {
+//            steps.add(new RealmStepRecipe(firebaseStepRecipe));
+//        }
+
+
     }
 
 
@@ -126,17 +128,27 @@ public class RealmRecipe extends RealmObject {
 
     public void savePhoto(final Context context, final Realm realm) {
         if (context != null && photoUrl != null) {
-            Glide.with(context).load(photoUrl).asBitmap().into(new SimpleTarget<Bitmap>(660, 480) {
+            realm.executeTransactionAsync(new Realm.Transaction() {
                 @Override
-                public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    resource.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    realm.beginTransaction();
-                    photo = stream.toByteArray();
-                    realm.commitTransaction();
+                public void execute(Realm realm) {
+                    Glide.with(context).load(photoUrl).asBitmap().into(new SimpleTarget<Bitmap>(660, 480) {
+                        @Override
+                        public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
+                            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                            resource.compress(Bitmap.CompressFormat.PNG, 100, stream);
+//                    realm.beginTransaction();
+                            photo = stream.toByteArray();
+//                    realm.commitTransaction();
+                        }
+                    });
+                }
+            }, new Realm.Transaction.OnSuccess() {
+                @Override
+                public void onSuccess() {
                     Toast.makeText(context, "photo saved", Toast.LENGTH_SHORT).show();
                 }
             });
+
         }
     }
 

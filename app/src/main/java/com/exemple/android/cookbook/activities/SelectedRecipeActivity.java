@@ -14,8 +14,12 @@ import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.helpers.IntentHelper;
+import com.exemple.android.cookbook.models.realm.RealmRecipe;
 
 import java.io.IOException;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class SelectedRecipeActivity extends AppCompatActivity {
 
@@ -24,6 +28,8 @@ public class SelectedRecipeActivity extends AppCompatActivity {
     private static final String DESCRIPTION = "description";
     private static final String PHOTO = "photo";
     private static final String ID_RECIPE = "id_recipe";
+
+    Realm mRealm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,12 +46,16 @@ public class SelectedRecipeActivity extends AppCompatActivity {
         actionBar.setTitle(intent.getStringExtra(RECIPE));
         descriptionRecipe.setText(intent.getStringExtra(DESCRIPTION));
 
-        try {
-            imageView.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
-                    .parse(intent.getStringExtra(PHOTO))));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            imageView.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
+//                    .parse(intent.getStringExtra(PHOTO))));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+        mRealm = Realm.getDefaultInstance();
+        RealmResults<RealmRecipe> results = mRealm.where(RealmRecipe.class).equalTo("recipeName", intent.getStringExtra(RECIPE)).findAll();
+        imageView.setImageBitmap(results.get(0).getPhoto());
 
         btnDetailRecipe.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,6 +65,8 @@ public class SelectedRecipeActivity extends AppCompatActivity {
                         .getStringExtra(DESCRIPTION), intent.getIntExtra(ID_RECIPE, INT_EXTRA));
             }
         });
+
+
     }
 
     @Override

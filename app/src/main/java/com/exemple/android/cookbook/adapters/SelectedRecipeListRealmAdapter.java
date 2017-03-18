@@ -1,6 +1,5 @@
 package com.exemple.android.cookbook.adapters;
 
-
 import android.content.Context;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -16,34 +15,43 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.selected.SelectedRecipe;
-import com.exemple.android.cookbook.helpers.DataSourceSQLite;
+import com.exemple.android.cookbook.models.realm.RealmRecipe;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<SelectedRecipeRecyclerListAdapter.CustomViewHolder> {
+import io.realm.Realm;
+
+/**
+ * Created by Sakurov on 18.03.2017.
+ */
+
+public class SelectedRecipeListRealmAdapter extends RecyclerView.Adapter<SelectedRecipeListRealmAdapter.CustomViewHolder> {
 
     private Context mContext;
     private LayoutInflater mInflater;
-    private SelectedRecipe mItem;
-    private List<SelectedRecipe> mItems = new ArrayList<>();
-    private List<SelectedRecipe> mItemsPendingRemoval;
-    private SelectedRecipeRecyclerListAdapter.ItemClickListener mClickListener;
+    private RealmRecipe mItem;
+    private List<RealmRecipe> mItems = new ArrayList<>();
+    private List<RealmRecipe> mItemsPendingRemoval;
+    private SelectedRecipeListRealmAdapter.ItemClickListener mClickListener;
 
     private static final int PENDING_REMOVAL_TIMEOUT = 3000;
     private Handler mHandler = new Handler();
-    private HashMap<SelectedRecipe, Runnable> pendingRunnables = new HashMap<>();
+    private HashMap<RealmRecipe, Runnable> pendingRunnables = new HashMap<>();
 
-    public SelectedRecipeRecyclerListAdapter(Context context, List<SelectedRecipe> items,
-                                             SelectedRecipeRecyclerListAdapter.ItemClickListener clickListener) {
+    private Realm mRealm = Realm.getDefaultInstance();
+
+    public SelectedRecipeListRealmAdapter(Context context,
+                                          List<RealmRecipe> items,
+                                          SelectedRecipeListRealmAdapter.ItemClickListener clickListener) {
         updateAdapter(items);
         mContext = context;
         mClickListener = clickListener;
         mItemsPendingRemoval = new ArrayList<>();
     }
 
-    public void updateAdapter(@Nullable List<SelectedRecipe> selectedRecipe) {
+    public void updateAdapter(@Nullable List<RealmRecipe> selectedRecipe) {
         mItems.clear();
         if (selectedRecipe != null) {
             mItems.addAll(selectedRecipe);
@@ -60,8 +68,8 @@ public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<Sele
     }
 
     @Override
-    public void onBindViewHolder(SelectedRecipeRecyclerListAdapter.CustomViewHolder holder, int position) {
-        final SelectedRecipe item = mItems.get(position);
+    public void onBindViewHolder(SelectedRecipeListRealmAdapter.CustomViewHolder holder, int position) {
+        final RealmRecipe item = mItems.get(position);
         mItem = item;
         if (mItemsPendingRemoval.contains(item)) {
             holder.regularLayout.setVisibility(View.GONE);
@@ -70,7 +78,7 @@ public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<Sele
             /** {show regular layout} and {hide swipe layout} */
             holder.regularLayout.setVisibility(View.VISIBLE);
             holder.swipeLayout.setVisibility(View.GONE);
-            holder.textView.setText(item.getName());
+            holder.textView.setText(item.getRecipeName());
             Glide.with(mContext).load(item.getPhotoUrl()).into(holder.imageView);
         }
         holder.undo.setOnClickListener(new View.OnClickListener() {
@@ -89,7 +97,7 @@ public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<Sele
         });
     }
 
-    private void undoOpt(SelectedRecipe item) {
+    private void undoOpt(RealmRecipe item) {
         Runnable pendingRemovalRunnable = pendingRunnables.get(item);
         pendingRunnables.remove(item);
         if (pendingRemovalRunnable != null)
@@ -101,7 +109,7 @@ public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<Sele
 
     public void pendingRemoval(int position) {
 
-        final SelectedRecipe data = mItems.get(position);
+        final RealmRecipe data = mItems.get(position);
         if (!mItemsPendingRemoval.contains(data)) {
             mItemsPendingRemoval.add(data);
             // this will redraw row in "undo" state
@@ -119,19 +127,21 @@ public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<Sele
     }
 
     private void remove(int position) {
-        SelectedRecipe data = mItems.get(position);
+        RealmRecipe data = mItems.get(position);
         if (mItemsPendingRemoval.contains(data)) {
             mItemsPendingRemoval.remove(data);
         }
         if (mItems.contains(data)) {
             mItems.remove(position);
             notifyItemRemoved(position);
-            new DataSourceSQLite(mContext).removeRecipe(data.getIdRecipe());
+            mRealm.beginTransaction();
+            mRealm.where(RealmRecipe.class).equalTo("recipeName", data.getRecipeName()).findAll().removeLast();
+            mRealm.commitTransaction();
         }
     }
 
     public boolean isPendingRemoval(int position) {
-        SelectedRecipe data = mItems.get(position);
+        RealmRecipe data = mItems.get(position);
         return mItemsPendingRemoval.contains(data);
     }
 
@@ -147,8 +157,8 @@ public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<Sele
         private TextView textView;
         private ImageView imageView;
 
-        static CustomViewHolder create(LayoutInflater inflater, ViewGroup parent) {
-            return new CustomViewHolder(inflater.inflate(R.layout.row_item, parent, false));
+        static SelectedRecipeListRealmAdapter.CustomViewHolder create(LayoutInflater inflater, ViewGroup parent) {
+            return new SelectedRecipeListRealmAdapter.CustomViewHolder(inflater.inflate(R.layout.row_item, parent, false));
         }
 
         CustomViewHolder(View v) {
@@ -162,6 +172,6 @@ public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<Sele
     }
 
     public interface ItemClickListener {
-        void onItemClick(SelectedRecipe item);
+        void onItemClick(RealmRecipe item);
     }
 }

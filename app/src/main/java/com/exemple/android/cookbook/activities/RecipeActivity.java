@@ -1,7 +1,6 @@
 package com.exemple.android.cookbook.activities;
 
 import android.app.ProgressDialog;
-import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -38,7 +37,10 @@ import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
+import com.exemple.android.cookbook.helpers.RealmHelper;
 import com.exemple.android.cookbook.helpers.WriterDAtaSQLiteAsyncTask;
+import com.exemple.android.cookbook.models.firebase.FirebaseRecipe;
+import com.exemple.android.cookbook.models.realm.RealmRecipe;
 import com.exemple.android.cookbook.supporting.Comment;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.auth.api.Auth;
@@ -54,7 +56,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.ByteArrayOutputStream;
+
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.realm.Realm;
 
 public class RecipeActivity extends AppCompatActivity
         implements GoogleApiClient.OnConnectionFailedListener {
@@ -104,6 +109,7 @@ public class RecipeActivity extends AppCompatActivity
     public String MESSAGES_CHILD;
     public String RATING_CHILD;
     public String INGREDIENTS_CHILD;
+    public String RECIPE_CHILD;
 
     private String mUsername;
     private String mPhotoUrl;
@@ -128,6 +134,9 @@ public class RecipeActivity extends AppCompatActivity
     private RecipeRating mRecipeRating;
     private FirebaseRecyclerAdapter<Ingredient, IngredientViewHolder> mIngredientsFirebaseAdapter;
 
+
+    private FirebaseRecipe mRecipe;
+    private Realm mRealm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -202,10 +211,25 @@ public class RecipeActivity extends AppCompatActivity
             }
         }
 
+        RECIPE_CHILD = "Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE);
         MESSAGES_CHILD = "Support/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/comments";
         RATING_CHILD = "Support/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/recipeRating";
         INGREDIENTS_CHILD = "Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/ingredients";
 
+
+//        RECIPE
+
+        mFirebaseDatabaseReference.child(RECIPE_CHILD).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mRecipe = dataSnapshot.getValue(FirebaseRecipe.class);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         //        Rating
 
@@ -363,7 +387,6 @@ public class RecipeActivity extends AppCompatActivity
         mCommentsRecyclerView.setAdapter(mCommentsFirebaseAdapter);
 
 
-
 //      INGREDIENTS_ADAPTER
 
         mIngredientsFirebaseAdapter = new FirebaseRecyclerAdapter<Ingredient, IngredientViewHolder>(
@@ -414,8 +437,6 @@ public class RecipeActivity extends AppCompatActivity
         mIngredientsRecyclerView.setAdapter(mIngredientsFirebaseAdapter);
 
 
-
-
         mSendButton.setEnabled(false);
         mCommentEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -456,20 +477,19 @@ public class RecipeActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.action_save) {
+            mRealm = Realm.getDefaultInstance();
             boolean isOnline = new CheckOnlineHelper(this).isOnline();
+            boolean isInSaved;
+            if (mRealm.where(RealmRecipe.class).equalTo("recipeName", mRecipe.getName()).findAll().size() != 0) {
+                isInSaved = true;
+            } else isInSaved = false;
             if (isOnline) {
-                String path = MediaStore.Images.Media.insertImage(getContentResolver(),
-                        mLoadPhotoStep, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
-                new WriterDAtaSQLiteAsyncTask.WriterRecipe(this, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
-                    @Override
-                    public void onDataReady(Integer integer) {
-                        new FirebaseHelper().getStepsRecipe(getApplicationContext(), integer, mIntent
-                                .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST), mIntent
-                                .getStringExtra(RECIPE), mIntent.getStringExtra(USERNAME));
-                    }
-                }).execute(new Recipe(mIntent.getStringExtra(RECIPE), path, mIntent
-                        .getStringExtra(DESCRIPTION), 0));
-
+                RealmHelper realmHelper = new RealmHelper(this, mRecipe);
+                if (!isInSaved) {
+                    realmHelper.saveRecipeInRealm();
+                } else {
+                   realmHelper.updateRecipeInRealm();
+                }
             } else {
                 Toast.makeText(RecipeActivity.this, getResources()
                         .getString(R.string.not_online), Toast.LENGTH_SHORT).show();

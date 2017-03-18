@@ -9,6 +9,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
 import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
+import com.exemple.android.cookbook.adapters.SelectedRecipeListRealmAdapter;
 import com.exemple.android.cookbook.adapters.SelectedRecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.Recipe;
@@ -79,14 +80,16 @@ public class SwipeHelper {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 int swipedPosition = viewHolder.getAdapterPosition();
-                SelectedRecipeRecyclerListAdapter adapter = (SelectedRecipeRecyclerListAdapter) mRecyclerView.getAdapter();
+//                SelectedRecipeRecyclerListAdapter adapter = (SelectedRecipeRecyclerListAdapter) mRecyclerView.getAdapter();
+                SelectedRecipeListRealmAdapter adapter = (SelectedRecipeListRealmAdapter) mRecyclerView.getAdapter();
                 adapter.pendingRemoval(swipedPosition);
             }
 
             @Override
             public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
                 int position = viewHolder.getAdapterPosition();
-                SelectedRecipeRecyclerListAdapter adapter = (SelectedRecipeRecyclerListAdapter) mRecyclerView.getAdapter();
+//                SelectedRecipeRecyclerListAdapter adapter = (SelectedRecipeRecyclerListAdapter) mRecyclerView.getAdapter();
+                SelectedRecipeListRealmAdapter adapter = (SelectedRecipeListRealmAdapter) mRecyclerView.getAdapter();
                 if (adapter.isPendingRemoval(position)) {
                     return 0;
                 }

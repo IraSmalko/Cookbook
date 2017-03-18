@@ -16,7 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.SelectedStepRecipe;
+import com.exemple.android.cookbook.entity.selected.SelectedStepRecipe;
 import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 

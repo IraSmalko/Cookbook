@@ -12,8 +12,7 @@ import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.ForWriterStepsRecipe;
-import com.exemple.android.cookbook.entity.Ingredient;
-import com.exemple.android.cookbook.entity.SelectedStepRecipe;
+import com.exemple.android.cookbook.entity.selected.SelectedStepRecipe;
 import com.exemple.android.cookbook.entity.StepRecipe;
 
 import java.util.ArrayList;
