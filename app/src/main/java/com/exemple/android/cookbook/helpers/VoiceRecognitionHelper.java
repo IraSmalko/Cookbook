@@ -13,6 +13,7 @@ import android.provider.MediaStore;
 import android.speech.RecognizerIntent;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -25,6 +26,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.activities.AddCategoryRecipeActivity;
 import com.exemple.android.cookbook.activities.AuthenticationActivity;
+import com.exemple.android.cookbook.activities.InfoVRActivity;
 import com.exemple.android.cookbook.activities.SelectedRecipeListActivity;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.Recipe;
@@ -89,7 +91,7 @@ public class VoiceRecognitionHelper {
         info.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                ActivityCompat.startActivity(mContext, new Intent(mContext, InfoVRActivity.class), null);
             }
         });
         return builder.create();
@@ -235,12 +237,13 @@ public class VoiceRecognitionHelper {
         if (resultCode == Activity.RESULT_OK) {
             mVRResult = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             Toast.makeText(mContext, mVRResult.get(0), Toast.LENGTH_LONG).show();
-            if (mVRResult.contains(mContext.getResources().getString(R.string.save_vr)) ||
-                    mVRResult.contains(mContext.getResources().getString(R.string.save_recipe_vr))) {
+            if (mVRResult.contains(mContext.getResources().getString(R.string.save_vr))
+                    || mVRResult.contains(mContext.getResources().getString(R.string.save_recipe_vr))) {
                 saveRecipeFromVR(recipe, recipeList);
             } else if (mVRResult.contains(mContext.getResources().getString(R.string.next_step))) {
                 mIterator = nextStepVR(++iterator, stepRecipe, recipe, recipeList, actionBar, textView, imageView);
-            } else if (mVRResult.contains(mContext.getResources().getString(R.string.step_back))) {
+            } else if (mVRResult.contains(mContext.getResources().getString(R.string.step_back))
+                    || mVRResult.contains(mContext.getResources().getString(R.string.previous_step))) {
                 mIterator = nextStepVR(--iterator, stepRecipe, recipe, recipeList, actionBar, textView, imageView);
             } else {
                 getDataForVR();
