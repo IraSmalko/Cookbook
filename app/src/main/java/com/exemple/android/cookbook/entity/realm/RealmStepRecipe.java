@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook.models.realm;
+package com.exemple.android.cookbook.entity.realm;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -7,7 +7,7 @@ import android.graphics.BitmapFactory;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.exemple.android.cookbook.models.firebase.FirebaseStepRecipe;
+import com.exemple.android.cookbook.entity.firebase.FirebaseStepRecipe;
 
 import java.io.ByteArrayOutputStream;
 

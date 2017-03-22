@@ -1,6 +1,8 @@
-package com.exemple.android.cookbook.models.firebase;
+package com.exemple.android.cookbook.entity.firebase;
 
 import android.support.annotation.Keep;
+
+import com.exemple.android.cookbook.entity.realm.RealmIngredient;
 
 /**
  * Created by Sakurov on 16.03.2017.
@@ -18,6 +20,12 @@ public class FirebaseIngredient {
         this.name = name;
         this.quantity = quantity;
         this.unit = unit;
+    }
+
+    public FirebaseIngredient(RealmIngredient realmIngredient){
+        this.name = realmIngredient.getName();
+        this.quantity = realmIngredient.getQuantity();
+        this.unit = realmIngredient.getUnit();
     }
 
     public String getName() {

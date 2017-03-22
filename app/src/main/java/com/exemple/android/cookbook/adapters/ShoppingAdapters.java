@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.Ingredient;
+import com.exemple.android.cookbook.entity.firebase.FirebaseIngredient;
+import com.exemple.android.cookbook.entity.realm.RealmIngredient;
 
 import java.util.List;
 
@@ -21,10 +23,10 @@ public class ShoppingAdapters {
 
     private static final Long ANIMATION_DELAY = 700L;
 
-    private List<Ingredient> mShopDataset;
-    private List<Ingredient> mBasketDataset;
+    private List<FirebaseIngredient> mShopDataset;
+    private List<FirebaseIngredient> mBasketDataset;
 
-    public ShoppingAdapters(List<Ingredient> shopDataset, List<Ingredient> basketDataset) {
+    public ShoppingAdapters(List<FirebaseIngredient> shopDataset, List<FirebaseIngredient> basketDataset) {
         mShopDataset = shopDataset;
         mBasketDataset = basketDataset;
     }

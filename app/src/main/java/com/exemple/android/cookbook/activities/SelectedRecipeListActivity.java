@@ -8,11 +8,10 @@ import android.support.v7.widget.RecyclerView;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.SelectedRecipeListRealmAdapter;
-import com.exemple.android.cookbook.adapters.SelectedRecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.entity.selected.SelectedRecipe;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.helpers.SwipeHelper;
-import com.exemple.android.cookbook.models.realm.RealmRecipe;
+import com.exemple.android.cookbook.entity.realm.RealmRecipe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,14 +25,14 @@ public class SelectedRecipeListActivity extends AppCompatActivity {
     private static final String DESCRIPTION = "description";
     private static final String ID = "id";
 
-    Realm mRealm;
+    private Realm mRealm;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.selected_list_activity);
 
-        List<SelectedRecipe> recipesList = new ArrayList<>();
+//        List<SelectedRecipe> recipesList = new ArrayList<>();
 //        DBHelper dbHelper = new DBHelper(this);
 //        SQLiteDatabase db = dbHelper.getWritableDatabase();
 //        Cursor c = db.query(RECIPE, null, null, null, null, null, null);
@@ -54,7 +53,7 @@ public class SelectedRecipeListActivity extends AppCompatActivity {
 
         mRealm = Realm.getDefaultInstance();
 
-        List<RealmRecipe> recipes = mRealm.allObjects(RealmRecipe.class);
+        List<RealmRecipe> recipes = mRealm.where(RealmRecipe.class).equalTo("isInSaved",true).findAll();
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
 
@@ -65,7 +64,7 @@ public class SelectedRecipeListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(RealmRecipe item) {
                 IntentHelper.intentSelectedRecipeActivity(getApplicationContext(), item
-                                .getRecipeName(), item.getPhotoUrl(), item.getDescription(), 1);
+                                .getRecipeName(), item.getRecipePhotoUrl(), item.getRecipeDescription());
             }
         });
 
@@ -74,7 +73,7 @@ public class SelectedRecipeListActivity extends AppCompatActivity {
 
 //        for (RealmRecipe recipe: recipes
 //             ) {
-//            recipesList.add(new SelectedRecipe(recipe.getRecipeName(),recipe.getPhotoUrl(),recipe.getDescription(),1));
+//            recipesList.add(new SelectedRecipe(recipe.getRecipeName(),recipe.getRecipePhotoUrl(),recipe.getRecipeDescription(),1));
 //        }
 //
 //
@@ -83,7 +82,7 @@ public class SelectedRecipeListActivity extends AppCompatActivity {
 //                    @Override
 //                    public void onItemClick(SelectedRecipe item) {
 //                        IntentHelper.intentSelectedRecipeActivity(getApplicationContext(), item
-//                                .getName(), item.getPhotoUrl(), item.getDescription(), item.getIdRecipe());
+//                                .getName(), item.getRecipePhotoUrl(), item.getRecipeDescription(), item.getIdRecipe());
 //                    }
 //                });
 //        recyclerView.setAdapter(recipeRecyclerAdapter);

@@ -5,8 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
@@ -33,14 +31,11 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.Ingredient;
-import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
-import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.helpers.RealmHelper;
-import com.exemple.android.cookbook.helpers.WriterDAtaSQLiteAsyncTask;
-import com.exemple.android.cookbook.models.firebase.FirebaseRecipe;
-import com.exemple.android.cookbook.models.realm.RealmRecipe;
+import com.exemple.android.cookbook.entity.firebase.FirebaseRecipe;
+import com.exemple.android.cookbook.entity.realm.RealmRecipe;
 import com.exemple.android.cookbook.supporting.Comment;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.auth.api.Auth;
@@ -55,8 +50,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.io.ByteArrayOutputStream;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
@@ -135,7 +128,7 @@ public class RecipeActivity extends AppCompatActivity
     private FirebaseRecyclerAdapter<Ingredient, IngredientViewHolder> mIngredientsFirebaseAdapter;
 
 
-    private FirebaseRecipe mRecipe;
+    private FirebaseRecipe mFirebaseRecipe;
     private Realm mRealm;
 
     @Override
@@ -222,7 +215,7 @@ public class RecipeActivity extends AppCompatActivity
         mFirebaseDatabaseReference.child(RECIPE_CHILD).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                mRecipe = dataSnapshot.getValue(FirebaseRecipe.class);
+                mFirebaseRecipe = dataSnapshot.getValue(FirebaseRecipe.class);
             }
 
             @Override
@@ -475,33 +468,48 @@ public class RecipeActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        mRealm = Realm.getDefaultInstance();
+        boolean isOnline = new CheckOnlineHelper(this).isOnline();
+        boolean isInRealm = false;
+        if (mRealm.where(RealmRecipe.class).equalTo("recipeName", mFirebaseRecipe.getName()).findAll().size() != 0) {
+            isInRealm = true;
+        }
+        RealmHelper realmHelper = new RealmHelper(this, mFirebaseRecipe);
 
         if (id == R.id.action_save) {
-            mRealm = Realm.getDefaultInstance();
-            boolean isOnline = new CheckOnlineHelper(this).isOnline();
-            boolean isInSaved;
-            if (mRealm.where(RealmRecipe.class).equalTo("recipeName", mRecipe.getName()).findAll().size() != 0) {
-                isInSaved = true;
-            } else isInSaved = false;
+
             if (isOnline) {
-                RealmHelper realmHelper = new RealmHelper(this, mRecipe);
-                if (!isInSaved) {
-                    realmHelper.saveRecipeInRealm();
+                if (!isInRealm) {
+                    realmHelper.saveRecipeInRealm(RealmHelper.SELECTED);
                 } else {
-                   realmHelper.updateRecipeInRealm();
+                    realmHelper.updateRecipeInRealm(RealmHelper.SELECTED);
                 }
             } else {
                 Toast.makeText(RecipeActivity.this, getResources()
                         .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
             }
             return true;
+
         } else if (id == android.R.id.home) {
             IntentHelper.intentRecipeListActivity(this, mIntent.getStringExtra(RECIPE_LIST));
             return true;
+
         } else if (id == R.id.action_shop) {
-            Intent intent = mIntent;
-            intent.setClass(this, ShoppingActivity.class);
-            startActivity(intent);
+
+            if (isOnline) {
+                if (!isInRealm) {
+                    realmHelper.saveRecipeInRealm(RealmHelper.BASKET);
+                } else {
+                    realmHelper.updateRecipeInRealm(RealmHelper.BASKET);
+                }
+            } else {
+                Toast.makeText(RecipeActivity.this, getResources()
+                        .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+            }
+
+//            Intent intent = mIntent;
+//            intent.setClass(this, ShoppingRecipeActivity.class);
+//            startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }

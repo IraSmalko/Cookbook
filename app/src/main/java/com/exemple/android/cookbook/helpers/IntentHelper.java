@@ -14,6 +14,8 @@ import com.exemple.android.cookbook.activities.RecipeActivity;
 import com.exemple.android.cookbook.activities.RecipeListActivity;
 import com.exemple.android.cookbook.activities.SelectedRecipeActivity;
 import com.exemple.android.cookbook.activities.SelectedStepRecipeActivity;
+import com.exemple.android.cookbook.activities.ShoppingBasketActivity;
+import com.exemple.android.cookbook.activities.ShoppingRecipeActivity;
 import com.exemple.android.cookbook.activities.StepRecipeActivity;
 
 import java.util.ArrayList;
@@ -102,6 +104,16 @@ public class IntentHelper {
         ActivityCompat.startActivity(context, intent, null);
     }
 
+    static public void intentSelectedRecipeActivity(Context context, String recipe, String photo,
+                                                    String description){
+        Intent intent = new Intent(context, SelectedRecipeActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(RECIPE, recipe);
+        intent.putExtra(PHOTO, photo);
+        intent.putExtra(DESCRIPTION, description);
+        ActivityCompat.startActivity(context, intent, null);
+    }
+
     static public void intentSelectedStepRecipeActivity(Context context, String recipe, String photo,
                                                         String description, int id_recipe){
         Intent intent = new Intent(context, SelectedStepRecipeActivity.class);
@@ -110,6 +122,13 @@ public class IntentHelper {
         intent.putExtra(PHOTO, photo);
         intent.putExtra(DESCRIPTION, description);
         intent.putExtra(ID_RECIPE, id_recipe);
+        ActivityCompat.startActivity(context, intent, null);
+    }
+
+    static public void intentShoppingBasketActivity(Context context, String recipe){
+        Intent intent = new Intent(context, ShoppingRecipeActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(RECIPE, recipe);
         ActivityCompat.startActivity(context, intent, null);
     }
 }

@@ -1,6 +1,6 @@
-package com.exemple.android.cookbook.models.realm;
+package com.exemple.android.cookbook.entity.realm;
 
-import com.exemple.android.cookbook.models.firebase.FirebaseIngredient;
+import com.exemple.android.cookbook.entity.firebase.FirebaseIngredient;
 import com.google.firebase.database.DataSnapshot;
 
 import io.realm.RealmObject;

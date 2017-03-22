@@ -2,21 +2,20 @@ package com.exemple.android.cookbook.activities;
 
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.adapters.IngredientsAdapter;
 import com.exemple.android.cookbook.helpers.IntentHelper;
-import com.exemple.android.cookbook.models.realm.RealmRecipe;
-
-import java.io.IOException;
+import com.exemple.android.cookbook.entity.realm.RealmRecipe;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -57,6 +56,13 @@ public class SelectedRecipeActivity extends AppCompatActivity {
         RealmResults<RealmRecipe> results = mRealm.where(RealmRecipe.class).equalTo("recipeName", intent.getStringExtra(RECIPE)).findAll();
         imageView.setImageBitmap(results.get(0).getPhoto());
 
+        RecyclerView ingredientsRecyclerView = (RecyclerView) findViewById(R.id.ingredients_RV);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        ingredientsRecyclerView.setLayoutManager(linearLayoutManager);
+
+        ingredientsRecyclerView.setAdapter(new IngredientsAdapter(results.get(0).getIngredients()));
+
         btnDetailRecipe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -65,7 +71,6 @@ public class SelectedRecipeActivity extends AppCompatActivity {
                         .getStringExtra(DESCRIPTION), intent.getIntExtra(ID_RECIPE, INT_EXTRA));
             }
         });
-
 
     }
 

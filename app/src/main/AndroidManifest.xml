@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
-        android:name=".models.MyApplication"
+        android:name=".supporting.MyApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic"
         android:label="@string/app_name"
@@ -65,7 +65,7 @@
             android:parentActivityName=".activities.MainActivity" />
         <activity android:name=".activities.SelectedStepRecipeActivity" />
         <activity android:name="com.android.camera.CropImage" />
-        <activity android:name=".activities.ShoppingActivity" />
+        <activity android:name=".activities.ShoppingRecipeActivity" />
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
@@ -91,6 +91,7 @@
             android:value="@string/fb_app_id" />
 
         <activity android:name=".models.RealmTestActivity" />
+        <activity android:name=".activities.ShoppingBasketActivity"></activity>
     </application>
 
 </manifest>

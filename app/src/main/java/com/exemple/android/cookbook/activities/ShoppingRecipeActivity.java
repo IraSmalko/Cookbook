@@ -17,6 +17,9 @@ import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.Ingredient;
+import com.exemple.android.cookbook.entity.firebase.FirebaseIngredient;
+import com.exemple.android.cookbook.entity.realm.RealmIngredient;
+import com.exemple.android.cookbook.entity.realm.RealmRecipe;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -27,12 +30,15 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.Realm;
+import io.realm.RealmList;
+
 
 /**
  * Created by Sakurov on 12.03.2017.
  */
 
-public class ShoppingActivity extends AppCompatActivity {
+public class ShoppingRecipeActivity extends AppCompatActivity {
 
     private static final String RECIPE_LIST = "recipeList";
     private static final String RECIPE = "recipe";
@@ -44,8 +50,8 @@ public class ShoppingActivity extends AppCompatActivity {
 
     private String INGREDIENTS_CHILD;
 
-    private List<Ingredient> mIngredientsShop = new ArrayList<>();
-    private List<Ingredient> mIngredientsBasket = new ArrayList<>();
+    private List<FirebaseIngredient> mIngredientsShop = new ArrayList<>();
+    private List<FirebaseIngredient> mIngredientsBasket = new ArrayList<>();
 
     private DatabaseReference mFirebaseDatabaseReference;
 
@@ -54,6 +60,8 @@ public class ShoppingActivity extends AppCompatActivity {
     private RecyclerView mBasketIngredientsRecyclerView;
 
     public Intent mIntent;
+
+    private Realm mRealm;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,23 +76,36 @@ public class ShoppingActivity extends AppCompatActivity {
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
         mIntent = getIntent();
-        INGREDIENTS_CHILD = "Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/ingredients";
 
         mRecipeNameTextView.setText(mIntent.getStringExtra(RECIPE));
 
-        mFirebaseDatabaseReference.child(INGREDIENTS_CHILD).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    mIngredientsShop.add(data.getValue(Ingredient.class));
-                }
-            }
+        mRealm = Realm.getDefaultInstance();
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+        List<RealmIngredient> ingredients = mRealm.where(RealmRecipe.class)
+                .equalTo("recipeName", mIntent.getStringExtra(RECIPE))
+                .findAll()
+                .get(0)
+                .getIngredients();
 
-            }
-        });
+        for (RealmIngredient ingredient: ingredients
+             ) {
+            mIngredientsShop.add(new FirebaseIngredient(ingredient));
+        }
+
+//        INGREDIENTS_CHILD = "Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/ingredients";
+//        mFirebaseDatabaseReference.child(INGREDIENTS_CHILD).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for (DataSnapshot data : dataSnapshot.getChildren()) {
+//                    mIngredientsShop.add(data.getValue(RealmIngredient.class));
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
 
         mShopIngredientsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mBasketIngredientsRecyclerView.setLayoutManager(new LinearLayoutManager(this));

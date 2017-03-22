@@ -14,8 +14,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.selected.SelectedRecipe;
-import com.exemple.android.cookbook.models.realm.RealmRecipe;
+import com.exemple.android.cookbook.entity.realm.RealmRecipe;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,7 +78,7 @@ public class SelectedRecipeListRealmAdapter extends RecyclerView.Adapter<Selecte
             holder.regularLayout.setVisibility(View.VISIBLE);
             holder.swipeLayout.setVisibility(View.GONE);
             holder.textView.setText(item.getRecipeName());
-            Glide.with(mContext).load(item.getPhotoUrl()).into(holder.imageView);
+            Glide.with(mContext).load(item.getRecipePhotoUrl()).into(holder.imageView);
         }
         holder.undo.setOnClickListener(new View.OnClickListener() {
             @Override

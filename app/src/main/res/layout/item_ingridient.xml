@@ -17,22 +17,23 @@
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:text="name" />
+            android:text="name"
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/ingredient_quantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:text="quantity" />
+            android:text="quantity"
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/ingredient_unit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:text="unit" />
+            android:text="unit"
+            android:textSize="15sp" />
     </LinearLayout>
 </LinearLayout>

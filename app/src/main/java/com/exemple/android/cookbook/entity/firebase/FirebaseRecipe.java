@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook.models.firebase;
+package com.exemple.android.cookbook.entity.firebase;
 
 import android.support.annotation.Keep;
 

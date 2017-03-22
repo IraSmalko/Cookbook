@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook.models;
+package com.exemple.android.cookbook.supporting;
 
 import android.app.Application;
 

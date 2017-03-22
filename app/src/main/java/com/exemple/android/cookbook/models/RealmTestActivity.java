@@ -10,8 +10,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.models.firebase.FirebaseRecipe;
-import com.exemple.android.cookbook.models.realm.RealmRecipe;
+import com.exemple.android.cookbook.entity.firebase.FirebaseRecipe;
+import com.exemple.android.cookbook.entity.realm.RealmRecipe;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -60,7 +60,7 @@ public class RealmTestActivity extends AppCompatActivity {
                     button.setVisibility(View.VISIBLE);
                     mRealm.beginTransaction();
                     RealmRecipe newRealmRecipe = mRealm.createObject(RealmRecipe.class);
-                    newRealmRecipe.setRecipe(firebaseRecipe);
+                    newRealmRecipe.setRealmRecipe(firebaseRecipe);
                     mRealm.commitTransaction();
                     newRealmRecipe.savePhoto(RealmTestActivity.this, mRealm);
                 }

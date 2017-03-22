@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity
                 userRefresh();
             }
         } else if (id==R.id.nav_send){
-            startActivity(new Intent(MainActivity.this, RealmTestActivity.class));
+            startActivity(new Intent(MainActivity.this, ShoppingBasketActivity.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);
