@@ -17,15 +17,34 @@
             android:scaleType="fitXY"
             app:srcCompat="@drawable/ic_launcher" />
 
-        <RatingBar
-            android:id="@+id/ratingBar"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/ingredients_list"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentTop="true"
-            android:isIndicator="true"
-            android:numStars="5"
-            android:stepSize="0.01" />
+            android:layout_height="100dp"
+            android:layout_below="@id/textInputLayout1"
+            android:paddingLeft="10dp"/>
+        <android.support.v7.widget.RecyclerView
+                android:id="@+id/commentsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/save_comments"
+                android:layout_marginBottom="16dp"/>
+
+            <ListView
+                android:id="@+id/listView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/save_comments" />
+
+            <RatingBar
+                android:id="@+id/ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:isIndicator="true"
+                android:numStars="5"
+                android:stepSize="0.01" />
 
         <Button
             android:id="@+id/btnDetailRecipe"
@@ -87,18 +106,22 @@
                 android:textColorHint="#9000" />
         </android.support.design.widget.TextInputLayout>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/ingredients_list"
-            android:layout_width="wrap_content"
-            android:layout_height="100dp"
-            android:layout_below="@id/textInputLayout1"
-            android:paddingLeft="10dp"/>
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:theme="@style/ToolBarStyle" />
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/commentsRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/ingredients_list" />
+        </RelativeLayout>
+    </ScrollView>
 
-    </RelativeLayout>
-</ScrollView>
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/nav_header_main"
+        app:menu="@menu/activity_main_drawer" />
+</android.support.v4.widget.DrawerLayout>

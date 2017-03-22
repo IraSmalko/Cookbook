@@ -25,6 +25,7 @@
         android:paddingBottom="16dp"
         android:paddingLeft="8dp"
         android:textColor="#F5F5F5"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:ellipsize="end"/>
 
 </android.support.v7.widget.CardView>

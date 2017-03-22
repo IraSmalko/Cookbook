@@ -12,7 +12,8 @@ import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.ForWriterStepsRecipe;
-import com.exemple.android.cookbook.entity.selected.SelectedStepRecipe;
+import com.exemple.android.cookbook.entity.SelectedRecipe;
+import com.exemple.android.cookbook.entity.SelectedStepRecipe;
 import com.exemple.android.cookbook.entity.StepRecipe;
 
 import java.util.ArrayList;
@@ -27,10 +28,7 @@ public class DataSourceSQLite {
     private static final String TEXT_STEP = "text_step";
     private static final String PHOTO_STEP = "photo_step";
     private static final String NUMBER_STEP = "number_step";
-
-    private static final String INGREDIENT_NAME = "ingredient_name";
-    private static final String INGREDIENT_QUANTITY = "ingredient_quantity";
-    private static final String INGREDIENT_UNIT = "ingredient_unit";
+    private static final String ID = "id";
 
     private SQLiteDatabase mDatabase;
     private DBHelper mDBHelper;
@@ -61,14 +59,6 @@ public class DataSourceSQLite {
         cvRecipe.put(PHOTO, path);
         cvRecipe.put(DESCRIPTION, description);
         long rowID = mDatabase.insertOrThrow(DBHelper.TABLE_RECIPE, null, cvRecipe);
-
-//        ContentValues cvIngredients = new ContentValues();
-//        for (FirebaseIngredient ingredient : ingredients) {
-//            cvIngredients.put(INGREDIENT_NAME, ingredient.getName());
-//            cvIngredients.put(INGREDIENT_QUANTITY, ingredient.getQuantity());
-//            cvIngredients.put(INGREDIENT_UNIT, ingredient.getUnit());
-//            mDatabase.insertOrThrow(DBHelper.TABLE_INGREDIENTS, null, cvIngredients);
-//        }
 
         close();
         return (int) rowID;
@@ -144,5 +134,27 @@ public class DataSourceSQLite {
         mDatabase.execSQL("DELETE FROM " + DBHelper
                 .TABLE_STEP_RECIPE + " WHERE " + ID_RECIPE + "='" + id + "'");
         close();
+    }
+
+    public List<SelectedRecipe> getRecipe (){
+        List<SelectedRecipe> recipesList = new ArrayList<>();
+        open();
+        Cursor c = mDatabase.query(RECIPE, null, null, null, null, null, null);
+
+        if (c.moveToFirst()) {
+            do {
+                int idColIndex = c.getColumnIndex(ID);
+                int recipeColIndex = c.getColumnIndex(RECIPE);
+                int photoColIndex = c.getColumnIndex(PHOTO);
+                int descriptionColIndex = c.getColumnIndex(DESCRIPTION);
+
+                recipesList.add(new SelectedRecipe(c.getString(recipeColIndex), c
+                        .getString(photoColIndex), c.getString(descriptionColIndex), c.getInt(idColIndex)));
+            } while (c.moveToNext());
+        } else {
+            c.close();
+        }
+        close();
+     return recipesList;
     }
 }

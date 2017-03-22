@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
 
+
     <application
         android:name=".supporting.MyApplication"
         android:allowBackup="true"
@@ -38,11 +39,12 @@
         <activity
             android:name=".activities.RecipeListActivity"
             android:configChanges="orientation"
-            android:parentActivityName=".activities.MainActivity" />
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".activities.RecipeActivity"
             android:configChanges="orientation"
-            android:parentActivityName=".activities.RecipeListActivity" />
+            android:parentActivityName=".activities.RecipeListActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".activities.StepRecipeActivity" />
         <activity
             android:name=".activities.AuthenticationActivity"
@@ -55,6 +57,7 @@
 
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
+
         </activity>
         <activity
             android:name=".activities.SelectedRecipeActivity"
@@ -65,7 +68,8 @@
             android:parentActivityName=".activities.MainActivity" />
         <activity android:name=".activities.SelectedStepRecipeActivity" />
         <activity android:name="com.android.camera.CropImage" />
-        <activity android:name=".activities.ShoppingRecipeActivity" />
+        <activity android:name=".activities.InfoVRActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
@@ -75,7 +79,6 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="49038910b9ef574b84a5121e68a07e8b94810ed3" />
-
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.exemple.android.cookbook"
@@ -85,7 +88,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/photo_provider_path" />
         </provider>
-
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/fb_app_id" />
