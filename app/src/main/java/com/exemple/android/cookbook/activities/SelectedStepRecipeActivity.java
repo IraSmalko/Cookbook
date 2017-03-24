@@ -57,11 +57,11 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
             Toast.makeText(mContext, getResources().getString(R.string
                     .no_information_available), Toast.LENGTH_SHORT).show();
         } else {
-            mActionBar.setTitle(mSelectedStepRecipes.get(0).getNumberStep());
-            mTxtStepRecipe.setText(mSelectedStepRecipes.get(0).getTextStep());
+            mActionBar.setTitle(mSelectedStepRecipes.get(0).getStepNumber());
+            mTxtStepRecipe.setText(mSelectedStepRecipes.get(0).getStepText());
             try {
                 mImgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
-                        .parse(mSelectedStepRecipes.get(0).getPhotoUrlStep())));
+                        .parse(mSelectedStepRecipes.get(0).getStepPhotoUrl())));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -79,11 +79,11 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
 
     public void updateData(int i) {
         if (i < mSelectedStepRecipes.size()) {
-            mActionBar.setTitle(mSelectedStepRecipes.get(i).getNumberStep());
-            mTxtStepRecipe.setText(mSelectedStepRecipes.get(i).getTextStep());
+            mActionBar.setTitle(mSelectedStepRecipes.get(i).getStepNumber());
+            mTxtStepRecipe.setText(mSelectedStepRecipes.get(i).getStepText());
             try {
                 mImgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
-                        .parse(mSelectedStepRecipes.get(i).getPhotoUrlStep())));
+                        .parse(mSelectedStepRecipes.get(i).getStepPhotoUrl())));
             } catch (IOException e) {
                 e.printStackTrace();
             }

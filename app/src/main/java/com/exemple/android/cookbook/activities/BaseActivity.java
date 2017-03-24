@@ -16,6 +16,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,12 +25,25 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.entity.firebase.FirebaseIngredient;
+import com.exemple.android.cookbook.entity.firebase.FirebaseRecipe;
+import com.exemple.android.cookbook.entity.firebase.FirebaseStepRecipe;
 import com.exemple.android.cookbook.helpers.VoiceRecognitionHelper;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -89,8 +103,9 @@ public abstract class BaseActivity extends AppCompatActivity
         if (id == R.id.selected) {
             startActivity(new Intent(getApplicationContext(), SelectedRecipeListActivity.class));
         } else if (id == R.id.nav_sign_in) {
+            int SIGN_IN_REQUEST = 120;
             Intent intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, SIGN_IN_REQUEST);
         } else if (id == R.id.nav_sign_out) {
             if (mFirebaseUser != null) {
                 Log.d("USER", mFirebaseUser.toString());
@@ -101,6 +116,10 @@ public abstract class BaseActivity extends AppCompatActivity
                 mFirebaseUser = null;
                 userRefresh();
             }
+        } else if (id == R.id.nav_send) {
+            startActivity(new Intent(this, ShoppingBasketActivity.class));
+        } else if (id == R.id.nav_share) {
+            testingMethod();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);
@@ -206,5 +225,32 @@ public abstract class BaseActivity extends AppCompatActivity
             new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data);
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+
+    public void testingMethod() {
+//        DatabaseReference mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+//        String CHILD_TEST = "test_child";
+//        final String stepPhoto = "https://firebasestorage.googleapis.com/v0/b/cookbook-6cce5.appspot.com/o/Support%2Fstep_image.png?alt=media&token=fc2a77de-60d6-4489-b083-405de36c1302";
+//        final String recipePhoto = "https://firebasestorage.googleapis.com/v0/b/cookbook-6cce5.appspot.com/o/Photo_%D0%A1ategory_Recipes%2FPhoto_%D0%A1ategory_Recipes-905908165?alt=media&token=235f3ee3-4654-4947-9c38-d125e8712d21";
+//        mFirebaseDatabaseReference.child(CHILD_TEST).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                DatabaseReference ref = dataSnapshot.getRef();
+//                ref.push().setValue(new FirebaseRecipe("Test Recipe", "Description of Recipe", recipePhoto));
+//                List<FirebaseIngredient> ingredients = new ArrayList<>();
+//                List<FirebaseStepRecipe> steps = new ArrayList<>();
+//                for (int i = 1; i <= 3; i++) {
+//                    ingredients.add(new FirebaseIngredient("ingredient " + i, (float) Math.random(), "kg"));
+//                    steps.add(new FirebaseStepRecipe("Step " + i, stepPhoto, "Description of step " + i));
+//                    ref.child("ingredients").push().setValue(ingredients.get(i-1));
+//                    ref.child("steps").push().setValue(steps.get(i-1));
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//            }
+//        });
     }
 }

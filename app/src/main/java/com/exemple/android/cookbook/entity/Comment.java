@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook.supporting;
+package com.exemple.android.cookbook.entity;
 
 /**
  * Created by Sakurov on 04.02.2017.

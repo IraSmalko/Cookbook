@@ -78,7 +78,7 @@ public class StepRecipeActivity extends AppCompatActivity
         mFirebaseUser = firebaseAuth.getCurrentUser();
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
 
-        mReference = "Step_recipe/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE);
+        mReference = "Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/steps";
         DatabaseReference databaseReference = firebaseDatabase.getReference().child(mReference);
 
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -126,9 +126,9 @@ public class StepRecipeActivity extends AppCompatActivity
 
     public void updateData(int iterator) {
         if (iterator < mStepRecipe.size()) {
-            mActionBar.setTitle(mStepRecipe.get(iterator).getNumberStep());
-            mTxtStepRecipe.setText(mStepRecipe.get(iterator).getTextStep());
-            Glide.with(mContext).load(mStepRecipe.get(iterator).getPhotoUrlStep()).into(mImgStepRecipe);
+            mActionBar.setTitle(mStepRecipe.get(iterator).getStepNumber());
+            mTxtStepRecipe.setText(mStepRecipe.get(iterator).getStepText());
+            Glide.with(mContext).load(mStepRecipe.get(iterator).getStepPhotoUrl()).into(mImgStepRecipe);
         } else {
             IntentHelper.intentRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
                     .getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent

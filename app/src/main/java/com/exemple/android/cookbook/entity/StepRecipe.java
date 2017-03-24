@@ -4,39 +4,39 @@ package com.exemple.android.cookbook.entity;
 
 public class StepRecipe {
 
-    protected String numberStep;
-    protected String textStep;
-    protected String photoUrlStep;
+    protected String stepNumber;
+    protected String stepText;
+    protected String stepPhotoUrl;
 
     public StepRecipe(){}
 
-    public StepRecipe(String numberStep, String textStep, String photoUrlStep){
-        this.numberStep = numberStep;
-        this.textStep = textStep;
-        this.photoUrlStep = photoUrlStep;
+    public StepRecipe(String stepNumber, String stepText, String stepPhotoUrl){
+        this.stepNumber = stepNumber;
+        this.stepText = stepText;
+        this.stepPhotoUrl = stepPhotoUrl;
     }
 
-    public String getNumberStep() {
-        return numberStep;
+    public String getStepNumber() {
+        return stepNumber;
     }
 
-    public void setNumberStep(String numberStep) {
-        this.numberStep = numberStep;
+    public void setStepNumber(String stepNumber) {
+        this.stepNumber = stepNumber;
     }
 
-    public String getTextStep() {
-        return textStep;
+    public String getStepText() {
+        return stepText;
     }
 
-    public void setTextStep(String textStep) {
-        this.textStep = textStep;
+    public void setStepText(String stepText) {
+        this.stepText = stepText;
     }
 
-    public String getPhotoUrlStep() {
-        return photoUrlStep;
+    public String getStepPhotoUrl() {
+        return stepPhotoUrl;
     }
 
-    public void setPhotoUrlStep(String photoUrlStep) {
-        this.photoUrlStep = photoUrlStep;
+    public void setStepPhotoUrl(String stepPhotoUrl) {
+        this.stepPhotoUrl = stepPhotoUrl;
     }
 }

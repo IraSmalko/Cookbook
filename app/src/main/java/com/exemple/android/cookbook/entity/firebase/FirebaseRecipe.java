@@ -20,6 +20,14 @@ public class FirebaseRecipe {
 
     public FirebaseRecipe(String name,
                           String description,
+                          String photoUrl){
+        this.name = name;
+        this.description = description;
+        this.photoUrl = photoUrl;
+    }
+
+    public FirebaseRecipe(String name,
+                          String description,
                           String photoUrl,
                           HashMap<String, FirebaseIngredient> ingredients,
                           HashMap<String, FirebaseStepRecipe> steps) {

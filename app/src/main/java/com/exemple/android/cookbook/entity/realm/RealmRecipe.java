@@ -10,6 +10,7 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.exemple.android.cookbook.entity.firebase.FirebaseIngredient;
 import com.exemple.android.cookbook.entity.firebase.FirebaseRecipe;
+import com.exemple.android.cookbook.entity.firebase.FirebaseStepRecipe;
 
 import java.io.ByteArrayOutputStream;
 
@@ -35,21 +36,7 @@ public class RealmRecipe extends RealmObject {
     private boolean isInSaved = false;
     private boolean isInBasket = false;
 
-    public boolean isInSaved() {
-        return isInSaved;
-    }
 
-    public void setInSaved(boolean inSaved) {
-        isInSaved = inSaved;
-    }
-
-    public boolean isInBasket() {
-        return isInBasket;
-    }
-
-    public void setInBasket(boolean inBasket) {
-        isInBasket = inBasket;
-    }
 
     public void RealmRecipe() {
     }
@@ -87,9 +74,9 @@ public class RealmRecipe extends RealmObject {
             this.recipeIngredients.add(new RealmIngredient(firebaseIngredient));
         }
 
-//        for (FirebaseStepRecipe firebaseStepRecipe : firebaseRecipe.getRecipeSteps().values()) {
-//            recipeSteps.add(new RealmStepRecipe(firebaseStepRecipe));
-//        }
+        for (FirebaseStepRecipe firebaseStepRecipe : firebaseRecipe.getSteps().values()) {
+            recipeSteps.add(new RealmStepRecipe(firebaseStepRecipe));
+        }
 
 
     }
@@ -135,7 +122,10 @@ public class RealmRecipe extends RealmObject {
     }
 
     public void setRecipeSteps(RealmList<RealmStepRecipe> recipeSteps) {
-        this.recipeSteps = recipeSteps;
+        this.recipeSteps.deleteAllFromRealm();
+        for (RealmStepRecipe realmStepRecipe: recipeSteps) {
+            this.recipeSteps.add(realmStepRecipe);
+        }
     }
 
     public byte[] getPhotoByteArray() {
@@ -186,6 +176,23 @@ public class RealmRecipe extends RealmObject {
             bitmap = BitmapFactory.decodeByteArray(photo, 0, photo.length);
         }
         return bitmap;
+    }
+
+
+    public boolean isInSaved() {
+        return isInSaved;
+    }
+
+    public void setInSaved(boolean inSaved) {
+        isInSaved = inSaved;
+    }
+
+    public boolean isInBasket() {
+        return isInBasket;
+    }
+
+    public void setInBasket(boolean inBasket) {
+        isInBasket = inBasket;
     }
 
 }

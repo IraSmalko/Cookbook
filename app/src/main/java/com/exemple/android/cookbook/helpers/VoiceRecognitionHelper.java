@@ -13,7 +13,6 @@ import android.provider.MediaStore;
 import android.speech.RecognizerIntent;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -195,9 +194,9 @@ public class VoiceRecognitionHelper {
                           ActionBar actionBar, TextView textView, ImageView imageView) {
         int noSteps = -1;
         if (iterator < stepRecipe.size() && iterator != noSteps) {
-            actionBar.setTitle(stepRecipe.get(iterator).getNumberStep());
-            textView.setText(stepRecipe.get(iterator).getTextStep());
-            Glide.with(mContext).load(stepRecipe.get(iterator).getPhotoUrlStep()).into(imageView);
+            actionBar.setTitle(stepRecipe.get(iterator).getStepNumber());
+            textView.setText(stepRecipe.get(iterator).getStepText());
+            Glide.with(mContext).load(stepRecipe.get(iterator).getStepPhotoUrl()).into(imageView);
         } else {
             IntentHelper.intentRecipeActivity(mContext, recipe.getName(), recipe.getPhotoUrl(),
                     recipe.getDescription(), recipe.getIsPersonal(), recipeList, new FirebaseHelper()

@@ -12,8 +12,8 @@ import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.ForWriterStepsRecipe;
-import com.exemple.android.cookbook.entity.SelectedRecipe;
-import com.exemple.android.cookbook.entity.SelectedStepRecipe;
+import com.exemple.android.cookbook.entity.selected.SelectedRecipe;
+import com.exemple.android.cookbook.entity.selected.SelectedStepRecipe;
 import com.exemple.android.cookbook.entity.StepRecipe;
 
 import java.util.ArrayList;
@@ -73,8 +73,8 @@ public class DataSourceSQLite {
         mIterator = forWriterStepsRecipe.getIterator();
         ContentValues cvStepRecipe = new ContentValues();
         cvStepRecipe.put(ID_RECIPE, forWriterStepsRecipe.getIdRecipe());
-        cvStepRecipe.put(NUMBER_STEP, forWriterStepsRecipe.getStepRecipes().get(mIterator).getNumberStep());
-        cvStepRecipe.put(TEXT_STEP, forWriterStepsRecipe.getStepRecipes().get(mIterator).getTextStep());
+        cvStepRecipe.put(NUMBER_STEP, forWriterStepsRecipe.getStepRecipes().get(mIterator).getStepNumber());
+        cvStepRecipe.put(TEXT_STEP, forWriterStepsRecipe.getStepRecipes().get(mIterator).getStepText());
         cvStepRecipe.put(PHOTO_STEP, forWriterStepsRecipe.getPathPhotoStep());
         mDatabase.insertOrThrow(DBHelper.TABLE_STEP_RECIPE, null, cvStepRecipe);
         forWriterStepsRecipe.setIterator(forWriterStepsRecipe.getIterator() + 1);
@@ -94,7 +94,7 @@ public class DataSourceSQLite {
                     new WriterDAtaSQLiteAsyncTask.WriterStepsRecipe(mContext)
                             .execute(mWriterStepsRecipe);
                 }
-            }).execute(mWriterStepsRecipe.getStepRecipes().get(mWriterStepsRecipe.getIterator()).getPhotoUrlStep());
+            }).execute(mWriterStepsRecipe.getStepRecipes().get(mWriterStepsRecipe.getIterator()).getStepPhotoUrl());
         } else {
             close();
         }
@@ -116,9 +116,9 @@ public class DataSourceSQLite {
                 mSelectedStepRecipes.add(new SelectedStepRecipe(c.getString(numberStepColIndex), c
                         .getString(textStepColIndex), c.getString(photoStepColIndex), c.getInt(idColIndex)));
             } while (c.moveToNext());
-            sSR.setNumberStep(mSelectedStepRecipes.get(0).getNumberStep());
-            sSR.setTextStep(mSelectedStepRecipes.get(0).getTextStep());
-            sSR.setPhotoUrlStep(mSelectedStepRecipes.get(0).getPhotoUrlStep());
+            sSR.setStepNumber(mSelectedStepRecipes.get(0).getStepNumber());
+            sSR.setStepText(mSelectedStepRecipes.get(0).getStepText());
+            sSR.setStepPhotoUrl(mSelectedStepRecipes.get(0).getStepPhotoUrl());
 
         } else {
             c.close();

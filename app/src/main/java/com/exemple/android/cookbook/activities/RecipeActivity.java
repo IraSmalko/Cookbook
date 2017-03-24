@@ -5,15 +5,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -35,33 +32,31 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.Ingredient;
+import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.entity.firebase.FirebaseRecipe;
+import com.exemple.android.cookbook.entity.realm.RealmRecipe;
 import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
-import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
-import com.exemple.android.cookbook.helpers.WriterDAtaSQLiteAsyncTask;
-import com.exemple.android.cookbook.supporting.Comment;
+import com.exemple.android.cookbook.helpers.RealmHelper;
+import com.exemple.android.cookbook.helpers.VoiceRecognitionHelper;
+import com.exemple.android.cookbook.entity.Comment;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 
-public class RecipeActivity extends  BaseActivity
+public class RecipeActivity extends BaseActivity
         implements GoogleApiClient.OnConnectionFailedListener {
 
     private static final String RECIPE_LIST = "recipeList";
@@ -130,15 +125,23 @@ public class RecipeActivity extends  BaseActivity
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     private DatabaseReference mFirebaseDatabaseReference;
-    private FirebaseRecyclerAdapter<Comment, CommentViewHolder> mFirebaseAdapter;
     private GoogleApiClient mGoogleApiClient;
     private RecipeRating mRecipeRating;
+
+    private FirebaseRecipe mFirebaseRecipe;
+
+    private FirebaseRecyclerAdapter<Comment, CommentViewHolder> mCommentsFirebaseAdapter;
+    private FirebaseRecyclerAdapter<Ingredient, IngredientViewHolder> mIngredientsFirebaseAdapter;
+
+    Realm mRealm;
+
+    private boolean isSignIn;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_recipe);
+//        setContentView(R.layout.activity_recipe);
 
         TextView descriptionRecipe = (TextView) findViewById(R.id.textView);
         mImageView = (ImageView) findViewById(R.id.imageView);
@@ -203,8 +206,9 @@ public class RecipeActivity extends  BaseActivity
         if (mFirebaseUser == null) {
             mTextInputLayout.setVisibility(View.INVISIBLE);
             mSendButton.setVisibility(View.INVISIBLE);
+            isSignIn = false;
         } else {
-            Log.d("USER", mFirebaseUser.toString());
+            isSignIn = true;
             mUsername = mFirebaseUser.getDisplayName();
             mUserId = mFirebaseUser.getUid();
             if (mFirebaseUser.getPhotoUrl() != null) {
@@ -288,25 +292,27 @@ public class RecipeActivity extends  BaseActivity
                 for (DataSnapshot data : dataSnapshot.getChildren()) {
                     final Comment comment = data.getValue(Comment.class);
                     final DatabaseReference ref = data.getRef();
-                    if (mUserId.equals(comment.getUserId())) {
-                        if (mSendButton.getVisibility() == View.VISIBLE) {
-                            mSendButton.setVisibility(View.INVISIBLE);
-                        }
-                        if (mTextInputLayout.getVisibility() == View.VISIBLE) {
-                            mTextInputLayout.setVisibility(View.INVISIBLE);
-                        }
-                        if (mEditButton.getVisibility() == View.INVISIBLE) {
-                            mEditButton.setVisibility(View.VISIBLE);
-                        }
-
-                        mEditButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                showEditRatingDialog(comment, ref);
+                    if (isSignIn) {
+                        if (mUserId.equals(comment.getUserId())) {
+                            if (mSendButton.getVisibility() == View.VISIBLE) {
+                                mSendButton.setVisibility(View.INVISIBLE);
                             }
-                        });
+                            if (mTextInputLayout.getVisibility() == View.VISIBLE) {
+                                mTextInputLayout.setVisibility(View.INVISIBLE);
+                            }
+                            if (mEditButton.getVisibility() == View.INVISIBLE) {
+                                mEditButton.setVisibility(View.VISIBLE);
+                            }
 
-                        break;
+                            mEditButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    showEditRatingDialog(comment, ref);
+                                }
+                            });
+
+                            break;
+                        }
                     }
                 }
             }
@@ -320,10 +326,10 @@ public class RecipeActivity extends  BaseActivity
         //        Comments
 
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-                .addApi(Auth.GOOGLE_SIGN_IN_API)
-                .build();
+//        mGoogleApiClient = new GoogleApiClient.Builder(this)
+//                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+//                .addApi(Auth.GOOGLE_SIGN_IN_API)
+//                .build();
 
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
@@ -525,7 +531,9 @@ public class RecipeActivity extends  BaseActivity
     }
 
     @Override
-    protected int getLayoutResource() { return R.layout.activity_recipe; }
+    protected int getLayoutResource() {
+        return R.layout.activity_recipe;
+    }
 
     @Override
     public void onBackPressed() {
@@ -655,7 +663,7 @@ public class RecipeActivity extends  BaseActivity
         if (requestCode == VOICE_REQUEST_CODE) {
             new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data, new Recipe(mIntent
                     .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
-                    .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST) );
+                    .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST));
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

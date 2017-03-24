@@ -47,6 +47,8 @@ public class AuthenticationActivity extends AppCompatActivity implements
 
     private CallbackManager mCallbackManager;
 
+    private Intent mIntent;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +58,8 @@ public class AuthenticationActivity extends AppCompatActivity implements
 
         setContentView(R.layout.activity_authentication);
 
+        mIntent = getIntent();
+        Toast.makeText(this, mIntent.getClass().toString(), Toast.LENGTH_SHORT).show();
         // Assign fields
         mSignInButton = (SignInButton) findViewById(R.id.signInButton);
 
@@ -100,7 +104,7 @@ public class AuthenticationActivity extends AppCompatActivity implements
             }
         });
 
-        Log.d("FB",loginButton.getText().toString());
+        Log.d("FB", loginButton.getText().toString());
 
     }
 
@@ -163,7 +167,7 @@ public class AuthenticationActivity extends AppCompatActivity implements
                             Toast.makeText(AuthenticationActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            startActivity(new Intent(AuthenticationActivity.this, MainActivity.class));
+                            setResult(RESULT_OK);
                             finish();
                         }
                     }
@@ -187,8 +191,8 @@ public class AuthenticationActivity extends AppCompatActivity implements
                             Log.w(TAG, "signInWithCredential", task.getException());
                             Toast.makeText(AuthenticationActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-                        }else {
-                            startActivity(new Intent(AuthenticationActivity.this, MainActivity.class));
+                        } else {
+                            setResult(RESULT_OK);
                             finish();
                         }
                     }
