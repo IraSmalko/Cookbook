@@ -30,6 +30,7 @@ import com.exemple.android.cookbook.activities.InfoVRActivity;
 import com.exemple.android.cookbook.activities.SelectedRecipeListActivity;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.entity.RecipeForSQLite;
 import com.exemple.android.cookbook.entity.StepRecipe;
 
 import java.util.ArrayList;
@@ -183,7 +184,7 @@ public class VoiceRecognitionHelper {
                                     new FirebaseHelper().getStepsRecipe(mContext, integer, mIsPersonal, mRecipeList,
                                             mRecipeName, new FirebaseHelper().getUsername());
                                 }
-                            }).execute(new Recipe(mRecipeName, path, mDescription, 0));
+                            }).execute(new RecipeForSQLite(mRecipeName, path, mDescription, 0, null));
                         }
                     });
         } else {

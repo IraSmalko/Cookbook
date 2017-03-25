@@ -33,7 +33,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.entity.RecipeForSQLite;
 import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
@@ -53,6 +55,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class RecipeActivity extends  BaseActivity
@@ -71,6 +76,7 @@ public class RecipeActivity extends  BaseActivity
     private ImageView mImageView;
     private Bitmap mLoadPhotoStep;
     private ProgressDialog mProgressDialog;
+    private List<Ingredient> mIngredients = new ArrayList<>();
 
     public static class CommentViewHolder extends RecyclerView.ViewHolder {
         public TextView commentTextView;
@@ -132,6 +138,14 @@ public class RecipeActivity extends  BaseActivity
 
         mIntent = getIntent();
         getSupportActionBar().setTitle(mIntent.getStringExtra(RECIPE));
+
+        new FirebaseHelper(new FirebaseHelper.OnIngredientsRecipe() {
+            @Override
+            public void OnGet(List<Ingredient> ingredients) {
+                mIngredients = ingredients;
+            }
+        }).getIngredients(mIntent.getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent
+                .getStringExtra(RECIPE_LIST), mIntent.getStringExtra(RECIPE));
 
         Glide.with(getApplicationContext())
                 .load(mIntent.getStringExtra(PHOTO))
@@ -374,8 +388,8 @@ public class RecipeActivity extends  BaseActivity
                                 .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST), mIntent
                                 .getStringExtra(RECIPE), mIntent.getStringExtra(USERNAME));
                     }
-                }).execute(new Recipe(mIntent.getStringExtra(RECIPE), path, mIntent
-                        .getStringExtra(DESCRIPTION), 0));
+                }).execute(new RecipeForSQLite(mIntent.getStringExtra(RECIPE), path, mIntent
+                        .getStringExtra(DESCRIPTION), 0, mIngredients));
 
             } else {
                 Toast.makeText(RecipeActivity.this, getResources()

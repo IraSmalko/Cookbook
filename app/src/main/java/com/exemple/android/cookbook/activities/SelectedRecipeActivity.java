@@ -7,15 +7,21 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.entity.Ingredient;
+import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SelectedRecipeActivity extends AppCompatActivity {
 
@@ -24,6 +30,8 @@ public class SelectedRecipeActivity extends AppCompatActivity {
     private static final String DESCRIPTION = "description";
     private static final String PHOTO = "photo";
     private static final String ID_RECIPE = "id_recipe";
+
+    private List<Ingredient> mRecipeIngredients = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +63,9 @@ public class SelectedRecipeActivity extends AppCompatActivity {
                         .getStringExtra(DESCRIPTION), intent.getIntExtra(ID_RECIPE, INT_EXTRA));
             }
         });
+
+        DataSourceSQLite dataSource = new DataSourceSQLite(this);
+        mRecipeIngredients = dataSource.readRecipeIngredients(intent.getIntExtra(ID_RECIPE, INT_EXTRA));
     }
 
     @Override

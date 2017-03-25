@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.ImageCard;
+import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.entity.StepRecipe;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -34,6 +35,7 @@ public class FirebaseHelper {
     private List<CategoryRecipes> mCategory = new ArrayList<>();
     private List<Recipe> mRecipes = new ArrayList<>();
     private List<CategoryRecipes> mCategoryRecipesList = new ArrayList<>();
+    private List<Ingredient> mIngredients = new ArrayList<>();
     private OnUserCategoryRecipe mOnUserCategoryRecipe;
     private OnUserRecipes mOnUserRecipes;
     private OnSaveImage mOnSaveImage;
@@ -41,6 +43,7 @@ public class FirebaseHelper {
     private OnGetRecipeList mOnGetRecipeList;
     private OnGetRecipeListForVR mOnGetRecipeListForVR;
     private OnGetCategoryListForVR mOnGetCategoryListForVR;
+    private OnIngredientsRecipe mOnIngredientsRecipe;
     private int mIdRecipe;
     private Context mContext;
 
@@ -85,6 +88,10 @@ public class FirebaseHelper {
 
     public FirebaseHelper(OnGetCategoryListForVR onGetCategoryListForVR) {
         mOnGetCategoryListForVR = onGetCategoryListForVR;
+    }
+
+    public FirebaseHelper(OnIngredientsRecipe onIngredientsRecipe) {
+        mOnIngredientsRecipe = onIngredientsRecipe;
     }
 
     public String getUsername() {
@@ -404,6 +411,34 @@ public class FirebaseHelper {
         });
     }
 
+    public void getIngredients(int isPersonal, String recipeList, String recipe) {
+
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference databaseReference;
+        if (isPersonal == 1) {
+            databaseReference = firebaseDatabase.getReference()
+                    .child(getUsername() + "/Ingredient/" + recipeList + "/" + recipe);
+        } else {
+            databaseReference = firebaseDatabase.getReference()
+                    .child("Ingredient/" + recipeList + "/" + recipe+ "/");
+        }
+
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    Ingredient ingredient = postSnapshot.getValue(Ingredient.class);
+                    mIngredients.add(ingredient);
+                }
+                mOnIngredientsRecipe.OnGet(mIngredients);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
+
     public interface OnSaveImage {
         void OnSave(Uri photoUri);
     }
@@ -430,5 +465,9 @@ public class FirebaseHelper {
 
     public interface OnGetCategoryListForVR {
         void OnGet(List<CategoryRecipes> forVoice);
+    }
+
+    public interface OnIngredientsRecipe {
+        void OnGet(List<Ingredient> ingredients);
     }
 }

@@ -5,12 +5,13 @@ import android.content.Context;
 
 import com.exemple.android.cookbook.entity.ForWriterStepsRecipe;
 import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.entity.RecipeForSQLite;
 
 import io.fabric.sdk.android.services.concurrency.AsyncTask;
 
 public class WriterDAtaSQLiteAsyncTask {
 
-    public static class WriterRecipe extends AsyncTask<Recipe, Integer, Integer> {
+    public static class WriterRecipe extends AsyncTask<RecipeForSQLite, Integer, Integer> {
 
         private Context mContext;
         private OnWriterSQLite mOnWriterSQLite;
@@ -21,9 +22,11 @@ public class WriterDAtaSQLiteAsyncTask {
         }
 
         @Override
-        protected Integer doInBackground(Recipe... recipes) {
-            return new DataSourceSQLite(mContext).saveRecipe(recipes[0].getName(), recipes[0]
-                    .getPhotoUrl(), recipes[0].getDescription());
+        protected Integer doInBackground(RecipeForSQLite... recipes) {
+            DataSourceSQLite dataSourceSQLite = new DataSourceSQLite(mContext);
+            int  rowID = dataSourceSQLite.saveRecipe(recipes[0]);
+            dataSourceSQLite.saveIngredient(recipes[0].getIngredients(), rowID);
+            return rowID;
         }
 
         @Override

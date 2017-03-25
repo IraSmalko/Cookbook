@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.ForWriterStepsRecipe;
+import com.exemple.android.cookbook.entity.Ingredient;
+import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.entity.SelectedRecipe;
 import com.exemple.android.cookbook.entity.SelectedStepRecipe;
 import com.exemple.android.cookbook.entity.StepRecipe;
@@ -29,12 +31,16 @@ public class DataSourceSQLite {
     private static final String PHOTO_STEP = "photo_step";
     private static final String NUMBER_STEP = "number_step";
     private static final String ID = "id";
+    private static final String INGREDIENT_NAME = "ingredient_name";
+    private static final String INGREDIENT_QUANTITY = "ingredient_quantity";
+    private static final String INGREDIENT_UNIT = "ingredient_unit";
 
     private SQLiteDatabase mDatabase;
     private DBHelper mDBHelper;
     private int mIterator = 0;
     private Context mContext;
     private List<SelectedStepRecipe> mSelectedStepRecipes = new ArrayList<>();
+    private List<Ingredient> mRecipeIngredients = new ArrayList<>();
     private ForWriterStepsRecipe mWriterStepsRecipe;
     private String mPathPhotoStep;
 
@@ -51,17 +57,30 @@ public class DataSourceSQLite {
         mDBHelper.close();
     }
 
-    public int saveRecipe(String recipe, String path, String description) {
+    public int saveRecipe(Recipe recipe) {
         open();
         ContentValues cvRecipe = new ContentValues();
 
-        cvRecipe.put(RECIPE, recipe);
-        cvRecipe.put(PHOTO, path);
-        cvRecipe.put(DESCRIPTION, description);
+        cvRecipe.put(RECIPE, recipe.getName());
+        cvRecipe.put(PHOTO, recipe.getPhotoUrl());
+        cvRecipe.put(DESCRIPTION, recipe.getDescription());
         long rowID = mDatabase.insertOrThrow(DBHelper.TABLE_RECIPE, null, cvRecipe);
 
         close();
         return (int) rowID;
+    }
+
+    public void saveIngredient(List<Ingredient> ingredients, int idRecipe) {
+        open();
+        for (Ingredient ingredient : ingredients) {
+            ContentValues cvIngredient = new ContentValues();
+            cvIngredient.put(ID_RECIPE, idRecipe);
+            cvIngredient.put(INGREDIENT_NAME, ingredient.getName());
+            cvIngredient.put(INGREDIENT_QUANTITY, ingredient.getQuantity());
+            cvIngredient.put(INGREDIENT_UNIT, ingredient.getUnit());
+            mDatabase.insertOrThrow(DBHelper.TABLE_INGREDIENTS_RECIPE, null, cvIngredient);
+        }
+        close();
     }
 
     public void saveStepsSQLite(List<StepRecipe> stepRecipe, int idRecipe) {
@@ -98,6 +117,32 @@ public class DataSourceSQLite {
         } else {
             close();
         }
+    }
+
+    public List<Ingredient> readRecipeIngredients(int idRecipe) {
+        open();
+        Cursor c = mDatabase.rawQuery("SELECT * FROM " + DBHelper.TABLE_INGREDIENTS_RECIPE
+                + " WHERE " + ID_RECIPE + " == " + idRecipe, null);
+
+        if (c.moveToFirst()) {
+            do {
+                int ingredientNameIndex = c.getColumnIndex(INGREDIENT_NAME);
+                int ingredientQuantityIndex = c.getColumnIndex(INGREDIENT_QUANTITY);
+                int ingredientUnitIndex = c.getColumnIndex(INGREDIENT_UNIT);
+
+                mRecipeIngredients.add(new Ingredient(
+                        c.getString(ingredientNameIndex),
+                        c.getFloat(ingredientQuantityIndex),
+                        c.getString(ingredientUnitIndex)));
+
+            } while (c.moveToNext());
+
+        } else {
+            c.close();
+            Toast.makeText(mContext, mContext.getResources().getString(R.string
+                    .no_information_available), Toast.LENGTH_SHORT).show();
+        }
+        return mRecipeIngredients;
     }
 
     public List<SelectedStepRecipe> readStepRecipe(int idRecipe) {
