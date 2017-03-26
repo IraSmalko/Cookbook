@@ -17,8 +17,9 @@
     <string name="add_description">Додайте опис кроку</string>
     <string name="content_description_add_сategory">Додане фото категорії</string>
     <string name="add_main_photo_recipe">Додайте головне фото \n рецепта</string>
-    <string name="add_ingredients">Додайте інгридієнти</string>
+    <string name="add_ingredients">назва інгридієнту</string>
     <string name="add_photo_step">Додайте фото кроку</string>
+    <string name="fill_fields">Заповніть всі поля</string>
     <string name="btn_back">back</string>
 
     <string name="progress_dialog_title">Завантаження</string>
@@ -26,7 +27,7 @@
     <string name="data_save">Дані збережено.</string>
     <string name="invalid_input">Щось ви робите неправильно, \n зробіть нормально!</string>
     <string name="no_category_name">Додайте ім\'я категорії!</string>
-    <string name="no_ingredients">Додайте інгридієнти!</string>
+    <string name="no_ingredients">Додайте інгридієнти.</string>
     <string name="no_photo">Додайте фото!</string>
     <string name="no_description_step">Додайте опис кроку!</string>
     <string name="name_recipe_exists">Iм\'я рецепта вже існує!</string>
@@ -73,5 +74,7 @@
     <string name="step_back">крок назад</string>
     <string name="info_vr1">Для активування функції “голосове управління”, необхідно виконати рух рукою, зображений на малюнку.</string>
     <string name="info_vr2">Для управління додатком доступні такі команди: авторизація, збережені рецепти, додати категорію, додати рецепт, зберегти рецепт, зберегти, детально, наступний крок, попередній крок, крок назад.</string>
+    <string name="unit">од.</string>
+    <string name="quantity">к-сть</string>
 </resources>
 
