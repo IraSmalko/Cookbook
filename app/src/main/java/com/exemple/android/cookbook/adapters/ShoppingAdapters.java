@@ -137,7 +137,7 @@ public class ShoppingAdapters {
                 basketCheckBox.postOnAnimationDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if (mBasketDataset.size() >= getAdapterPosition()) {
+                        if (mBasketDataset.size() != -1) {
                             mShopDataset.add(mBasketDataset.get(getAdapterPosition()));
                             mBasketDataset.remove(getAdapterPosition());
                             basketCheckBox.setChecked(true);

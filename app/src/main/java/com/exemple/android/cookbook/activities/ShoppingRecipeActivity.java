@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
@@ -49,7 +50,9 @@ public class ShoppingRecipeActivity extends AppCompatActivity {
 
         mRecipeNameTextView.setText(mIntent.getStringExtra(RECIPE));
 
-        mIngredientsShop = new DataSourceSQLite(this).readRecipeIngredients(mIntent.getIntExtra(ID_RECIPE,0));
+        mIngredientsShop = new DataSourceSQLite(this).readRecipeIngredients(mIntent.getIntExtra(ID_RECIPE, 0));
+
+        Log.d("Lop", "" +" mIngredientsShop.get(0).getName()");
 
         mShopIngredientsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mBasketIngredientsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
