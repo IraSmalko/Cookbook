@@ -8,6 +8,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.adapters.IngredientsAdapter;
 import com.exemple.android.cookbook.entity.ImageCard;
 import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.entity.Recipe;
@@ -47,6 +50,7 @@ public class AddRecipeActivity extends AppCompatActivity {
     private ImageView mImageView;
     private ProgressDialog mProgressDialog;
 
+    private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mDatabaseReference, mDatabaseReferenceIngredients;
     private StorageReference mStorageReference;
     private Uri mDownloadUrlCamera;
@@ -58,6 +62,8 @@ public class AddRecipeActivity extends AppCompatActivity {
     private FirebaseHelper mFirebaseHelper;
     private CropHelper mCropHelper;
     private Context mContext = AddRecipeActivity.this;
+    private RecyclerView mRecyclerView;
+    private IngredientsAdapter mIngredientsAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,7 +79,16 @@ public class AddRecipeActivity extends AppCompatActivity {
         ImageButton btnPhotoFromGallery = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlGallery);
         ImageButton btnPhotoFromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlCamera);
         Button btnSave = (Button) findViewById(R.id.btnSave);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerIngredients);
 
+        mIngredientsAdapter = new IngredientsAdapter(getApplicationContext(), mIngredients, new IngredientsAdapter.ItemClickListener() {
+            @Override
+            public void onItemClick(Ingredient item) {
+                Toast.makeText(mContext, getResources().getString(R.string.no_ingredients), Toast.LENGTH_SHORT).show();
+            }
+        });
+        mRecyclerView.setAdapter(mIngredientsAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
 
@@ -100,7 +115,7 @@ public class AddRecipeActivity extends AppCompatActivity {
             }
         });
 
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
@@ -110,9 +125,7 @@ public class AddRecipeActivity extends AppCompatActivity {
 
             mIntent = getIntent();
             mNameRecipesList = mIntent.getStringArrayListExtra(ARRAY_LIST_RECIPE);
-            mDatabaseReference = firebaseDatabase.getReference().child(username + "/Recipe_lists/" + mIntent
-                    .getStringExtra(RECIPE_LIST));
-            mDatabaseReferenceIngredients = firebaseDatabase.getReference().child(username + "/Ingredient/" + mIntent
+            mDatabaseReference = mFirebaseDatabase.getReference().child(username + "/Recipe_lists/" + mIntent
                     .getStringExtra(RECIPE_LIST));
             mStorageReference = firebaseStorage.getReference().child(username + "/Recipe" + "/" + mIntent
                     .getStringExtra(RECIPE_LIST));
@@ -150,6 +163,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                     } else {
                         mIngredients.add(new Ingredient(mInputIngredients.getText().toString(), Float
                                 .valueOf(mQuantity.getText().toString()), mUnit.getText().toString()));
+mIngredientsAdapter.updateAdapter(mIngredients);
                         mInputIngredients.setText("");
                         mQuantity.setText("");
                         mUnit.setText("");
@@ -165,6 +179,9 @@ public class AddRecipeActivity extends AppCompatActivity {
                         if (mDownloadUrlCamera != null) {
                             Recipe recipes = new Recipe(mInputNameRecipe.getText().toString(),
                                     mDownloadUrlCamera.toString(), mInputIngredients.getText().toString(), 0);
+                            mDatabaseReferenceIngredients = mFirebaseDatabase.getReference().child(new FirebaseHelper()
+                                    .getUsername() + "/Ingredient/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mInputNameRecipe
+                                    .getText().toString());
                             if (!mInputIngredients.getText().toString().equals("") && !mQuantity.getText()
                                     .toString().equals("") && !mUnit.getText().toString().equals("")) {
                                 Ingredient ingredient = new Ingredient(mInputIngredients.getText().toString(), Float
@@ -175,7 +192,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                             if (mIngredients != null) {
                                 for (Ingredient ingredient : mIngredients) {
                                     String id = mDatabaseReferenceIngredients.push().getKey();
-                                    mDatabaseReference.child(id).setValue(ingredient);
+                                    mDatabaseReferenceIngredients.child(id).setValue(ingredient);
                                 }
                             }
                             String recipeId = mDatabaseReference.push().getKey();
