@@ -16,6 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.entity.realm.RealmRecipe;
+import com.exemple.android.cookbook.entity.realm.RealmStepRecipe;
 import com.exemple.android.cookbook.entity.selected.SelectedStepRecipe;
 import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.helpers.IntentHelper;
@@ -23,6 +25,8 @@ import com.exemple.android.cookbook.helpers.IntentHelper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.realm.Realm;
 
 public class SelectedStepRecipeActivity extends AppCompatActivity {
 
@@ -32,13 +36,16 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
     private static final String DESCRIPTION = "description";
     private static final String ID_RECIPE = "id_recipe";
 
-    private List<SelectedStepRecipe> mSelectedStepRecipes = new ArrayList<>();
+//    private List<SelectedStepRecipe> mSelectedStepRecipes = new ArrayList<>();
+    private List<RealmStepRecipe> mSelectedStepRecipes  = new ArrayList<>();
     private int mIndex = 0;
     private ActionBar mActionBar;
     private TextView mTxtStepRecipe;
     private ImageView mImgStepRecipe;
     private Intent mIntent;
     private Context mContext = SelectedStepRecipeActivity.this;
+
+    private Realm mRealm;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,8 +57,15 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
         mActionBar = getSupportActionBar();
 
         mIntent = getIntent();
-        DataSourceSQLite dataSource = new DataSourceSQLite(this);
-        mSelectedStepRecipes = dataSource.readStepRecipe(mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
+
+        mRealm = Realm.getDefaultInstance();
+
+        mSelectedStepRecipes = mRealm.where(RealmRecipe.class)
+                .equalTo("recipeName",mIntent.getStringExtra(RECIPE))
+                .findAll().get(0).getRecipeSteps();
+
+//        DataSourceSQLite dataSource = new DataSourceSQLite(this);
+//        mSelectedStepRecipes = dataSource.readStepRecipe(mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
 
         if (mSelectedStepRecipes.isEmpty()) {
             Toast.makeText(mContext, getResources().getString(R.string
@@ -59,12 +73,13 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
         } else {
             mActionBar.setTitle(mSelectedStepRecipes.get(0).getStepNumber());
             mTxtStepRecipe.setText(mSelectedStepRecipes.get(0).getStepText());
-            try {
-                mImgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
-                        .parse(mSelectedStepRecipes.get(0).getStepPhotoUrl())));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            mImgStepRecipe.setImageBitmap(mSelectedStepRecipes.get(0).getStepPhoto());
+//            try {
+//                mImgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
+//                        .parse(mSelectedStepRecipes.get(0).getStepPhotoUrl())));
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_step);
@@ -81,12 +96,13 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
         if (i < mSelectedStepRecipes.size()) {
             mActionBar.setTitle(mSelectedStepRecipes.get(i).getStepNumber());
             mTxtStepRecipe.setText(mSelectedStepRecipes.get(i).getStepText());
-            try {
-                mImgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
-                        .parse(mSelectedStepRecipes.get(i).getStepPhotoUrl())));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            mImgStepRecipe.setImageBitmap(mSelectedStepRecipes.get(i).getStepPhoto());
+//            try {
+//                mImgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
+//                        .parse(mSelectedStepRecipes.get(i).getStepPhotoUrl())));
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
         } else {
             IntentHelper.intentSelectedRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
                     .getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent

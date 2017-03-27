@@ -11,6 +11,7 @@ import com.exemple.android.cookbook.entity.firebase.FirebaseStepRecipe;
 
 import java.io.ByteArrayOutputStream;
 
+import io.realm.Realm;
 import io.realm.RealmObject;
 
 /**
@@ -25,19 +26,15 @@ public class RealmStepRecipe extends RealmObject {
 
     private byte[] stepPhoto;
 
-    public RealmStepRecipe(){}
+    public RealmStepRecipe() {
+    }
 
-    public RealmStepRecipe(FirebaseStepRecipe firebaseStepRecipe){
+    public RealmStepRecipe(FirebaseStepRecipe firebaseStepRecipe) {
         this.stepNumber = firebaseStepRecipe.getStepNumber();
         this.stepText = firebaseStepRecipe.getStepText();
         this.stepPhotoUrl = firebaseStepRecipe.getStepPhotoUrl();
     }
 
-    public RealmStepRecipe(String stepNumber, String stepText, String stepPhotoUrl) {
-        this.stepNumber = stepNumber;
-        this.stepText = stepText;
-        this.stepPhotoUrl = stepPhotoUrl;
-    }
 
     public String getStepNumber() {
         return stepNumber;
@@ -63,14 +60,23 @@ public class RealmStepRecipe extends RealmObject {
         this.stepPhotoUrl = stepPhotoUrl;
     }
 
-    public void saveStepPhoto(Context context){
+    public void setPhotoByteArray(byte[] photoByteArray){
+        this.stepPhoto = photoByteArray;
+    }
+
+    public void saveStepPhoto(final Context context, final Realm realm) {
         if (context != null && stepPhotoUrl != null) {
             Glide.with(context).load(stepPhotoUrl).asBitmap().into(new SimpleTarget<Bitmap>(660, 480) {
                 @Override
                 public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    final ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     resource.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    stepPhoto = stream.toByteArray();
+                    realm.executeTransactionAsync(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            stepPhoto = stream.toByteArray();
+                        }
+                    });
                 }
             });
         }

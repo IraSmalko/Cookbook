@@ -53,6 +53,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 
@@ -221,7 +224,6 @@ public class RecipeActivity extends BaseActivity
         RATING_CHILD = "Support/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/recipeRating";
         INGREDIENTS_CHILD = "Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/ingredients";
 
-
 //        RECIPE
 
         mFirebaseDatabaseReference.child(RECIPE_CHILD).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -283,7 +285,6 @@ public class RecipeActivity extends BaseActivity
 
             }
         });
-
 
         mFirebaseDatabaseReference.child(MESSAGES_CHILD).addValueEventListener(new ValueEventListener() {
 
@@ -379,9 +380,6 @@ public class RecipeActivity extends BaseActivity
                 int commentCount = mCommentsFirebaseAdapter.getItemCount();
                 int lastVisiblePosition =
                         mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
-                // If the recycler view is initially being loaded or the
-                // user is at the bottom of the list, scroll to the bottom
-                // of the list to show the newly added message.
                 if (lastVisiblePosition == -1 ||
                         (positionStart >= (commentCount - 1) &&
                                 lastVisiblePosition == (positionStart - 1))) {

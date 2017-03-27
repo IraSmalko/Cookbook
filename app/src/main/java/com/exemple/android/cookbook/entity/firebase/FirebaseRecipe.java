@@ -15,12 +15,15 @@ public class FirebaseRecipe {
     private HashMap<String, FirebaseIngredient> ingredients;
     private HashMap<String, FirebaseStepRecipe> steps;
 
+
+    private String recipeId;
+
     public FirebaseRecipe() {
     }
 
     public FirebaseRecipe(String name,
                           String description,
-                          String photoUrl){
+                          String photoUrl) {
         this.name = name;
         this.description = description;
         this.photoUrl = photoUrl;
@@ -36,6 +39,14 @@ public class FirebaseRecipe {
         this.photoUrl = photoUrl;
         this.ingredients = ingredients;
         this.steps = steps;
+    }
+
+    public String getRecipeId() {
+        return recipeId;
+    }
+
+    public void setRecipeId(String recipeId) {
+        this.recipeId = recipeId;
     }
 
     public String getName() {

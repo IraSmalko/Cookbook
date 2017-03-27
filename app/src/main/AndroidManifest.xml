@@ -94,6 +94,7 @@
 
         <activity android:name=".models.RealmTestActivity" />
         <activity android:name=".activities.ShoppingBasketActivity"></activity>
+        <activity android:name=".activities.ShoppingRecipeActivity"/>
     </application>
 
 </manifest>

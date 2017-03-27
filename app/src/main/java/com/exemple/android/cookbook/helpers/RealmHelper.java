@@ -9,8 +9,10 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.exemple.android.cookbook.entity.firebase.FirebaseRecipe;
 import com.exemple.android.cookbook.entity.realm.RealmRecipe;
+import com.exemple.android.cookbook.entity.realm.RealmStepRecipe;
 
 import java.io.ByteArrayOutputStream;
+import java.util.concurrent.ExecutionException;
 
 import io.realm.Realm;
 
@@ -37,37 +39,34 @@ public class RealmHelper {
     }
 
     public void saveRecipeInRealm(final int saveTarget) {
-        Glide.with(mContext).load(mFirebaseRecipe.getPhotoUrl()).asBitmap().into(new SimpleTarget<Bitmap>(660, 480) {
-            @Override
-            public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                resource.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                final byte[] photoByteArray = stream.toByteArray();
-                mRealm.executeTransactionAsync(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-                        RealmRecipe newRealmRecipe = realm.createObject(RealmRecipe.class);
-                        newRealmRecipe.setRealmRecipe(mFirebaseRecipe);
-                        newRealmRecipe.setPhoto(photoByteArray);
-                        if (saveTarget == SELECTED) {
-                            newRealmRecipe.setInSaved(true);
-                        } else if (saveTarget == BASKET) {
-                            newRealmRecipe.setInBasket(true);
-                        }
-                    }
 
-                }, new Realm.Transaction.OnSuccess() {
-                    @Override
-                    public void onSuccess() {
-                        if (saveTarget == SELECTED) {
-                            Toast.makeText(mContext, "Збережено", Toast.LENGTH_SHORT).show();
-                        } else if (saveTarget == BASKET) {
-                            Toast.makeText(mContext, "Додано в кошик", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+        mRealm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                RealmRecipe newRealmRecipe = realm.createObject(RealmRecipe.class);
+                newRealmRecipe.setRealmRecipe(mFirebaseRecipe);
+                newRealmRecipe.setPhotoByteArray(loadPhoto(newRealmRecipe.getRecipePhotoUrl()));
+                for (RealmStepRecipe realmStepRecipe : newRealmRecipe.getRecipeSteps()) {
+                    realmStepRecipe.setPhotoByteArray(loadPhoto(realmStepRecipe.getStepPhotoUrl()));
+                }
+                if (saveTarget == SELECTED) {
+                    newRealmRecipe.setInSaved(true);
+                } else if (saveTarget == BASKET) {
+                    newRealmRecipe.setInBasket(true);
+                }
+            }
+
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+                if (saveTarget == SELECTED) {
+                    Toast.makeText(mContext, "Збережено", Toast.LENGTH_SHORT).show();
+                } else if (saveTarget == BASKET) {
+                    Toast.makeText(mContext, "Додано в кошик", Toast.LENGTH_SHORT).show();
+                }
             }
         });
+
     }
 
     public void updateRecipeInRealm(int updateTarget) {
@@ -81,7 +80,7 @@ public class RealmHelper {
             mRealm.executeTransactionAsync(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
-                    oldRecipe.savePhoto(mContext, mRealm);
+                    oldRecipe.setPhotoByteArray(loadPhoto(oldRecipe.getRecipePhotoUrl()));
                 }
             });
             countOfChanges++;
@@ -105,6 +104,14 @@ public class RealmHelper {
         if (!oldRecipe.getRecipeSteps().containsAll(newRecipe.getRecipeSteps()) &&
                 newRecipe.getRecipeSteps().containsAll(oldRecipe.getRecipeSteps())) {
             oldRecipe.setRecipeSteps(newRecipe.getRecipeSteps());
+            mRealm.executeTransactionAsync(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    for (RealmStepRecipe realmStepRecipe: oldRecipe.getRecipeSteps()                         ) {
+                        realmStepRecipe.setPhotoByteArray(loadPhoto(realmStepRecipe.getStepPhotoUrl()));
+                    }
+                }
+            });
             countOfChanges++;
         }
         if (updateTarget == SELECTED) {
@@ -132,4 +139,22 @@ public class RealmHelper {
         mRealm.commitTransaction();
 
     }
+
+    public byte[] loadPhoto(String photoUrl) {
+        Bitmap bitmap = null;
+        try {
+            bitmap = Glide
+                    .with(mContext)
+                    .load(photoUrl)
+                    .asBitmap()
+                    .into(660, 480)
+                    .get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
+    }
+
 }

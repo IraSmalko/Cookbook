@@ -43,7 +43,7 @@ public class ShoppingAdapters {
             mAdapter = adapter;
         }
 
-        public void setmAdapter(BasketRecyclerAdapter adapter){
+        public void setmAdapter(BasketRecyclerAdapter adapter) {
             mAdapter = adapter;
         }
 
@@ -70,11 +70,13 @@ public class ShoppingAdapters {
                 shopCheckBox.postOnAnimationDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        mBasketDataset.add(mShopDataset.get(getAdapterPosition()));
-                        mShopDataset.remove(getAdapterPosition());
-                        shopCheckBox.setChecked(false);
-                        notifyDataSetChanged();
-                        mAdapter.notifyDataSetChanged();
+                        if (getAdapterPosition() != -1) {
+                            mBasketDataset.add(mShopDataset.get(getAdapterPosition()));
+                            mShopDataset.remove(getAdapterPosition());
+                            shopCheckBox.setChecked(false);
+                            notifyDataSetChanged();
+                            mAdapter.notifyDataSetChanged();
+                        }
                     }
                 }, ANIMATION_DELAY);
             }
@@ -138,11 +140,13 @@ public class ShoppingAdapters {
                 basketCheckBox.postOnAnimationDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        mShopDataset.add(mBasketDataset.get(getAdapterPosition()));
-                        mBasketDataset.remove(getAdapterPosition());
-                        basketCheckBox.setChecked(true);
-                        notifyDataSetChanged();
-                        mAdapter.notifyDataSetChanged();
+                        if (mBasketDataset.size() >= getAdapterPosition()) {
+                            mShopDataset.add(mBasketDataset.get(getAdapterPosition()));
+                            mBasketDataset.remove(getAdapterPosition());
+                            basketCheckBox.setChecked(true);
+                            notifyDataSetChanged();
+                            mAdapter.notifyDataSetChanged();
+                        }
                     }
                 }, ANIMATION_DELAY);
             }
@@ -173,7 +177,7 @@ public class ShoppingAdapters {
         }
     }
 
-    public void setShoppingAdaptersToRecyclers(RecyclerView shopRecycler, RecyclerView basketRecycler){
+    public void setShoppingAdaptersToRecyclers(RecyclerView shopRecycler, RecyclerView basketRecycler) {
         ShopRecyclerAdapter shopRecyclerAdapter = new ShopRecyclerAdapter();
         BasketRecyclerAdapter basketRecyclerAdapter = new BasketRecyclerAdapter(shopRecyclerAdapter);
         shopRecyclerAdapter.setmAdapter(basketRecyclerAdapter);

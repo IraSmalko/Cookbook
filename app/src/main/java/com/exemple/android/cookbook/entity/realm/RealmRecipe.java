@@ -1,5 +1,6 @@
 package com.exemple.android.cookbook.entity.realm;
 
+import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -37,31 +38,7 @@ public class RealmRecipe extends RealmObject {
     private boolean isInBasket = false;
 
 
-
     public void RealmRecipe() {
-    }
-
-    public void setRealmRecipe(String recipeName,
-                               String description,
-                               String photoUrl,
-                               RealmList<RealmIngredient> realmIngredients,
-                               RealmList<RealmStepRecipe> steps) {
-        this.recipeName = recipeName;
-        this.recipeDescription = description;
-        this.recipePhotoUrl = photoUrl;
-        this.recipeIngredients = realmIngredients;
-        this.recipeSteps = steps;
-    }
-
-    public void setRealmRecipe(RealmRecipe realmRecipe) {
-        this.recipeName = realmRecipe.getRecipeName();
-        this.recipeDescription = realmRecipe.getRecipeDescription();
-        this.recipePhotoUrl = realmRecipe.getRecipePhotoUrl();
-        this.recipeIngredients = realmRecipe.getIngredients();
-        this.recipeSteps = realmRecipe.getRecipeSteps();
-        if (realmRecipe.getPhoto() != null) {
-            this.photo = realmRecipe.getPhotoByteArray();
-        }
     }
 
     public void setRealmRecipe(FirebaseRecipe firebaseRecipe) {
@@ -77,8 +54,6 @@ public class RealmRecipe extends RealmObject {
         for (FirebaseStepRecipe firebaseStepRecipe : firebaseRecipe.getSteps().values()) {
             recipeSteps.add(new RealmStepRecipe(firebaseStepRecipe));
         }
-
-
     }
 
 
@@ -123,7 +98,7 @@ public class RealmRecipe extends RealmObject {
 
     public void setRecipeSteps(RealmList<RealmStepRecipe> recipeSteps) {
         this.recipeSteps.deleteAllFromRealm();
-        for (RealmStepRecipe realmStepRecipe: recipeSteps) {
+        for (RealmStepRecipe realmStepRecipe : recipeSteps) {
             this.recipeSteps.add(realmStepRecipe);
         }
     }
@@ -132,7 +107,7 @@ public class RealmRecipe extends RealmObject {
         return photo;
     }
 
-    public void setPhoto(byte[] photo) {
+    public void setPhotoByteArray(byte[] photo) {
         this.photo = photo;
     }
 
@@ -146,26 +121,18 @@ public class RealmRecipe extends RealmObject {
                         public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
                             ByteArrayOutputStream stream = new ByteArrayOutputStream();
                             resource.compress(Bitmap.CompressFormat.PNG, 100, stream);
-//                    realm.beginTransaction();
                             photo = stream.toByteArray();
-//                    realm.commitTransaction();
                         }
                     });
                 }
-            }, new Realm.Transaction.OnSuccess() {
-                @Override
-                public void onSuccess() {
-                    Toast.makeText(context, "photo saved", Toast.LENGTH_SHORT).show();
-                }
             });
-
         }
     }
 
-    public void saveStepsPhoto(Context context) {
+    public void saveStepsPhoto(final Context context, Realm realm) {
         if (context != null && recipeSteps != null) {
             for (RealmStepRecipe step : recipeSteps) {
-                step.saveStepPhoto(context);
+                step.saveStepPhoto(context, realm);
             }
         }
     }
