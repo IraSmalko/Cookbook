@@ -7,6 +7,9 @@ public class Recipe extends CategoryRecipes {
     protected String description;
     protected int isPersonal;
 
+    private int isInBasket = 0;
+    private int isInSaved = 1;
+
     public Recipe() {
     }
 
@@ -31,5 +34,21 @@ public class Recipe extends CategoryRecipes {
 
     public void setIsPersonal(int isPersonal) {
         this.isPersonal = isPersonal;
+    }
+
+    public int getIsInBasket() {
+        return isInBasket;
+    }
+
+    public void setIsInBasket(int isInBasket) {
+        this.isInBasket = isInBasket;
+    }
+
+    public int getIsInSaved() {
+        return isInSaved;
+    }
+
+    public void setIsInSaved(int isInSaved) {
+        this.isInSaved = isInSaved;
     }
 }

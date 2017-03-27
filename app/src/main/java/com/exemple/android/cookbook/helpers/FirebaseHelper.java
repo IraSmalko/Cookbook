@@ -420,7 +420,7 @@ public class FirebaseHelper {
                     .child(getUsername() + "/Ingredient/" + recipeList + "/" + recipe);
         } else {
             databaseReference = firebaseDatabase.getReference()
-                    .child("Ingredient/" + recipeList + "/" + recipe+ "/");
+                    .child("Recipe_lists" + recipeList + "/" + recipe+ "/ingredients/");
         }
 
         databaseReference.addValueEventListener(new ValueEventListener() {

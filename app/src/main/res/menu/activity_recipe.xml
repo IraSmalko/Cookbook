@@ -7,5 +7,10 @@
         android:icon="@drawable/save"
         android:title="@string/save"
         yourapp:showAsAction="always" />
+    <item
+        android:id="@+id/action_basket"
+        android:icon="@drawable/icon_shop"
+        android:title="@string/save"
+        yourapp:showAsAction="always" />
 
 </menu>

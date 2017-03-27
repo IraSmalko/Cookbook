@@ -23,7 +23,9 @@ public class DBHelper extends SQLiteOpenHelper {
                 + "id integer primary key autoincrement,"
                 + "recipe text,"
                 + "photo text,"
-                + "description text" + ");");
+                + "description text,"
+                + "in_basket numeric,"
+                + "in_saved numeric" + ");");
 
         db.execSQL("create table " + TABLE_STEP_RECIPE + " ("
                 + "id integer primary key autoincrement,"

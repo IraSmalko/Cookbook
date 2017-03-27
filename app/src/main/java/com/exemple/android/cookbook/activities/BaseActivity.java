@@ -101,8 +101,9 @@ public abstract class BaseActivity extends AppCompatActivity
                 mFirebaseUser = null;
                 userRefresh();
             }
+        } else if (id == R.id.nav_basket) {
+            startActivity(new Intent(this, ShoppingBasketActivity.class));
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);
         drawer.closeDrawer(GravityCompat.START);
         return true;

@@ -6,6 +6,9 @@ public class SelectedRecipe extends Recipe {
 
     private int idRecipe;
 
+    private int isInBasket = 0;
+    private int isInSaved = 1;
+
     public SelectedRecipe() {
     }
 
@@ -23,4 +26,6 @@ public class SelectedRecipe extends Recipe {
     public void setIdRecipe(int idRecipe) {
         this.idRecipe = idRecipe;
     }
+
+
 }

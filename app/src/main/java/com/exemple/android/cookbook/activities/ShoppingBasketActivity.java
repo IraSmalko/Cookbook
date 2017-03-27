@@ -1,8 +1,6 @@
 package com.exemple.android.cookbook.activities;
 
-
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 
@@ -13,26 +11,27 @@ import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.helpers.SwipeHelper;
 
-public class SelectedRecipeListActivity extends AppCompatActivity {
+
+public class ShoppingBasketActivity extends AppCompatActivity {
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.selected_list_activity);
+        setContentView(R.layout.activity_shopping_basket);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recipeListInBasketRecyclerView);
 
-        SelectedRecipeRecyclerListAdapter recipeRecyclerAdapter =
+        SelectedRecipeRecyclerListAdapter recipeListAdapter =
                 new SelectedRecipeRecyclerListAdapter(this,
-                        new DataSourceSQLite(this).getRecipes(DataSourceSQLite.REQUEST_SAVED),
+                        new DataSourceSQLite(this).getRecipes(DataSourceSQLite.REQUEST_BASKET),
                         new SelectedRecipeRecyclerListAdapter.ItemClickListener() {
                             @Override
                             public void onItemClick(SelectedRecipe item) {
-                                IntentHelper.intentSelectedRecipeActivity(getApplicationContext(), item
-                                        .getName(), item.getPhotoUrl(), item.getDescription(), item.getIdRecipe());
+                                IntentHelper.intentShoppingBasketActivity(ShoppingBasketActivity.this, item.getName(), item.getIdRecipe());
                             }
                         });
-        recyclerView.setAdapter(recipeRecyclerAdapter);
+
+        recyclerView.setAdapter(recipeListAdapter);
         new SwipeHelper(recyclerView, getApplicationContext()).attachSwipeSelectedRecipe();
     }
 }

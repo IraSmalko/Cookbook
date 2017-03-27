@@ -37,6 +37,7 @@ import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.entity.RecipeForSQLite;
 import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
+import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.helpers.VoiceRecognitionHelper;
@@ -60,7 +61,7 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class RecipeActivity extends  BaseActivity
+public class RecipeActivity extends BaseActivity
         implements GoogleApiClient.OnConnectionFailedListener {
 
     private static final String RECIPE_LIST = "recipeList";
@@ -242,20 +243,20 @@ public class RecipeActivity extends  BaseActivity
                     final Comment comment = data.getValue(Comment.class);
                     final DatabaseReference ref = data.getRef();
                     if (mUserId.equals(comment.getUserId())) {
-                        if (mSendButton.getVisibility()==View.VISIBLE) {
+                        if (mSendButton.getVisibility() == View.VISIBLE) {
                             mSendButton.setVisibility(View.INVISIBLE);
                         }
-                        if (mTextInputLayout.getVisibility()==View.VISIBLE){
+                        if (mTextInputLayout.getVisibility() == View.VISIBLE) {
                             mTextInputLayout.setVisibility(View.INVISIBLE);
                         }
-                        if (mEditButton.getVisibility()==View.INVISIBLE) {
+                        if (mEditButton.getVisibility() == View.INVISIBLE) {
                             mEditButton.setVisibility(View.VISIBLE);
                         }
 
                         mEditButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                showEditRatingDialog(comment,ref);
+                                showEditRatingDialog(comment, ref);
                             }
                         });
 
@@ -377,34 +378,22 @@ public class RecipeActivity extends  BaseActivity
         int id = item.getItemId();
 
         if (id == R.id.action_save) {
-            boolean isOnline = new CheckOnlineHelper(this).isOnline();
-            if (isOnline) {
-                String path = MediaStore.Images.Media.insertImage(getContentResolver(),
-                        mLoadPhotoStep, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
-                new WriterDAtaSQLiteAsyncTask.WriterRecipe(this, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
-                    @Override
-                    public void onDataReady(Integer integer) {
-                        new FirebaseHelper().getStepsRecipe(getApplicationContext(), integer, mIntent
-                                .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST), mIntent
-                                .getStringExtra(RECIPE), mIntent.getStringExtra(USERNAME));
-                    }
-                }).execute(new RecipeForSQLite(mIntent.getStringExtra(RECIPE), path, mIntent
-                        .getStringExtra(DESCRIPTION), 0, mIngredients));
-
-            } else {
-                Toast.makeText(RecipeActivity.this, getResources()
-                        .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
-            }
+            saveRecipe(DataSourceSQLite.REQUEST_SAVED);
             return true;
         } else if (id == android.R.id.home) {
             IntentHelper.intentRecipeListActivity(this, mIntent.getStringExtra(RECIPE_LIST));
+            return true;
+        } else if (id == R.id.action_basket) {
+            saveRecipe(DataSourceSQLite.REQUEST_BASKET);
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    protected int getLayoutResource() { return R.layout.activity_recipe; }
+    protected int getLayoutResource() {
+        return R.layout.activity_recipe;
+    }
 
     @Override
     public void onBackPressed() {
@@ -442,7 +431,7 @@ public class RecipeActivity extends  BaseActivity
         }
 
         public void editRating(float oldRating, float newRating) {
-            rating = (rating*numberOfUsers - oldRating + newRating)/numberOfUsers;
+            rating = (rating * numberOfUsers - oldRating + newRating) / numberOfUsers;
         }
     }
 
@@ -482,7 +471,7 @@ public class RecipeActivity extends  BaseActivity
         ratingDialog.show();
     }
 
-    public void showEditRatingDialog(final Comment comment,final DatabaseReference ref) {
+    public void showEditRatingDialog(final Comment comment, final DatabaseReference ref) {
         final AlertDialog.Builder ratingDialog = new AlertDialog.Builder(this);
         ratingDialog.setIcon(android.R.drawable.btn_star_big_on);
         ratingDialog.setTitle("Редагування оцінки");
@@ -534,8 +523,36 @@ public class RecipeActivity extends  BaseActivity
         if (requestCode == VOICE_REQUEST_CODE) {
             new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data, new Recipe(mIntent
                     .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
-                    .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST) );
+                    .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST));
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void saveRecipe(int target) {
+        int inSaved = 0;
+        int inBasket = 0;
+        if (target == DataSourceSQLite.REQUEST_BASKET) {
+            inBasket = 1;
+        } else if (target == DataSourceSQLite.REQUEST_SAVED){
+            inSaved = 1;
+        }
+        boolean isOnline = new CheckOnlineHelper(this).isOnline();
+        if (isOnline) {
+            String path = MediaStore.Images.Media.insertImage(getContentResolver(),
+                    mLoadPhotoStep, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
+            new WriterDAtaSQLiteAsyncTask.WriterRecipe(this, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
+                @Override
+                public void onDataReady(Integer integer) {
+                    new FirebaseHelper().getStepsRecipe(getApplicationContext(), integer, mIntent
+                            .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST), mIntent
+                            .getStringExtra(RECIPE), mIntent.getStringExtra(USERNAME));
+                }
+            }).execute(new RecipeForSQLite(mIntent.getStringExtra(RECIPE), path, mIntent
+                    .getStringExtra(DESCRIPTION), 0, mIngredients, inSaved, inBasket));
+
+        } else {
+            Toast.makeText(RecipeActivity.this, getResources()
+                    .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -14,6 +14,7 @@ import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.ForWriterStepsRecipe;
 import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.entity.RecipeForSQLite;
 import com.exemple.android.cookbook.entity.SelectedRecipe;
 import com.exemple.android.cookbook.entity.SelectedStepRecipe;
 import com.exemple.android.cookbook.entity.StepRecipe;
@@ -34,6 +35,11 @@ public class DataSourceSQLite {
     private static final String INGREDIENT_NAME = "ingredient_name";
     private static final String INGREDIENT_QUANTITY = "ingredient_quantity";
     private static final String INGREDIENT_UNIT = "ingredient_unit";
+    private static final String IN_BASKET = "in_basket";
+    private static final String IN_SAVED = "in_saved";
+
+    public static final int REQUEST_BASKET = 117;
+    public static final int REQUEST_SAVED = 127;
 
     private SQLiteDatabase mDatabase;
     private DBHelper mDBHelper;
@@ -57,13 +63,15 @@ public class DataSourceSQLite {
         mDBHelper.close();
     }
 
-    public int saveRecipe(Recipe recipe) {
+    public int saveRecipe(RecipeForSQLite recipe) {
         open();
         ContentValues cvRecipe = new ContentValues();
 
         cvRecipe.put(RECIPE, recipe.getName());
         cvRecipe.put(PHOTO, recipe.getPhotoUrl());
         cvRecipe.put(DESCRIPTION, recipe.getDescription());
+        cvRecipe.put(IN_SAVED,recipe.getIsInSaved());
+        cvRecipe.put(IN_BASKET,recipe.getIsInBasket());
         long rowID = mDatabase.insertOrThrow(DBHelper.TABLE_RECIPE, null, cvRecipe);
 
         close();
@@ -181,7 +189,7 @@ public class DataSourceSQLite {
         close();
     }
 
-    public List<SelectedRecipe> getRecipe (){
+    public List<SelectedRecipe> getRecipe() {
         List<SelectedRecipe> recipesList = new ArrayList<>();
         open();
         Cursor c = mDatabase.query(RECIPE, null, null, null, null, null, null);
@@ -200,6 +208,41 @@ public class DataSourceSQLite {
             c.close();
         }
         close();
-     return recipesList;
+        return recipesList;
     }
+
+    public List<SelectedRecipe> getRecipes(int requestCode) {
+
+
+        List<SelectedRecipe> recipesList = new ArrayList<>();
+        open();
+
+        String field;
+
+        if (requestCode == REQUEST_BASKET) {
+            field = "in_basket = 1";
+        } else if (requestCode == REQUEST_SAVED) {
+            field = "in_saved = 1";
+        } else {
+            field = null;
+        }
+        Cursor c = mDatabase.query(RECIPE, null, field, null, null, null, null);
+
+        if (c.moveToFirst()) {
+            do {
+                int idColIndex = c.getColumnIndex(ID);
+                int recipeColIndex = c.getColumnIndex(RECIPE);
+                int photoColIndex = c.getColumnIndex(PHOTO);
+                int descriptionColIndex = c.getColumnIndex(DESCRIPTION);
+
+                recipesList.add(new SelectedRecipe(c.getString(recipeColIndex), c
+                        .getString(photoColIndex), c.getString(descriptionColIndex), c.getInt(idColIndex)));
+            } while (c.moveToNext());
+        } else {
+            c.close();
+        }
+        close();
+        return recipesList;
+    }
+
 }
