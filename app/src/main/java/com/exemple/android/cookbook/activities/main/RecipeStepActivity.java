@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook.activities;
+package com.exemple.android.cookbook.activities.main;
 
 
 import android.content.Context;
@@ -20,7 +20,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.Recipe;
-import com.exemple.android.cookbook.entity.StepRecipe;
+import com.exemple.android.cookbook.entity.firebase.FirebaseRecipe;
+import com.exemple.android.cookbook.entity.firebase.FirebaseStepRecipe;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.helpers.VoiceRecognitionHelper;
@@ -35,7 +36,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StepRecipeActivity extends AppCompatActivity
+public class RecipeStepActivity extends AppCompatActivity
         implements SensorEventListener {
 
     private static final String RECIPE_LIST = "recipeList";
@@ -47,11 +48,11 @@ public class StepRecipeActivity extends AppCompatActivity
     private static final int VOICE_REQUEST_CODE = 1234;
 
     private Intent mIntent;
-    private List<StepRecipe> mStepRecipe = new ArrayList<>();
+    private List<FirebaseStepRecipe> mStepRecipe = new ArrayList<>();
     private TextView mTxtStepRecipe;
     private ImageView mImgStepRecipe;
     private ActionBar mActionBar;
-    private Context mContext = StepRecipeActivity.this;
+    private Context mContext = RecipeStepActivity.this;
     private int mIterator = 0;
     private String mReference;
     private String mUsername;
@@ -60,6 +61,8 @@ public class StepRecipeActivity extends AppCompatActivity
 
     private SensorManager mSensorManager;
     private Sensor mSensor;
+
+    private FirebaseRecipe mFirebaseRecipe;
 
 
     @Override
@@ -78,22 +81,24 @@ public class StepRecipeActivity extends AppCompatActivity
         mFirebaseUser = firebaseAuth.getCurrentUser();
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
 
-        mReference = "Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/steps";
+        mReference = "Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE);
         DatabaseReference databaseReference = firebaseDatabase.getReference().child(mReference);
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    StepRecipe step = postSnapshot.getValue(StepRecipe.class);
-                    mStepRecipe.add(step);
-                }
+                mFirebaseRecipe = dataSnapshot.getValue(FirebaseRecipe.class);
+//                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+//                    FirebaseStepRecipe step = postSnapshot.getValue(FirebaseStepRecipe.class);
+//                    mStepRecipe.add(step);
+//                }
+                mStepRecipe.addAll(mFirebaseRecipe.getSteps().values());
                 if (mStepRecipe.isEmpty() && mFirebaseUser != null) {
                     mUsername = mFirebaseUser.getDisplayName();
                     mReference = mUsername + "/" + mReference;
                     new FirebaseHelper(new FirebaseHelper.OnStepRecipes() {
                         @Override
-                        public void OnGet(List<StepRecipe> stepRecipes) {
+                        public void OnGet(List<FirebaseStepRecipe> stepRecipes) {
                             mStepRecipe.addAll(stepRecipes);
                             updateData(mIterator);
                             if (mStepRecipe.isEmpty()) {
@@ -172,10 +177,20 @@ public class StepRecipeActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == VOICE_REQUEST_CODE) {
-            mIterator = new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data, new Recipe(mIntent
-                            .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
-                            .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST), mIterator, mStepRecipe,
-                    mActionBar, mTxtStepRecipe, mImgStepRecipe);
+            mIterator = new VoiceRecognitionHelper(getApplicationContext())
+                    .onActivityResult(resultCode,
+                            data,
+//                            new FirebaseRecipe(mIntent.getStringExtra(RECIPE),
+//                                    mIntent.getStringExtra(PHOTO),
+//                                    mIntent.getStringExtra(DESCRIPTION),
+//                                    mIntent.getIntExtra(IS_PERSONAL, INT_EXTRA)),
+                            mFirebaseRecipe,
+                            mIntent.getStringExtra(RECIPE_LIST),
+                            mIterator,
+                            mStepRecipe,
+                            mActionBar,
+                            mTxtStepRecipe,
+                            mImgStepRecipe);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

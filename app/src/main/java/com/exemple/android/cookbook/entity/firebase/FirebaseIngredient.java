@@ -13,6 +13,8 @@ public class FirebaseIngredient {
     private float quantity;
     private String unit;
 
+    private String id;
+
     public FirebaseIngredient() {
     }
 
@@ -50,5 +52,13 @@ public class FirebaseIngredient {
 
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

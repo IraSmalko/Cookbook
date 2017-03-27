@@ -27,25 +27,25 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.AddRecipeActivity"
+            android:name=".activities.add.AddRecipeActivity"
             android:screenOrientation="userPortrait" />
         <activity
-            android:name=".activities.AddCategoryRecipeActivity"
+            android:name=".activities.add.AddCategoryRecipeActivity"
             android:parentActivityName=".activities.MainActivity"
             android:screenOrientation="userPortrait" />
         <activity
-            android:name=".activities.AddStepActivity"
+            android:name=".activities.add.AddStepActivity"
             android:screenOrientation="userPortrait" />
         <activity
-            android:name=".activities.RecipeListActivity"
+            android:name=".activities.main.RecipeListActivity"
             android:configChanges="orientation"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
-            android:name=".activities.RecipeActivity"
+            android:name=".activities.main.RecipeActivity"
             android:configChanges="orientation"
-            android:parentActivityName=".activities.RecipeListActivity"
+            android:parentActivityName=".activities.main.RecipeListActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".activities.StepRecipeActivity" />
+        <activity android:name=".activities.main.RecipeStepActivity" />
         <activity
             android:name=".activities.AuthenticationActivity"
             android:exported="true">
@@ -60,13 +60,13 @@
 
         </activity>
         <activity
-            android:name=".activities.SelectedRecipeActivity"
-            android:parentActivityName=".activities.SelectedRecipeListActivity" />
+            android:name=".activities.selected.SelectedRecipeActivity"
+            android:parentActivityName=".activities.selected.SelectedRecipeListActivity" />
         <activity
-            android:name=".activities.SelectedRecipeListActivity"
+            android:name=".activities.selected.SelectedRecipeListActivity"
             android:configChanges="orientation"
             android:parentActivityName=".activities.MainActivity" />
-        <activity android:name=".activities.SelectedStepRecipeActivity" />
+        <activity android:name=".activities.selected.SelectedStepRecipeActivity" />
         <activity android:name="com.android.camera.CropImage" />
         <activity android:name=".activities.InfoVRActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
@@ -92,9 +92,8 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/fb_app_id" />
 
-        <activity android:name=".models.RealmTestActivity" />
-        <activity android:name=".activities.ShoppingBasketActivity"></activity>
-        <activity android:name=".activities.ShoppingRecipeActivity"/>
+        <activity android:name=".activities.shopping.ShoppingBasketActivity"/>
+        <activity android:name=".activities.shopping.ShoppingRecipeActivity"/>
     </application>
 
 </manifest>

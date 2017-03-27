@@ -15,6 +15,7 @@ public class FirebaseRecipe {
     private HashMap<String, FirebaseIngredient> ingredients;
     private HashMap<String, FirebaseStepRecipe> steps;
 
+    private int isPersonal;
 
     private String recipeId;
 
@@ -22,11 +23,13 @@ public class FirebaseRecipe {
     }
 
     public FirebaseRecipe(String name,
+                          String photoUrl,
                           String description,
-                          String photoUrl) {
+                          int isPersonal) {
         this.name = name;
         this.description = description;
         this.photoUrl = photoUrl;
+        this.isPersonal = isPersonal;
     }
 
     public FirebaseRecipe(String name,
@@ -87,5 +90,13 @@ public class FirebaseRecipe {
 
     public void setSteps(HashMap<String, FirebaseStepRecipe> steps) {
         this.steps = steps;
+    }
+
+    public int getIsPersonal() {
+        return isPersonal;
+    }
+
+    public void setIsPersonal(int isPersonal) {
+        this.isPersonal = isPersonal;
     }
 }

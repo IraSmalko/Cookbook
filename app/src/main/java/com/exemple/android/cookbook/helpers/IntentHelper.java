@@ -8,15 +8,14 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.activities.AddRecipeActivity;
-import com.exemple.android.cookbook.activities.AddStepActivity;
-import com.exemple.android.cookbook.activities.RecipeActivity;
-import com.exemple.android.cookbook.activities.RecipeListActivity;
-import com.exemple.android.cookbook.activities.SelectedRecipeActivity;
-import com.exemple.android.cookbook.activities.SelectedStepRecipeActivity;
-import com.exemple.android.cookbook.activities.ShoppingBasketActivity;
-import com.exemple.android.cookbook.activities.ShoppingRecipeActivity;
-import com.exemple.android.cookbook.activities.StepRecipeActivity;
+import com.exemple.android.cookbook.activities.add.AddRecipeActivity;
+import com.exemple.android.cookbook.activities.add.AddStepActivity;
+import com.exemple.android.cookbook.activities.main.RecipeActivity;
+import com.exemple.android.cookbook.activities.main.RecipeListActivity;
+import com.exemple.android.cookbook.activities.selected.SelectedRecipeActivity;
+import com.exemple.android.cookbook.activities.selected.SelectedStepRecipeActivity;
+import com.exemple.android.cookbook.activities.shopping.ShoppingRecipeActivity;
+import com.exemple.android.cookbook.activities.main.RecipeStepActivity;
 
 import java.util.ArrayList;
 
@@ -70,7 +69,7 @@ public class IntentHelper {
 
     static public void intentStepRecipeActivity(Context context, String recipe, String photo,
                                                 String description, int isPersonal, String recipeList) {
-        Intent intent = new Intent(context, StepRecipeActivity.class);
+        Intent intent = new Intent(context, RecipeStepActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(RECIPE, recipe);
         intent.putExtra(PHOTO, photo);

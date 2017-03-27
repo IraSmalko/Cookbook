@@ -4,13 +4,17 @@
 
     <group android:checkableBehavior="single">
 
-            <item android:title="Якась назва">
-        <menu>
-        <item
-            android:id="@+id/selected"
-            android:icon="@drawable/save_dark"
-            android:title="Збережені" />
-        </menu>
+        <item android:title="Якась назва">
+            <menu>
+                <item
+                    android:id="@+id/selected"
+                    android:icon="@drawable/save_dark"
+                    android:title="Збережені" />
+                <item
+                    android:id="@+id/nav_basket"
+                    android:icon="@drawable/send_plane_dark"
+                    android:title="Кошик" />
+            </menu>
         </item>
     </group>
 
@@ -20,10 +24,7 @@
                 android:id="@+id/nav_share"
                 android:icon="@drawable/share_dark"
                 android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/send_plane_dark"
-                android:title="Send" />
+
         </menu>
     </item>
 

@@ -1,18 +1,9 @@
 package com.exemple.android.cookbook.entity;
 
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 public class Recipe extends CategoryRecipes {
 
     protected String description;
     protected int isPersonal;
-
-    private HashMap<String, Ingredient> ingredientsHashMap;
-
-    private List<Ingredient> ingredients = new ArrayList<>();
 
     public Recipe() {
     }
@@ -22,9 +13,6 @@ public class Recipe extends CategoryRecipes {
         this.photoUrl = photoUrl;
         this.description = description;
         this.isPersonal = isPersonal;
-//        for (String key : ingredientsHashMap.keySet()) {
-//                ingredients.add(ingredientsHashMap.get(key));
-//        }
     }
 
     public String getDescription() {
@@ -34,23 +22,6 @@ public class Recipe extends CategoryRecipes {
     public void setDescription(String description) {
         this.description = description;
     }
-
-//    public void setIngredients(List<FirebaseIngredient> ingredients){
-//        this.ingredients = ingredients;
-//    }
-//
-//    public void addIngredient(FirebaseIngredient ingredient){
-//        ingredients.add(ingredient);
-//    }
-//
-//    public List<FirebaseIngredient> getIngredients(){
-//        return ingredients;
-//    }
-//
-//    public int getIngredientsCount(){
-//        return ingredients.size();
-//    }
-
 
     public int getIsPersonal() {
         return isPersonal;

@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook.activities;
+package com.exemple.android.cookbook.activities.selected;
 
 
 import android.content.Intent;
@@ -44,13 +44,6 @@ public class SelectedRecipeActivity extends AppCompatActivity {
 
         actionBar.setTitle(intent.getStringExtra(RECIPE));
         descriptionRecipe.setText(intent.getStringExtra(DESCRIPTION));
-
-//        try {
-//            imageView.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
-//                    .parse(intent.getStringExtra(PHOTO))));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 
         mRealm = Realm.getDefaultInstance();
         RealmResults<RealmRecipe> results = mRealm.where(RealmRecipe.class).equalTo("recipeName", intent.getStringExtra(RECIPE)).findAll();

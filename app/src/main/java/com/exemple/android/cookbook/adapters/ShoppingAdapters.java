@@ -5,13 +5,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.entity.firebase.FirebaseIngredient;
-import com.exemple.android.cookbook.entity.realm.RealmIngredient;
 
 import java.util.List;
 

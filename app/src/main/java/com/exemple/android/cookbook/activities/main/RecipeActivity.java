@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook.activities;
+package com.exemple.android.cookbook.activities.main;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -31,8 +31,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.Ingredient;
+import com.exemple.android.cookbook.activities.BaseActivity;
 import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.entity.firebase.FirebaseIngredient;
 import com.exemple.android.cookbook.entity.firebase.FirebaseRecipe;
 import com.exemple.android.cookbook.entity.realm.RealmRecipe;
 import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
@@ -52,9 +53,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
@@ -134,7 +132,7 @@ public class RecipeActivity extends BaseActivity
     private FirebaseRecipe mFirebaseRecipe;
 
     private FirebaseRecyclerAdapter<Comment, CommentViewHolder> mCommentsFirebaseAdapter;
-    private FirebaseRecyclerAdapter<Ingredient, IngredientViewHolder> mIngredientsFirebaseAdapter;
+    private FirebaseRecyclerAdapter<FirebaseIngredient, IngredientViewHolder> mIngredientsFirebaseAdapter;
 
     Realm mRealm;
 
@@ -276,7 +274,7 @@ public class RecipeActivity extends BaseActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.exists()) {
-                    dataSnapshot.getRef().push().setValue(new Ingredient());
+                    dataSnapshot.getRef().push().setValue(new FirebaseIngredient());
                 }
             }
 
@@ -396,15 +394,15 @@ public class RecipeActivity extends BaseActivity
 
 //      INGREDIENTS_ADAPTER
 
-        mIngredientsFirebaseAdapter = new FirebaseRecyclerAdapter<Ingredient, IngredientViewHolder>(
-                Ingredient.class,
+        mIngredientsFirebaseAdapter = new FirebaseRecyclerAdapter<FirebaseIngredient, IngredientViewHolder>(
+                FirebaseIngredient.class,
                 R.layout.item_ingridient,
                 IngredientViewHolder.class,
                 mFirebaseDatabaseReference.child(INGREDIENTS_CHILD)) {
 
             @Override
-            protected Ingredient parseSnapshot(DataSnapshot snapshot) {
-                Ingredient ingredient = super.parseSnapshot(snapshot);
+            protected FirebaseIngredient parseSnapshot(DataSnapshot snapshot) {
+                FirebaseIngredient ingredient = super.parseSnapshot(snapshot);
                 if (ingredient != null) {
                     ingredient.setId(snapshot.getKey());
                 }
@@ -413,7 +411,7 @@ public class RecipeActivity extends BaseActivity
 
             @Override
             protected void populateViewHolder(IngredientViewHolder viewHolder,
-                                              Ingredient ingredient, int position) {
+                                              FirebaseIngredient ingredient, int position) {
 //                mProgressBar.setVisibility(ProgressBar.INVISIBLE);
                 viewHolder.ingredientNameTextView.setText(ingredient.getName());
                 viewHolder.ingredientQuantityTextView.setText(String.valueOf(ingredient.getQuantity()));
@@ -659,9 +657,13 @@ public class RecipeActivity extends BaseActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == VOICE_REQUEST_CODE) {
-            new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data, new Recipe(mIntent
-                    .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
-                    .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST));
+            new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data,
+//                    new Recipe(mIntent.getStringExtra(RECIPE),
+//                            mIntent.getStringExtra(PHOTO),
+//                            mIntent.getStringExtra(DESCRIPTION),
+//                            mIntent.getIntExtra(IS_PERSONAL, INT_EXTRA)),
+                    mFirebaseRecipe,
+                    mIntent.getStringExtra(RECIPE_LIST));
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

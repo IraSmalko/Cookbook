@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook.activities;
+package com.exemple.android.cookbook.activities.shopping;
 
 import com.exemple.android.cookbook.adapters.ShoppingAdapters;
 
@@ -8,30 +8,19 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.entity.firebase.FirebaseIngredient;
 import com.exemple.android.cookbook.entity.realm.RealmIngredient;
 import com.exemple.android.cookbook.entity.realm.RealmRecipe;
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
-import io.realm.RealmList;
 
 
 /**

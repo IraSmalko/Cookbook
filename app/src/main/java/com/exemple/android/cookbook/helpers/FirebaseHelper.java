@@ -10,7 +10,7 @@ import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.ImageCard;
 import com.exemple.android.cookbook.entity.Recipe;
-import com.exemple.android.cookbook.entity.StepRecipe;
+import com.exemple.android.cookbook.entity.firebase.FirebaseStepRecipe;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,7 +30,7 @@ import java.util.Random;
 
 public class FirebaseHelper {
 
-    private List<StepRecipe> mStepRecipe = new ArrayList<>();
+    private List<FirebaseStepRecipe> mStepRecipe = new ArrayList<>();
     private List<CategoryRecipes> mCategory = new ArrayList<>();
     private List<Recipe> mRecipes = new ArrayList<>();
     private List<CategoryRecipes> mCategoryRecipesList = new ArrayList<>();
@@ -111,10 +111,11 @@ public class FirebaseHelper {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    StepRecipe step = postSnapshot.getValue(StepRecipe.class);
+                    FirebaseStepRecipe step = postSnapshot.getValue(FirebaseStepRecipe.class);
                     mStepRecipe.add(step);
                 }
-                new DataSourceSQLite(mContext).saveStepsSQLite(mStepRecipe, mIdRecipe);
+//                SAVING STEPS!!!!!!!!!!!!!
+//                new DataSourceSQLite(mContext).saveStepsSQLite(mStepRecipe, mIdRecipe);
             }
 
             @Override
@@ -132,7 +133,7 @@ public class FirebaseHelper {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    StepRecipe step = postSnapshot.getValue(StepRecipe.class);
+                    FirebaseStepRecipe step = postSnapshot.getValue(FirebaseStepRecipe.class);
                     mStepRecipe.add(step);
                 }
                 mOnStepRecipes.OnGet(mStepRecipe);
@@ -417,7 +418,7 @@ public class FirebaseHelper {
     }
 
     public interface OnStepRecipes {
-        void OnGet(List<StepRecipe> stepRecipes);
+        void OnGet(List<FirebaseStepRecipe> stepRecipes);
     }
 
     public interface OnGetRecipeList {

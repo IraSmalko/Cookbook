@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook.activities;
+package com.exemple.android.cookbook.activities.shopping;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,7 +8,6 @@ import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.SelectedRecipeListRealmAdapter;
 import com.exemple.android.cookbook.entity.realm.RealmRecipe;
 import com.exemple.android.cookbook.helpers.IntentHelper;
-import com.exemple.android.cookbook.helpers.RealmHelper;
 import com.exemple.android.cookbook.helpers.SwipeHelper;
 
 import java.util.List;

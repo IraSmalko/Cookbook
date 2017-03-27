@@ -23,16 +23,20 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.activities.AddCategoryRecipeActivity;
+import com.exemple.android.cookbook.activities.add.AddCategoryRecipeActivity;
 import com.exemple.android.cookbook.activities.AuthenticationActivity;
 import com.exemple.android.cookbook.activities.InfoVRActivity;
-import com.exemple.android.cookbook.activities.SelectedRecipeListActivity;
+import com.exemple.android.cookbook.activities.selected.SelectedRecipeListActivity;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
 import com.exemple.android.cookbook.entity.Recipe;
-import com.exemple.android.cookbook.entity.StepRecipe;
+import com.exemple.android.cookbook.entity.firebase.FirebaseRecipe;
+import com.exemple.android.cookbook.entity.firebase.FirebaseStepRecipe;
+import com.exemple.android.cookbook.entity.realm.RealmRecipe;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.realm.Realm;
 
 public class VoiceRecognitionHelper {
 
@@ -47,6 +51,8 @@ public class VoiceRecognitionHelper {
     private List<CategoryRecipes> mForVoice;
     private int mIsPersonal, mIterator;
     private String mRecipeList, mRecipeName, mDescription;
+
+    private Realm mRealm;
 
     public VoiceRecognitionHelper(Context context) {
         mContext = context;
@@ -161,36 +167,31 @@ public class VoiceRecognitionHelper {
         }
     }
 
-    private void saveRecipeFromVR(Recipe recipe, String recipeList) {
+    private void saveRecipeFromVR(FirebaseRecipe recipe, String recipeList) {
         mIsPersonal = recipe.getIsPersonal();
         mRecipeList = recipeList;
         mRecipeName = recipe.getName();
         mDescription = recipe.getDescription();
+        mRealm = Realm.getDefaultInstance();
+
+        boolean isInRealm = false;
+        if (mRealm.where(RealmRecipe.class).equalTo("recipeName", recipe.getName()).findAll().size() != 0) {
+            isInRealm = true;
+        }
+        RealmHelper realmHelper = new RealmHelper(mContext, recipe);
 
         if (new CheckOnlineHelper(mContext).isOnline()) {
-            Glide.with(mContext)
-                    .load(recipe.getPhotoUrl())
-                    .asBitmap()
-                    .into(new SimpleTarget<Bitmap>(660, 480) {
-                        @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
-                            String path = MediaStore.Images.Media.insertImage(mContext.getContentResolver(),
-                                    resource, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
-                            new WriterDAtaSQLiteAsyncTask.WriterRecipe(mContext, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
-                                @Override
-                                public void onDataReady(Integer integer) {
-                                    new FirebaseHelper().getStepsRecipe(mContext, integer, mIsPersonal, mRecipeList,
-                                            mRecipeName, new FirebaseHelper().getUsername());
-                                }
-                            }).execute(new Recipe(mRecipeName, path, mDescription, 0));
-                        }
-                    });
+            if (!isInRealm) {
+                realmHelper.saveRecipeInRealm(RealmHelper.SELECTED);
+            } else {
+                realmHelper.updateRecipeInRealm(RealmHelper.SELECTED);
+            }
         } else {
             Toast.makeText(mContext, mContext.getResources().getString(R.string.not_online), Toast.LENGTH_SHORT).show();
         }
     }
 
-    public int nextStepVR(int iterator, List<StepRecipe> stepRecipe, Recipe recipe, String recipeList,
+    public int nextStepVR(int iterator, List<FirebaseStepRecipe> stepRecipe, FirebaseRecipe recipe, String recipeList,
                           ActionBar actionBar, TextView textView, ImageView imageView) {
         int noSteps = -1;
         if (iterator < stepRecipe.size() && iterator != noSteps) {
@@ -214,7 +215,7 @@ public class VoiceRecognitionHelper {
         }
     }
 
-    public void onActivityResult(int resultCode, Intent data, Recipe recipe, String recipeList) {
+    public void onActivityResult(int resultCode, Intent data, FirebaseRecipe recipe, String recipeList) {
         if (resultCode == Activity.RESULT_OK) {
             mVRResult = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             Toast.makeText(mContext, mVRResult.get(0), Toast.LENGTH_LONG).show();
@@ -230,8 +231,8 @@ public class VoiceRecognitionHelper {
         }
     }
 
-    public int onActivityResult(int resultCode, Intent data, Recipe recipe, String recipeList,
-                                int iterator, List<StepRecipe> stepRecipe, ActionBar actionBar,
+    public int onActivityResult(int resultCode, Intent data, FirebaseRecipe recipe, String recipeList,
+                                int iterator, List<FirebaseStepRecipe> stepRecipe, ActionBar actionBar,
                                 TextView textView, ImageView imageView) {
         if (resultCode == Activity.RESULT_OK) {
             mVRResult = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);

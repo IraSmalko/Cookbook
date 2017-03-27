@@ -16,7 +16,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,19 +24,15 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.firebase.FirebaseIngredient;
+import com.exemple.android.cookbook.activities.selected.SelectedRecipeListActivity;
+import com.exemple.android.cookbook.activities.shopping.ShoppingBasketActivity;
 import com.exemple.android.cookbook.entity.firebase.FirebaseRecipe;
-import com.exemple.android.cookbook.entity.firebase.FirebaseStepRecipe;
-import com.exemple.android.cookbook.entity.realm.RealmRecipe;
 import com.exemple.android.cookbook.helpers.VoiceRecognitionHelper;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -120,7 +115,7 @@ public abstract class BaseActivity extends AppCompatActivity
                 mFirebaseUser = null;
                 userRefresh();
             }
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_basket) {
             startActivity(new Intent(this, ShoppingBasketActivity.class));
         } else if (id == R.id.nav_share) {
             testingMethod();
@@ -233,27 +228,27 @@ public abstract class BaseActivity extends AppCompatActivity
 
 
     public void testingMethod() {
-        DatabaseReference mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
-        String CHILD_TEST = "test";
-
-        mFirebaseDatabaseReference.child(CHILD_TEST).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                List<FirebaseRecipe> recipes = new ArrayList<>();
-                HashMap<String, FirebaseRecipe> hashRecipes = new HashMap<String, FirebaseRecipe>();
-                GenericTypeIndicator<HashMap<String, FirebaseRecipe>> t =
-                        new GenericTypeIndicator<HashMap<String, FirebaseRecipe>>() {
-                        };
-                hashRecipes = dataSnapshot.getValue(t);
-                recipes.addAll(hashRecipes.values());
-                Log.d("Lop", "" + dataSnapshot.getChildrenCount());
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+//        DatabaseReference mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+//        String CHILD_TEST = "test";
+//
+//        mFirebaseDatabaseReference.child(CHILD_TEST).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                List<FirebaseRecipe> recipes = new ArrayList<>();
+//                HashMap<String, FirebaseRecipe> hashRecipes = new HashMap<String, FirebaseRecipe>();
+//                GenericTypeIndicator<HashMap<String, FirebaseRecipe>> t =
+//                        new GenericTypeIndicator<HashMap<String, FirebaseRecipe>>() {
+//                        };
+//                hashRecipes = dataSnapshot.getValue(t);
+//                recipes.addAll(hashRecipes.values());
+//                Log.d("Lop", "" + dataSnapshot.getChildrenCount());
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
 
 //        final String stepPhoto = "https://firebasestorage.googleapis.com/v0/b/cookbook-6cce5.appspot.com/o/Support%2Fstep_image.png?alt=media&token=fc2a77de-60d6-4489-b083-405de36c1302";
 //        final String recipePhoto = "https://firebasestorage.googleapis.com/v0/b/cookbook-6cce5.appspot.com/o/Photo_%D0%A1ategory_Recipes%2FPhoto_%D0%A1ategory_Recipes-905908165?alt=media&token=235f3ee3-4654-4947-9c38-d125e8712d21";

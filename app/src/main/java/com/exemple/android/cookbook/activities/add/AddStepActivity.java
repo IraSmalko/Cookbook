@@ -1,4 +1,4 @@
-package com.exemple.android.cookbook.activities;
+package com.exemple.android.cookbook.activities.add;
 
 
 import android.app.ProgressDialog;
@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -17,7 +18,7 @@ import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.ImageCard;
-import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.entity.firebase.FirebaseStepRecipe;
 import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.CropHelper;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
@@ -31,68 +32,43 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.ArrayList;
-
-public class AddRecipeActivity extends AppCompatActivity {
+public class AddStepActivity extends AppCompatActivity {
 
     private static final int REQUEST_CROP_PICTURE = 2;
     private static final int REQUEST_IMAGE_CAPTURE = 22;
     private static final int GALLERY_REQUEST = 13;
     private static final String RECIPE_LIST = "recipeList";
-    private static final String ARRAY_LIST_RECIPE = "ArrayListRecipe";
+    private static final String RECIPE = "recipe";
+    private static final String NUMBER_STEP = "mNumberStep";
 
-    private EditText mInputNameRecipe, mInputIngredients;
+    private EditText mInputNameRecipe;
     private ImageView mImageView;
     private ProgressDialog mProgressDialog;
+    private ActionBar mActionBar;
 
     private DatabaseReference mDatabaseReference;
     private StorageReference mStorageReference;
     private Uri mDownloadUrlCamera;
-    private ArrayList<String> mNameRecipesList = new ArrayList<>();
-    private int mBackPressed = 0;
+    private int mNumberStep = 1;
     private Intent mIntent;
     private PhotoFromCameraHelper mPhotoFromCameraHelper;
     private FirebaseHelper mFirebaseHelper;
     private CropHelper mCropHelper;
-    private Context mContext = AddRecipeActivity.this;
+    private Context mContext = AddStepActivity.this;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.add_recipe);
+        setContentView(R.layout.add_step_activity);
 
         mImageView = (ImageView) findViewById(R.id.photoImageView);
         mInputNameRecipe = (EditText) findViewById(R.id.name);
-        mInputIngredients = (EditText) findViewById(R.id.addIngredients);
         ImageButton btnPhotoFromGallery = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlGallery);
         ImageButton btnPhotoFromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlCamera);
         Button btnSave = (Button) findViewById(R.id.btnSave);
 
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
-
-        mPhotoFromCameraHelper = new PhotoFromCameraHelper(mContext, new PhotoFromCameraHelper.OnPhotoPicked() {
-            @Override
-            public void onPicked(Uri photoUri) {
-                mCropHelper.cropImage(photoUri);
-            }
-        });
-
-        mFirebaseHelper = new FirebaseHelper(new FirebaseHelper.OnSaveImage() {
-            @Override
-            public void OnSave(Uri photoUri) {
-                mDownloadUrlCamera = photoUri;
-                mProgressDialog.dismiss();
-            }
-        });
-
-        mCropHelper = new CropHelper(mContext, new CropHelper.OnCrop() {
-            @Override
-            public void onCrop(Uri cropImageUri) {
-                final ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(mContext, listener);
-                photoAsyncTask.execute(cropImageUri);
-            }
-        });
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
@@ -103,11 +79,40 @@ public class AddRecipeActivity extends AppCompatActivity {
             String username = firebaseUser.getDisplayName();
 
             mIntent = getIntent();
-            mNameRecipesList = mIntent.getStringArrayListExtra(ARRAY_LIST_RECIPE);
-            mDatabaseReference = firebaseDatabase.getReference().child(username + "/Recipe_lists/" + mIntent
-                    .getStringExtra(RECIPE_LIST));
-            mStorageReference = firebaseStorage.getReference().child(username + "/Recipe" + "/" + mIntent
-                    .getStringExtra(RECIPE_LIST));
+            mDatabaseReference = firebaseDatabase.getReference().child(username + "/Step_recipe/" + mIntent
+                    .getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE));
+            mStorageReference = firebaseStorage.getReference().child(username + "/Step_Recipes" + "/" + mIntent
+                    .getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE));
+
+            mActionBar = getSupportActionBar();
+
+            if (savedInstanceState != null && savedInstanceState.containsKey(NUMBER_STEP)) {
+                mNumberStep = savedInstanceState.getInt(NUMBER_STEP);
+            }
+            mActionBar.setTitle(getResources().getString(R.string.step) + " " + mNumberStep);
+
+            mPhotoFromCameraHelper = new PhotoFromCameraHelper(mContext, new PhotoFromCameraHelper.OnPhotoPicked() {
+                @Override
+                public void onPicked(Uri photoUri) {
+                    mCropHelper.cropImage(photoUri);
+                }
+            });
+
+            mFirebaseHelper = new FirebaseHelper(new FirebaseHelper.OnSaveImage() {
+                @Override
+                public void OnSave(Uri photoUri) {
+                    mDownloadUrlCamera = photoUri;
+                    mProgressDialog.dismiss();
+                }
+            });
+
+            mCropHelper = new CropHelper(mContext, new CropHelper.OnCrop() {
+                @Override
+                public void onCrop(Uri cropImageUri) {
+                    ProcessPhotoAsyncTask photoAsyncTask = new ProcessPhotoAsyncTask(mContext, listener);
+                    photoAsyncTask.execute(cropImageUri);
+                }
+            });
 
             boolean isOnline = new CheckOnlineHelper(mContext).isOnline();
             if (isOnline) {
@@ -115,7 +120,8 @@ public class AddRecipeActivity extends AppCompatActivity {
                 btnPhotoFromCamera.setOnClickListener(onClickListener);
                 btnPhotoFromGallery.setOnClickListener(onClickListener);
             } else {
-                Toast.makeText(mContext, getResources().getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, getResources()
+                        .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
             }
         } else {
             Toast.makeText(mContext, getResources().getString(R.string.unauthorized_user), Toast
@@ -127,7 +133,6 @@ public class AddRecipeActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-
                 case R.id.categoryRecipesPhotoUrlGallery:
                     mPhotoFromCameraHelper.pickPhoto();
                     break;
@@ -136,24 +141,27 @@ public class AddRecipeActivity extends AppCompatActivity {
                     break;
                 case R.id.btnSave:
                     if (mInputNameRecipe.getText().toString().equals("")) {
-                        Toast.makeText(mContext, getResources().getString(R.string.no_recipe_name), Toast.LENGTH_SHORT).show();
-                    } else if (mInputIngredients.getText().toString().equals("")) {
-                        Toast.makeText(mContext, getResources().getString(R.string.no_ingredients), Toast.LENGTH_SHORT).show();
-                    } else if (!mNameRecipesList.contains(mInputNameRecipe.getText().toString())) {
-                        if (mDownloadUrlCamera != null) {
-                            Recipe recipes = new Recipe(mInputNameRecipe.getText().toString(),
-                                    mDownloadUrlCamera.toString(), mInputIngredients.getText().toString(), 0);
-                            String recipeId = mDatabaseReference.push().getKey();
-                            mDatabaseReference.child(recipeId).setValue(recipes);
-                            Toast.makeText(mContext, getResources().getString(R.string.data_save), Toast.LENGTH_SHORT).show();
-                            mImageView.setImageResource(R.drawable.dishes);
-                            IntentHelper.intentAddStepActivity(mContext, mIntent
-                                    .getStringExtra(RECIPE_LIST), mInputNameRecipe.getText().toString());
-                        } else {
-                            Toast.makeText(mContext, getResources().getString(R.string.no_photo), Toast.LENGTH_LONG).show();
-                        }
+                        Toast.makeText(mContext, getResources()
+                                .getString(R.string.no_description_step), Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(mContext, getResources().getString(R.string.name_recipe_exists), Toast.LENGTH_SHORT).show();
+                        if (mDownloadUrlCamera != null) {
+                            FirebaseStepRecipe stepRecipe = new FirebaseStepRecipe(getResources()
+                                    .getString(R.string.step) + " " + mNumberStep, mInputNameRecipe
+                                    .getText().toString(), mDownloadUrlCamera.toString());
+                            String recipeId = mDatabaseReference.push().getKey();
+                            mDatabaseReference.child(recipeId).setValue(stepRecipe);
+
+                            Toast.makeText(mContext, getResources()
+                                    .getString(R.string.data_save), Toast.LENGTH_SHORT).show();
+                            mNumberStep = ++mNumberStep;
+                            mActionBar.setTitle(getResources().getString(R.string.step) + " " + mNumberStep);
+                            mImageView.setImageResource(R.drawable.dishes);
+                            mInputNameRecipe.setText("");
+                            mDownloadUrlCamera = null;
+                        } else {
+                            Toast.makeText(mContext, getResources()
+                                    .getString(R.string.no_photo), Toast.LENGTH_LONG).show();
+                        }
                     }
                     break;
             }
@@ -185,22 +193,16 @@ public class AddRecipeActivity extends AppCompatActivity {
     };
 
     @Override
-    public void onBackPressed() {
-        if (!mInputNameRecipe.getText().toString().equals("") || mDownloadUrlCamera != null
-                || !mInputIngredients.getText().toString().equals("")) {
-            int backPressedTrue = 1;
-            int backPressedTFalse = 0;
-            if (mBackPressed == backPressedTrue) {
-                IntentHelper.intentRecipeListActivity(mContext, mIntent.getStringExtra(RECIPE_LIST));
-            } else if (mBackPressed == backPressedTFalse) {
-                Toast.makeText(mContext, getResources().getString(R.string.input_will_lost), Toast.LENGTH_SHORT).show();
-                mBackPressed = backPressedTrue;
-            } else {
-                IntentHelper.intentRecipeListActivity(mContext, mIntent.getStringExtra(RECIPE_LIST));
-            }
-        } else {
-            IntentHelper.intentRecipeListActivity(mContext, mIntent.getStringExtra(RECIPE_LIST));
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        int noSaveStepNumber = 1;
+        if (mNumberStep > noSaveStepNumber) {
+            outState.putInt(NUMBER_STEP, mNumberStep);
         }
     }
-}
 
+    @Override
+    public void onBackPressed() {
+        IntentHelper.intentRecipeListActivity(mContext, mIntent.getStringExtra(RECIPE_LIST));
+    }
+}

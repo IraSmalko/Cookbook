@@ -107,7 +107,7 @@ public class RealmHelper {
             mRealm.executeTransactionAsync(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
-                    for (RealmStepRecipe realmStepRecipe: oldRecipe.getRecipeSteps()                         ) {
+                    for (RealmStepRecipe realmStepRecipe : oldRecipe.getRecipeSteps()) {
                         realmStepRecipe.setPhotoByteArray(loadPhoto(realmStepRecipe.getStepPhotoUrl()));
                     }
                 }
@@ -133,8 +133,6 @@ public class RealmHelper {
                 Toast.makeText(mContext, "Додано в кошик", Toast.LENGTH_SHORT).show();
                 oldRecipe.setInBasket(true);
             }
-
-
         }
         mRealm.commitTransaction();
 
