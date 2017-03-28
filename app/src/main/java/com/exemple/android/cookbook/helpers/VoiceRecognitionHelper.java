@@ -129,8 +129,8 @@ public class VoiceRecognitionHelper {
                                 for (Recipe recipe : recipeForVoice) {
                                     if (mVRResult.contains(recipe.getName().toLowerCase())) {
                                         IntentHelper.intentRecipeActivity(mContext, recipe.getName(), recipe
-                                                .getPhotoUrl(), recipe.getDescription(), recipe
-                                                .getIsPersonal(), recipeList, new FirebaseHelper().getUsername());
+                                                .getPhotoUrl(), recipe.getIsPersonal(), recipeList,
+                                                new FirebaseHelper().getUsername());
                                     }
                                 }
                             }
@@ -167,7 +167,6 @@ public class VoiceRecognitionHelper {
         mIsPersonal = recipe.getIsPersonal();
         mRecipeList = recipeList;
         mRecipeName = recipe.getName();
-        mDescription = recipe.getDescription();
 
         if (new CheckOnlineHelper(mContext).isOnline()) {
             Glide.with(mContext)
@@ -184,7 +183,7 @@ public class VoiceRecognitionHelper {
                                     new FirebaseHelper().getStepsRecipe(mContext, integer, mIsPersonal, mRecipeList,
                                             mRecipeName, new FirebaseHelper().getUsername());
                                 }
-                            }).execute(new RecipeForSQLite(mRecipeName, path, mDescription, 0, null));
+                            }).execute(new RecipeForSQLite(mRecipeName, path, 0, null));
                         }
                     });
         } else {
@@ -200,9 +199,8 @@ public class VoiceRecognitionHelper {
             textView.setText(stepRecipe.get(iterator).getTextStep());
             Glide.with(mContext).load(stepRecipe.get(iterator).getPhotoUrlStep()).into(imageView);
         } else {
-            IntentHelper.intentRecipeActivity(mContext, recipe.getName(), recipe.getPhotoUrl(),
-                    recipe.getDescription(), recipe.getIsPersonal(), recipeList, new FirebaseHelper()
-                            .getUsername());
+            IntentHelper.intentRecipeActivity(mContext, recipe.getName(), recipe.getPhotoUrl(), recipe
+                    .getIsPersonal(), recipeList, new FirebaseHelper().getUsername());
         }
         return iterator;
     }
@@ -221,8 +219,8 @@ public class VoiceRecognitionHelper {
             mVRResult = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             Toast.makeText(mContext, mVRResult.get(0), Toast.LENGTH_LONG).show();
             if (mVRResult.contains(mContext.getResources().getString(R.string.detail_vr))) {
-                IntentHelper.intentStepRecipeActivity(mContext, recipe.getName(), recipe.getPhotoUrl(),
-                        recipe.getDescription(), recipe.getIsPersonal(), recipeList);
+                IntentHelper.intentStepRecipeActivity(mContext, recipe.getName(), recipe
+                        .getPhotoUrl(), recipe.getIsPersonal(), recipeList);
             } else if (mVRResult.contains(mContext.getResources().getString(R.string.save_vr)) ||
                     mVRResult.contains(mContext.getResources().getString(R.string.save_recipe_vr))) {
                 saveRecipeFromVR(recipe, recipeList);

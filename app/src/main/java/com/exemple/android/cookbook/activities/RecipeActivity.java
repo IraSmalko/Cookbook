@@ -33,6 +33,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.adapters.IngredientsAdapter;
 import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.entity.RecipeForSQLite;
@@ -67,7 +68,6 @@ public class RecipeActivity extends BaseActivity
     private static final String RECIPE_LIST = "recipeList";
     private static final String RECIPE = "recipe";
     private static final String PHOTO = "photo";
-    private static final String DESCRIPTION = "description";
     private static final String USERNAME = "username";
     private static final String IS_PERSONAL = "isPersonal";
     private static final int INT_EXTRA = 0;
@@ -116,12 +116,14 @@ public class RecipeActivity extends BaseActivity
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseRecyclerAdapter<Comment, CommentViewHolder> mFirebaseAdapter;
     private RecipeRating mRecipeRating;
+    private IngredientsAdapter mIngredientsAdapter;
+    private RecyclerView mRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        TextView descriptionRecipe = (TextView) findViewById(R.id.textView);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerIngredients);
         mImageView = (ImageView) findViewById(R.id.imageView);
         Button btnDetailRecipe = (Button) findViewById(R.id.btnDetailRecipe);
         mRatingBar = (RatingBar) findViewById(R.id.ratingBar);
@@ -144,6 +146,9 @@ public class RecipeActivity extends BaseActivity
             @Override
             public void OnGet(List<Ingredient> ingredients) {
                 mIngredients = ingredients;
+                mIngredientsAdapter = new IngredientsAdapter(getApplicationContext(), mIngredients);
+                mRecyclerView.setAdapter(mIngredientsAdapter);
+                mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
             }
         }).getIngredients(mIntent.getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent
                 .getStringExtra(RECIPE_LIST), mIntent.getStringExtra(RECIPE));
@@ -159,15 +164,12 @@ public class RecipeActivity extends BaseActivity
                     }
                 });
 
-        descriptionRecipe.setText(mIntent.getStringExtra(DESCRIPTION));
-
         btnDetailRecipe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 IntentHelper.intentStepRecipeActivity(getApplicationContext(), mIntent
                         .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent
-                        .getStringExtra(DESCRIPTION), mIntent.getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent
-                        .getStringExtra(RECIPE_LIST));
+                        .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST));
             }
         });
 
@@ -521,9 +523,9 @@ public class RecipeActivity extends BaseActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == VOICE_REQUEST_CODE) {
-            new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data, new Recipe(mIntent
-                    .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
-                    .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST));
+            new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data,
+                    new Recipe(mIntent.getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent
+                            .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST));
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -539,7 +541,7 @@ public class RecipeActivity extends BaseActivity
         boolean isOnline = new CheckOnlineHelper(this).isOnline();
         if (isOnline) {
             String path = MediaStore.Images.Media.insertImage(getContentResolver(),
-                    mLoadPhotoStep, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
+                    mLoadPhotoStep, getApplicationContext().getCacheDir().getAbsolutePath(), null);
             new WriterDAtaSQLiteAsyncTask.WriterRecipe(this, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
                 @Override
                 public void onDataReady(Integer integer) {
@@ -547,8 +549,7 @@ public class RecipeActivity extends BaseActivity
                             .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST), mIntent
                             .getStringExtra(RECIPE), mIntent.getStringExtra(USERNAME));
                 }
-            }).execute(new RecipeForSQLite(mIntent.getStringExtra(RECIPE), path, mIntent
-                    .getStringExtra(DESCRIPTION), 0, mIngredients, inSaved, inBasket));
+            }).execute(new RecipeForSQLite(mIntent.getStringExtra(RECIPE), path, 0, mIngredients, inSaved, inBasket));
 
         } else {
             Toast.makeText(RecipeActivity.this, getResources()

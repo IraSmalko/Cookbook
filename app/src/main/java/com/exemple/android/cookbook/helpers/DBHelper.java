@@ -23,7 +23,6 @@ public class DBHelper extends SQLiteOpenHelper {
                 + "id integer primary key autoincrement,"
                 + "recipe text,"
                 + "photo text,"
-                + "description text,"
                 + "in_basket numeric,"
                 + "in_saved numeric" + ");");
 

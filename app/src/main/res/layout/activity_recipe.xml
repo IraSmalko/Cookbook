@@ -23,6 +23,7 @@
                 android:layout_height="220dp"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
+                android:layout_marginTop="48dp"
                 android:scaleType="fitXY"
                 app:srcCompat="@drawable/ic_launcher" />
 
@@ -44,7 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentTop="true"
+                android:layout_marginTop="68dp"
                 android:isIndicator="true"
                 android:numStars="5"
                 android:stepSize="0.01" />
@@ -58,8 +59,8 @@
                 android:layout_marginTop="63dp"
                 android:text="@string/detail" />
 
-            <TextView
-                android:id="@+id/textView"
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerIngredients"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/btnDetailRecipe"
@@ -67,8 +68,8 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 android:background="#99ECEFF1"
-                android:text="@string/brief_description"
-                android:textColor="#000" />
+                android:paddingLeft="4dp"
+                android:paddingBottom="4dp"/>
 
             <Button
                 android:id="@+id/save_comments"
@@ -92,7 +93,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/textView"
+                android:layout_below="@+id/recyclerIngredients"
                 android:descendantFocusability="beforeDescendants"
                 android:focusableInTouchMode="true">
 

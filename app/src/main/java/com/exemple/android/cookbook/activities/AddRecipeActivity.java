@@ -62,7 +62,6 @@ public class AddRecipeActivity extends AppCompatActivity {
     private FirebaseHelper mFirebaseHelper;
     private CropHelper mCropHelper;
     private Context mContext = AddRecipeActivity.this;
-    private RecyclerView mRecyclerView;
     private IngredientsAdapter mIngredientsAdapter;
 
     @Override
@@ -79,16 +78,12 @@ public class AddRecipeActivity extends AppCompatActivity {
         ImageButton btnPhotoFromGallery = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlGallery);
         ImageButton btnPhotoFromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlCamera);
         Button btnSave = (Button) findViewById(R.id.btnSave);
-        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerIngredients);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerIngredients);
 
-        mIngredientsAdapter = new IngredientsAdapter(getApplicationContext(), mIngredients, new IngredientsAdapter.ItemClickListener() {
-            @Override
-            public void onItemClick(Ingredient item) {
-                Toast.makeText(mContext, getResources().getString(R.string.no_ingredients), Toast.LENGTH_SHORT).show();
-            }
-        });
-        mRecyclerView.setAdapter(mIngredientsAdapter);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mIngredientsAdapter = new IngredientsAdapter(getApplicationContext(), mIngredients);
+        recyclerView.setAdapter(mIngredientsAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
 
@@ -178,7 +173,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                     } else if (!mNameRecipesList.contains(mInputNameRecipe.getText().toString())) {
                         if (mDownloadUrlCamera != null) {
                             Recipe recipes = new Recipe(mInputNameRecipe.getText().toString(),
-                                    mDownloadUrlCamera.toString(), mInputIngredients.getText().toString(), 0);
+                                    mDownloadUrlCamera.toString(), 0);
                             mDatabaseReferenceIngredients = mFirebaseDatabase.getReference().child(new FirebaseHelper()
                                     .getUsername() + "/Ingredient/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mInputNameRecipe
                                     .getText().toString());

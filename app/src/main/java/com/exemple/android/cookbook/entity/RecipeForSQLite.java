@@ -14,20 +14,14 @@ public class RecipeForSQLite extends Recipe {
     public RecipeForSQLite() {
     }
 
-    public RecipeForSQLite(String name, String photoUrl, String description, int isPersonal, List<Ingredient> ingredients) {
-        this.name = name;
-        this.photoUrl = photoUrl;
-        this.description = description;
-        this.isPersonal = isPersonal;
+    public RecipeForSQLite(String name, String photoUrl, int isPersonal, List<Ingredient> ingredients) {
+        super(name, photoUrl, isPersonal);
         this.ingredients = ingredients;
     }
 
-    public RecipeForSQLite(String name, String photoUrl, String description, int isPersonal,
+    public RecipeForSQLite(String name, String photoUrl, int isPersonal,
                            List<Ingredient> ingredients, int isInSaved, int isInBasket) {
-        this.name = name;
-        this.photoUrl = photoUrl;
-        this.description = description;
-        this.isPersonal = isPersonal;
+        super(name, photoUrl, isPersonal);
         this.ingredients = ingredients;
         this.isInSaved = isInSaved;
         this.isInBasket = isInBasket;

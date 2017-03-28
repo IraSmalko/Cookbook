@@ -29,7 +29,7 @@ public class CreaterRecyclerAdapter {
                     @Override
                     public void onItemClick(Recipe item) {
                         IntentHelper.intentRecipeActivity(mContext, item.getName(), item
-                                .getPhotoUrl(), item.getDescription(), item.getIsPersonal(), mRecipes, mUser);
+                                .getPhotoUrl(), item.getIsPersonal(), mRecipes, mUser);
                     }
                 });
     }

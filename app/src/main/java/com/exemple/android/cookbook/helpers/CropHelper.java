@@ -46,6 +46,7 @@ public class CropHelper {
                 if (resultCode == Activity.RESULT_OK) {
                     mOnCropListener.onCrop(mCropImageUri);
                 }
+                break;
         }
     }
 

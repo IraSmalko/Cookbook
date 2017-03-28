@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.adapters.IngredientsAdapter;
 import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.helpers.IntentHelper;
@@ -45,6 +46,7 @@ public class SelectedRecipeActivity extends AppCompatActivity {
         ImageView imageView = (ImageView) findViewById(R.id.imageView);
         Button btnDetailRecipe = (Button) findViewById(R.id.btnDetailRecipe);
         ActionBar actionBar = getSupportActionBar();
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerIngredients);
 
         mIntent = getIntent();
 
@@ -61,14 +63,17 @@ public class SelectedRecipeActivity extends AppCompatActivity {
         btnDetailRecipe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                IntentHelper.intentSelectedStepRecipeActivity(getApplicationContext(), mIntent
-                        .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent
-                        .getStringExtra(DESCRIPTION), mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
+                IntentHelper.intentSelectedStepRecipeActivity(getApplicationContext(), intent
+                        .getStringExtra(RECIPE), intent.getStringExtra(PHOTO), intent
+                        .getStringExtra(DESCRIPTION), intent.getIntExtra(ID_RECIPE, INT_EXTRA));
             }
         });
 
         DataSourceSQLite dataSource = new DataSourceSQLite(this);
         mRecipeIngredients = dataSource.readRecipeIngredients(mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
+        IngredientsAdapter ingredientsAdapter = new IngredientsAdapter(getApplicationContext(), recipeIngredients);
+        recyclerView.setAdapter(ingredientsAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     @Override
