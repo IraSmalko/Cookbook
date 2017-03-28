@@ -19,9 +19,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.Recipe;
-import com.exemple.android.cookbook.entity.firebase.FirebaseRecipe;
-import com.exemple.android.cookbook.entity.firebase.FirebaseStepRecipe;
+import com.exemple.android.cookbook.entity.firebase.Recipe;
+import com.exemple.android.cookbook.entity.firebase.RecipeStep;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.helpers.VoiceRecognitionHelper;
@@ -48,7 +47,7 @@ public class RecipeStepActivity extends AppCompatActivity
     private static final int VOICE_REQUEST_CODE = 1234;
 
     private Intent mIntent;
-    private List<FirebaseStepRecipe> mStepRecipe = new ArrayList<>();
+    private List<RecipeStep> mStepRecipe = new ArrayList<>();
     private TextView mTxtStepRecipe;
     private ImageView mImgStepRecipe;
     private ActionBar mActionBar;
@@ -62,7 +61,7 @@ public class RecipeStepActivity extends AppCompatActivity
     private SensorManager mSensorManager;
     private Sensor mSensor;
 
-    private FirebaseRecipe mFirebaseRecipe;
+    private Recipe mRecipe;
 
 
     @Override
@@ -87,18 +86,18 @@ public class RecipeStepActivity extends AppCompatActivity
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                mFirebaseRecipe = dataSnapshot.getValue(FirebaseRecipe.class);
+                mRecipe = dataSnapshot.getValue(Recipe.class);
 //                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
 //                    FirebaseStepRecipe step = postSnapshot.getValue(FirebaseStepRecipe.class);
 //                    mStepRecipe.add(step);
 //                }
-                mStepRecipe.addAll(mFirebaseRecipe.getSteps().values());
+                mStepRecipe.addAll(mRecipe.getSteps().values());
                 if (mStepRecipe.isEmpty() && mFirebaseUser != null) {
                     mUsername = mFirebaseUser.getDisplayName();
                     mReference = mUsername + "/" + mReference;
                     new FirebaseHelper(new FirebaseHelper.OnStepRecipes() {
                         @Override
-                        public void OnGet(List<FirebaseStepRecipe> stepRecipes) {
+                        public void OnGet(List<RecipeStep> stepRecipes) {
                             mStepRecipe.addAll(stepRecipes);
                             updateData(mIterator);
                             if (mStepRecipe.isEmpty()) {
@@ -184,7 +183,7 @@ public class RecipeStepActivity extends AppCompatActivity
 //                                    mIntent.getStringExtra(PHOTO),
 //                                    mIntent.getStringExtra(DESCRIPTION),
 //                                    mIntent.getIntExtra(IS_PERSONAL, INT_EXTRA)),
-                            mFirebaseRecipe,
+                            mRecipe,
                             mIntent.getStringExtra(RECIPE_LIST),
                             mIterator,
                             mStepRecipe,

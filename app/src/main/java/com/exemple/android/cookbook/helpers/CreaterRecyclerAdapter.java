@@ -5,8 +5,8 @@ import android.content.Context;
 
 import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
 import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
-import com.exemple.android.cookbook.entity.CategoryRecipes;
-import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.entity.firebase.RecipesCategory;
+import com.exemple.android.cookbook.entity.firebase.Recipe;
 
 import java.util.List;
 
@@ -34,11 +34,11 @@ public class CreaterRecyclerAdapter {
                 });
     }
 
-    public CategoryRecipeRecyclerAdapter createRecyclerAdapter(List<CategoryRecipes> categoryRecipesList) {
-        return new CategoryRecipeRecyclerAdapter(mContext, categoryRecipesList,
+    public CategoryRecipeRecyclerAdapter createRecyclerAdapter(List<RecipesCategory> recipesCategoryList) {
+        return new CategoryRecipeRecyclerAdapter(mContext, recipesCategoryList,
                 new CategoryRecipeRecyclerAdapter.ItemClickListener() {
                     @Override
-                    public void onItemClick(CategoryRecipes item) {
+                    public void onItemClick(RecipesCategory item) {
                         IntentHelper.intentRecipeListActivity(mContext, item.getName());
                     }
                 });

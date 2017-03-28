@@ -7,9 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.speech.RecognizerIntent;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
@@ -20,17 +17,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.activities.add.AddCategoryRecipeActivity;
 import com.exemple.android.cookbook.activities.AuthenticationActivity;
 import com.exemple.android.cookbook.activities.InfoVRActivity;
 import com.exemple.android.cookbook.activities.selected.SelectedRecipeListActivity;
-import com.exemple.android.cookbook.entity.CategoryRecipes;
-import com.exemple.android.cookbook.entity.Recipe;
-import com.exemple.android.cookbook.entity.firebase.FirebaseRecipe;
-import com.exemple.android.cookbook.entity.firebase.FirebaseStepRecipe;
+import com.exemple.android.cookbook.entity.firebase.RecipesCategory;
+import com.exemple.android.cookbook.entity.firebase.Recipe;
+import com.exemple.android.cookbook.entity.firebase.RecipeStep;
 import com.exemple.android.cookbook.entity.realm.RealmRecipe;
 
 import java.util.ArrayList;
@@ -48,7 +42,7 @@ public class VoiceRecognitionHelper {
     private int mStatus;
     private int mOn = 1;
     private ArrayList<String> mVRResult;
-    private List<CategoryRecipes> mForVoice;
+    private List<RecipesCategory> mForVoice;
     private int mIsPersonal, mIterator;
     private String mRecipeList, mRecipeName, mDescription;
 
@@ -121,9 +115,9 @@ public class VoiceRecognitionHelper {
     public void getDataForVR() {
         new FirebaseHelper(new FirebaseHelper.OnGetCategoryListForVR() {
             @Override
-            public void OnGet(List<CategoryRecipes> forVoice) {
+            public void OnGet(List<RecipesCategory> forVoice) {
                 mForVoice = forVoice;
-                for (CategoryRecipes recipeList : mForVoice) {
+                for (RecipesCategory recipeList : mForVoice) {
                     if (mVRResult.contains(recipeList.getName().toLowerCase())) {
                         IntentHelper.intentRecipeListActivity(mContext, recipeList.getName());
                     } else {
@@ -167,7 +161,7 @@ public class VoiceRecognitionHelper {
         }
     }
 
-    private void saveRecipeFromVR(FirebaseRecipe recipe, String recipeList) {
+    private void saveRecipeFromVR(Recipe recipe, String recipeList) {
         mIsPersonal = recipe.getIsPersonal();
         mRecipeList = recipeList;
         mRecipeName = recipe.getName();
@@ -191,7 +185,7 @@ public class VoiceRecognitionHelper {
         }
     }
 
-    public int nextStepVR(int iterator, List<FirebaseStepRecipe> stepRecipe, FirebaseRecipe recipe, String recipeList,
+    public int nextStepVR(int iterator, List<RecipeStep> stepRecipe, Recipe recipe, String recipeList,
                           ActionBar actionBar, TextView textView, ImageView imageView) {
         int noSteps = -1;
         if (iterator < stepRecipe.size() && iterator != noSteps) {
@@ -215,7 +209,7 @@ public class VoiceRecognitionHelper {
         }
     }
 
-    public void onActivityResult(int resultCode, Intent data, FirebaseRecipe recipe, String recipeList) {
+    public void onActivityResult(int resultCode, Intent data, Recipe recipe, String recipeList) {
         if (resultCode == Activity.RESULT_OK) {
             mVRResult = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             Toast.makeText(mContext, mVRResult.get(0), Toast.LENGTH_LONG).show();
@@ -231,8 +225,8 @@ public class VoiceRecognitionHelper {
         }
     }
 
-    public int onActivityResult(int resultCode, Intent data, FirebaseRecipe recipe, String recipeList,
-                                int iterator, List<FirebaseStepRecipe> stepRecipe, ActionBar actionBar,
+    public int onActivityResult(int resultCode, Intent data, Recipe recipe, String recipeList,
+                                int iterator, List<RecipeStep> stepRecipe, ActionBar actionBar,
                                 TextView textView, ImageView imageView) {
         if (resultCode == Activity.RESULT_OK) {
             mVRResult = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);

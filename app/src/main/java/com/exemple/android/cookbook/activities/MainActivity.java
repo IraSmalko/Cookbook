@@ -8,12 +8,13 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.activities.add.AddCategoryRecipeActivity;
 import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
-import com.exemple.android.cookbook.entity.CategoryRecipes;
+import com.exemple.android.cookbook.entity.firebase.RecipesCategory;
 import com.exemple.android.cookbook.helpers.CreaterRecyclerAdapter;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.SwipeHelper;
@@ -41,8 +42,8 @@ public class MainActivity extends BaseActivity {
     private RecyclerView mRecyclerView;
     private SwipeHelper mSwipeHelper;
     private CategoryRecipeRecyclerAdapter mRecyclerAdapter;
-    private List<CategoryRecipes> mCategoryRecipesList = new ArrayList<>();
-    private List<CategoryRecipes> mPublicCategoryRecipes = new ArrayList<>();
+    private List<RecipesCategory> mRecipesCategoryList = new ArrayList<>();
+    private List<RecipesCategory> mPublicRecipeCategories = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,14 +61,6 @@ public class MainActivity extends BaseActivity {
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), AddCategoryRecipeActivity.class));
-            }
-        });
-
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = firebaseAuth.getCurrentUser();
 
@@ -77,6 +70,18 @@ public class MainActivity extends BaseActivity {
             mUsername = mFirebaseUser.getDisplayName();
         }
 
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mFirebaseUser != null) {
+                    startActivity(new Intent(getApplicationContext(), AddCategoryRecipeActivity.class));
+                } else {
+                    Toast.makeText(MainActivity.this, "Авторизуйтесь, будь ласка", Toast.LENGTH_SHORT);
+                }
+            }
+        });
+
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = mFirebaseDatabase.getReference("Сategory_Recipes");
 
@@ -84,26 +89,26 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
-                    mCategoryRecipesList.add(categoryRecipes);
+                    RecipesCategory recipesCategory = postSnapshot.getValue(RecipesCategory.class);
+                    mRecipesCategoryList.add(recipesCategory);
                 }
-                mPublicCategoryRecipes = mCategoryRecipesList;
+                mPublicRecipeCategories = mRecipesCategoryList;
                 if (mFirebaseUser != null) {
                     new FirebaseHelper(new FirebaseHelper.OnUserCategoryRecipe() {
                         @Override
-                        public void OnGet(List<CategoryRecipes> category) {
-                            category.addAll(mCategoryRecipesList);
+                        public void OnGet(List<RecipesCategory> category) {
+                            category.addAll(mRecipesCategoryList);
                             mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
                                     .createRecyclerAdapter(category);
                             mRecyclerView.setAdapter(mRecyclerAdapter);
-                            mSwipeHelper.attachSwipeCategory(mPublicCategoryRecipes);
+                            mSwipeHelper.attachSwipeCategory(mPublicRecipeCategories);
                         }
                     }).getUserCategoryRecipe(mUsername, mFirebaseDatabase);
                 } else {
                     mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
-                            .createRecyclerAdapter(mCategoryRecipesList);
+                            .createRecyclerAdapter(mRecipesCategoryList);
                     mRecyclerView.setAdapter(mRecyclerAdapter);
-                    mSwipeHelper.attachSwipeCategory(mCategoryRecipesList);
+                    mSwipeHelper.attachSwipeCategory(mRecipesCategoryList);
                 }
             }
 
@@ -121,12 +126,12 @@ public class MainActivity extends BaseActivity {
     @Override
     public boolean onQueryTextChange(String newText) {
         newText = newText.toLowerCase();
-        ArrayList<CategoryRecipes> newList = new ArrayList<>();
+        ArrayList<RecipesCategory> newList = new ArrayList<>();
 
-        for (CategoryRecipes categoryRecipes : mCategoryRecipesList) {
-            String name = categoryRecipes.getName().toLowerCase();
+        for (RecipesCategory recipesCategory : mRecipesCategoryList) {
+            String name = recipesCategory.getName().toLowerCase();
             if (name.contains(newText))
-                newList.add(categoryRecipes);
+                newList.add(recipesCategory);
         }
         mRecyclerAdapter.updateAdapter(newList);
         return true;

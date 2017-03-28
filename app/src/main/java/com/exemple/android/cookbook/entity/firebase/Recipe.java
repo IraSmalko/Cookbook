@@ -8,35 +8,36 @@ import java.util.HashMap;
  * Created by Sakurov on 15.03.2017.
  */
 @Keep
-public class FirebaseRecipe {
+public class Recipe {
+
     private String name;
     private String description;
     private String photoUrl;
-    private HashMap<String, FirebaseIngredient> ingredients;
-    private HashMap<String, FirebaseStepRecipe> steps;
+    private HashMap<String, RecipeIngredient> ingredients;
+    private HashMap<String, RecipeStep> steps;
 
     private int isPersonal;
 
     private String recipeId;
 
-    public FirebaseRecipe() {
+    public Recipe() {
     }
 
-    public FirebaseRecipe(String name,
-                          String photoUrl,
-                          String description,
-                          int isPersonal) {
+    public Recipe(String name,
+                  String photoUrl,
+                  String description,
+                  int isPersonal) {
         this.name = name;
         this.description = description;
         this.photoUrl = photoUrl;
         this.isPersonal = isPersonal;
     }
 
-    public FirebaseRecipe(String name,
-                          String description,
-                          String photoUrl,
-                          HashMap<String, FirebaseIngredient> ingredients,
-                          HashMap<String, FirebaseStepRecipe> steps) {
+    public Recipe(String name,
+                  String description,
+                  String photoUrl,
+                  HashMap<String, RecipeIngredient> ingredients,
+                  HashMap<String, RecipeStep> steps) {
         this.name = name;
         this.description = description;
         this.photoUrl = photoUrl;
@@ -76,19 +77,19 @@ public class FirebaseRecipe {
         this.photoUrl = photoUrl;
     }
 
-    public HashMap<String, FirebaseIngredient> getIngredients() {
+    public HashMap<String, RecipeIngredient> getIngredients() {
         return ingredients;
     }
 
-    public void setIngredients(HashMap<String, FirebaseIngredient> ingredients) {
+    public void setIngredients(HashMap<String, RecipeIngredient> ingredients) {
         this.ingredients = ingredients;
     }
 
-    public HashMap<String, FirebaseStepRecipe> getSteps() {
+    public HashMap<String, RecipeStep> getSteps() {
         return steps;
     }
 
-    public void setSteps(HashMap<String, FirebaseStepRecipe> steps) {
+    public void setSteps(HashMap<String, RecipeStep> steps) {
         this.steps = steps;
     }
 

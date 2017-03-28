@@ -7,10 +7,10 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 
 import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
-import com.exemple.android.cookbook.entity.CategoryRecipes;
+import com.exemple.android.cookbook.entity.firebase.RecipesCategory;
 import com.exemple.android.cookbook.entity.ImageCard;
-import com.exemple.android.cookbook.entity.Recipe;
-import com.exemple.android.cookbook.entity.firebase.FirebaseStepRecipe;
+import com.exemple.android.cookbook.entity.firebase.Recipe;
+import com.exemple.android.cookbook.entity.firebase.RecipeStep;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,10 +30,10 @@ import java.util.Random;
 
 public class FirebaseHelper {
 
-    private List<FirebaseStepRecipe> mStepRecipe = new ArrayList<>();
-    private List<CategoryRecipes> mCategory = new ArrayList<>();
+    private List<RecipeStep> mStepRecipe = new ArrayList<>();
+    private List<RecipesCategory> mCategory = new ArrayList<>();
     private List<Recipe> mRecipes = new ArrayList<>();
-    private List<CategoryRecipes> mCategoryRecipesList = new ArrayList<>();
+    private List<RecipesCategory> mRecipesCategoryList = new ArrayList<>();
     private OnUserCategoryRecipe mOnUserCategoryRecipe;
     private OnUserRecipes mOnUserRecipes;
     private OnSaveImage mOnSaveImage;
@@ -111,7 +111,7 @@ public class FirebaseHelper {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    FirebaseStepRecipe step = postSnapshot.getValue(FirebaseStepRecipe.class);
+                    RecipeStep step = postSnapshot.getValue(RecipeStep.class);
                     mStepRecipe.add(step);
                 }
 //                SAVING STEPS!!!!!!!!!!!!!
@@ -133,7 +133,7 @@ public class FirebaseHelper {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    FirebaseStepRecipe step = postSnapshot.getValue(FirebaseStepRecipe.class);
+                    RecipeStep step = postSnapshot.getValue(RecipeStep.class);
                     mStepRecipe.add(step);
                 }
                 mOnStepRecipes.OnGet(mStepRecipe);
@@ -147,15 +147,15 @@ public class FirebaseHelper {
 
     public void getUserCategoryRecipe(String username,
                                       FirebaseDatabase firebaseDatabase) {
-        DatabaseReference databaseUserReference = firebaseDatabase.getReference(username + "/Сategory_Recipes");
+        DatabaseReference databaseUserReference = firebaseDatabase.getReference("Users_Recipes/" + username + "/Сategory_Recipes");
         databaseUserReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mCategory.clear();
                 if (dataSnapshot.getValue() != null) {
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                        CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
-                        mCategory.add(categoryRecipes);
+                        RecipesCategory recipesCategory = postSnapshot.getValue(RecipesCategory.class);
+                        mCategory.add(recipesCategory);
                     }
                     mOnUserCategoryRecipe.OnGet(mCategory);
                 } else {
@@ -297,7 +297,7 @@ public class FirebaseHelper {
         mDatabaseReference = mFirebaseDatabase.getReference().child(mReference);
 
         if (mUsername != null) {
-            mReference = mUsername + "/" + mReference;
+            mReference = "Users_Recipes/" + mUsername + "/" + mReference;
         }
         mDatabaseReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -383,19 +383,19 @@ public class FirebaseHelper {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
-                    mCategoryRecipesList.add(categoryRecipes);
+                    RecipesCategory recipesCategory = postSnapshot.getValue(RecipesCategory.class);
+                    mRecipesCategoryList.add(recipesCategory);
                 }
                 if (getUsername() != null) {
                     new FirebaseHelper(new FirebaseHelper.OnUserCategoryRecipe() {
                         @Override
-                        public void OnGet(List<CategoryRecipes> category) {
-                            category.addAll(mCategoryRecipesList);
+                        public void OnGet(List<RecipesCategory> category) {
+                            category.addAll(mRecipesCategoryList);
                             mOnGetCategoryListForVR.OnGet(category);
                         }
                     }).getUserCategoryRecipe(getUsername(), mFirebaseDatabase);
                 } else {
-                    mOnGetCategoryListForVR.OnGet(mCategoryRecipesList);
+                    mOnGetCategoryListForVR.OnGet(mRecipesCategoryList);
                 }
             }
 
@@ -410,7 +410,7 @@ public class FirebaseHelper {
     }
 
     public interface OnUserCategoryRecipe {
-        void OnGet(List<CategoryRecipes> categoryRecipesList);
+        void OnGet(List<RecipesCategory> recipesCategoryList);
     }
 
     public interface OnUserRecipes {
@@ -418,7 +418,7 @@ public class FirebaseHelper {
     }
 
     public interface OnStepRecipes {
-        void OnGet(List<FirebaseStepRecipe> stepRecipes);
+        void OnGet(List<RecipeStep> stepRecipes);
     }
 
     public interface OnGetRecipeList {
@@ -430,6 +430,6 @@ public class FirebaseHelper {
     }
 
     public interface OnGetCategoryListForVR {
-        void OnGet(List<CategoryRecipes> forVoice);
+        void OnGet(List<RecipesCategory> forVoice);
     }
 }

@@ -1,17 +1,15 @@
 package com.exemple.android.cookbook.entity.realm;
 
-import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.exemple.android.cookbook.entity.firebase.FirebaseIngredient;
-import com.exemple.android.cookbook.entity.firebase.FirebaseRecipe;
-import com.exemple.android.cookbook.entity.firebase.FirebaseStepRecipe;
+import com.exemple.android.cookbook.entity.firebase.RecipeIngredient;
+import com.exemple.android.cookbook.entity.firebase.Recipe;
+import com.exemple.android.cookbook.entity.firebase.RecipeStep;
 
 import java.io.ByteArrayOutputStream;
 
@@ -41,18 +39,18 @@ public class RealmRecipe extends RealmObject {
     public void RealmRecipe() {
     }
 
-    public void setRealmRecipe(FirebaseRecipe firebaseRecipe) {
+    public void setRealmRecipe(Recipe recipe) {
 
-        this.recipeName = firebaseRecipe.getName();
-        this.recipeDescription = firebaseRecipe.getDescription();
-        this.recipePhotoUrl = firebaseRecipe.getPhotoUrl();
+        this.recipeName = recipe.getName();
+        this.recipeDescription = recipe.getDescription();
+        this.recipePhotoUrl = recipe.getPhotoUrl();
 
-        for (FirebaseIngredient firebaseIngredient : firebaseRecipe.getIngredients().values()) {
-            this.recipeIngredients.add(new RealmIngredient(firebaseIngredient));
+        for (RecipeIngredient recipeIngredient : recipe.getIngredients().values()) {
+            this.recipeIngredients.add(new RealmIngredient(recipeIngredient));
         }
 
-        for (FirebaseStepRecipe firebaseStepRecipe : firebaseRecipe.getSteps().values()) {
-            recipeSteps.add(new RealmStepRecipe(firebaseStepRecipe));
+        for (RecipeStep recipeStep : recipe.getSteps().values()) {
+            recipeSteps.add(new RealmStepRecipe(recipeStep));
         }
     }
 

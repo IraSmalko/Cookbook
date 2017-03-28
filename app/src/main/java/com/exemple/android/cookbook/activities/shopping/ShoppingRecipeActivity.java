@@ -11,7 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.firebase.FirebaseIngredient;
+import com.exemple.android.cookbook.entity.firebase.RecipeIngredient;
 import com.exemple.android.cookbook.entity.realm.RealmIngredient;
 import com.exemple.android.cookbook.entity.realm.RealmRecipe;
 import com.google.firebase.database.DatabaseReference;
@@ -39,8 +39,8 @@ public class ShoppingRecipeActivity extends AppCompatActivity {
 
     private String INGREDIENTS_CHILD;
 
-    private List<FirebaseIngredient> mIngredientsShop = new ArrayList<>();
-    private List<FirebaseIngredient> mIngredientsBasket = new ArrayList<>();
+    private List<RecipeIngredient> mIngredientsShop = new ArrayList<>();
+    private List<RecipeIngredient> mIngredientsBasket = new ArrayList<>();
 
     private DatabaseReference mFirebaseDatabaseReference;
 
@@ -78,7 +78,7 @@ public class ShoppingRecipeActivity extends AppCompatActivity {
 
         for (RealmIngredient ingredient: ingredients
              ) {
-            mIngredientsShop.add(new FirebaseIngredient(ingredient));
+            mIngredientsShop.add(new RecipeIngredient(ingredient));
         }
 
 //        INGREDIENTS_CHILD = "Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/ingredients";

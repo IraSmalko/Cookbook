@@ -5,9 +5,7 @@ import android.graphics.Bitmap;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.exemple.android.cookbook.entity.firebase.FirebaseRecipe;
+import com.exemple.android.cookbook.entity.firebase.Recipe;
 import com.exemple.android.cookbook.entity.realm.RealmRecipe;
 import com.exemple.android.cookbook.entity.realm.RealmStepRecipe;
 
@@ -27,15 +25,15 @@ public class RealmHelper {
 
     Realm mRealm = Realm.getDefaultInstance();
     Context mContext;
-    FirebaseRecipe mFirebaseRecipe = new FirebaseRecipe();
+    Recipe mRecipe = new Recipe();
 
     public RealmHelper() {
 
     }
 
-    public RealmHelper(Context context, FirebaseRecipe firebaseRecipe) {
+    public RealmHelper(Context context, Recipe recipe) {
         mContext = context;
-        mFirebaseRecipe = firebaseRecipe;
+        mRecipe = recipe;
     }
 
     public void saveRecipeInRealm(final int saveTarget) {
@@ -44,7 +42,7 @@ public class RealmHelper {
             @Override
             public void execute(Realm realm) {
                 RealmRecipe newRealmRecipe = realm.createObject(RealmRecipe.class);
-                newRealmRecipe.setRealmRecipe(mFirebaseRecipe);
+                newRealmRecipe.setRealmRecipe(mRecipe);
                 newRealmRecipe.setPhotoByteArray(loadPhoto(newRealmRecipe.getRecipePhotoUrl()));
                 for (RealmStepRecipe realmStepRecipe : newRealmRecipe.getRecipeSteps()) {
                     realmStepRecipe.setPhotoByteArray(loadPhoto(realmStepRecipe.getStepPhotoUrl()));
@@ -71,7 +69,7 @@ public class RealmHelper {
 
     public void updateRecipeInRealm(int updateTarget) {
         RealmRecipe newRecipe = new RealmRecipe();
-        newRecipe.setRealmRecipe(mFirebaseRecipe);
+        newRecipe.setRealmRecipe(mRecipe);
         int countOfChanges = 0;
         final RealmRecipe oldRecipe = mRealm.where(RealmRecipe.class).equalTo("recipeName", newRecipe.getRecipeName()).findAll().get(0);
         mRealm.beginTransaction();

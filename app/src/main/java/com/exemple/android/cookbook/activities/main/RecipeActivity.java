@@ -32,9 +32,9 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.activities.BaseActivity;
-import com.exemple.android.cookbook.entity.Recipe;
-import com.exemple.android.cookbook.entity.firebase.FirebaseIngredient;
-import com.exemple.android.cookbook.entity.firebase.FirebaseRecipe;
+import com.exemple.android.cookbook.entity.RecipeRating;
+import com.exemple.android.cookbook.entity.firebase.RecipeIngredient;
+import com.exemple.android.cookbook.entity.firebase.Recipe;
 import com.exemple.android.cookbook.entity.realm.RealmRecipe;
 import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
@@ -129,10 +129,10 @@ public class RecipeActivity extends BaseActivity
     private GoogleApiClient mGoogleApiClient;
     private RecipeRating mRecipeRating;
 
-    private FirebaseRecipe mFirebaseRecipe;
+    private Recipe mRecipe;
 
     private FirebaseRecyclerAdapter<Comment, CommentViewHolder> mCommentsFirebaseAdapter;
-    private FirebaseRecyclerAdapter<FirebaseIngredient, IngredientViewHolder> mIngredientsFirebaseAdapter;
+    private FirebaseRecyclerAdapter<RecipeIngredient, IngredientViewHolder> mIngredientsFirebaseAdapter;
 
     Realm mRealm;
 
@@ -162,6 +162,8 @@ public class RecipeActivity extends BaseActivity
 
         mIntent = getIntent();
         getSupportActionBar().setTitle(mIntent.getStringExtra(RECIPE));
+
+        boolean isPersonal = mIntent.getStringExtra(USERNAME) != null;
 
         Glide.with(getApplicationContext())
                 .load(mIntent.getStringExtra(PHOTO))
@@ -217,17 +219,23 @@ public class RecipeActivity extends BaseActivity
             }
         }
 
-        RECIPE_CHILD = "Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE);
+
         MESSAGES_CHILD = "Support/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/comments";
         RATING_CHILD = "Support/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/recipeRating";
-        INGREDIENTS_CHILD = "Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/ingredients";
 
+        if (!isPersonal) {
+            RECIPE_CHILD = "Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE);
+            INGREDIENTS_CHILD = "Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/ingredients";
+        } else {
+            RECIPE_CHILD = "Users_Recipes/" + mIntent.getStringExtra(USERNAME) + "/Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE);
+            INGREDIENTS_CHILD = "Users_Recipes/" + mIntent.getStringExtra(USERNAME) + "/Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/ingredients";
+        }
 //        RECIPE
 
         mFirebaseDatabaseReference.child(RECIPE_CHILD).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                mFirebaseRecipe = dataSnapshot.getValue(FirebaseRecipe.class);
+                mRecipe = dataSnapshot.getValue(Recipe.class);
             }
 
             @Override
@@ -274,7 +282,7 @@ public class RecipeActivity extends BaseActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.exists()) {
-                    dataSnapshot.getRef().push().setValue(new FirebaseIngredient());
+                    dataSnapshot.getRef().push().setValue(new RecipeIngredient("test", 0, "kg"));
                 }
             }
 
@@ -394,15 +402,15 @@ public class RecipeActivity extends BaseActivity
 
 //      INGREDIENTS_ADAPTER
 
-        mIngredientsFirebaseAdapter = new FirebaseRecyclerAdapter<FirebaseIngredient, IngredientViewHolder>(
-                FirebaseIngredient.class,
+        mIngredientsFirebaseAdapter = new FirebaseRecyclerAdapter<RecipeIngredient, IngredientViewHolder>(
+                RecipeIngredient.class,
                 R.layout.item_ingridient,
                 IngredientViewHolder.class,
                 mFirebaseDatabaseReference.child(INGREDIENTS_CHILD)) {
 
             @Override
-            protected FirebaseIngredient parseSnapshot(DataSnapshot snapshot) {
-                FirebaseIngredient ingredient = super.parseSnapshot(snapshot);
+            protected RecipeIngredient parseSnapshot(DataSnapshot snapshot) {
+                RecipeIngredient ingredient = super.parseSnapshot(snapshot);
                 if (ingredient != null) {
                     ingredient.setId(snapshot.getKey());
                 }
@@ -411,7 +419,7 @@ public class RecipeActivity extends BaseActivity
 
             @Override
             protected void populateViewHolder(IngredientViewHolder viewHolder,
-                                              FirebaseIngredient ingredient, int position) {
+                                              RecipeIngredient ingredient, int position) {
 //                mProgressBar.setVisibility(ProgressBar.INVISIBLE);
                 viewHolder.ingredientNameTextView.setText(ingredient.getName());
                 viewHolder.ingredientQuantityTextView.setText(String.valueOf(ingredient.getQuantity()));
@@ -483,10 +491,10 @@ public class RecipeActivity extends BaseActivity
         mRealm = Realm.getDefaultInstance();
         boolean isOnline = new CheckOnlineHelper(this).isOnline();
         boolean isInRealm = false;
-        if (mRealm.where(RealmRecipe.class).equalTo("recipeName", mFirebaseRecipe.getName()).findAll().size() != 0) {
+        if (mRealm.where(RealmRecipe.class).equalTo("recipeName", mRecipe.getName()).findAll().size() != 0) {
             isInRealm = true;
         }
-        RealmHelper realmHelper = new RealmHelper(this, mFirebaseRecipe);
+        RealmHelper realmHelper = new RealmHelper(this, mRecipe);
 
         if (id == R.id.action_save) {
 
@@ -544,32 +552,6 @@ public class RecipeActivity extends BaseActivity
         Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
     }
 
-    public static class RecipeRating {
-        private float rating;
-        private int numberOfUsers;
-
-        RecipeRating() {
-            this.rating = 0;
-            this.numberOfUsers = 0;
-        }
-
-        public void addRating(float rating) {
-            this.rating = (this.rating * this.numberOfUsers + rating) / (this.numberOfUsers + 1);
-            this.numberOfUsers++;
-        }
-
-        public float getRating() {
-            return rating;
-        }
-
-        public int getNumberOfUsers() {
-            return numberOfUsers;
-        }
-
-        public void editRating(float oldRating, float newRating) {
-            rating = (rating * numberOfUsers - oldRating + newRating) / numberOfUsers;
-        }
-    }
 
     public void showRatingDialog() {
 
@@ -662,7 +644,7 @@ public class RecipeActivity extends BaseActivity
 //                            mIntent.getStringExtra(PHOTO),
 //                            mIntent.getStringExtra(DESCRIPTION),
 //                            mIntent.getIntExtra(IS_PERSONAL, INT_EXTRA)),
-                    mFirebaseRecipe,
+                    mRecipe,
                     mIntent.getStringExtra(RECIPE_LIST));
         }
         super.onActivityResult(requestCode, resultCode, data);

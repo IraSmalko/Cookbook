@@ -6,15 +6,15 @@ import android.support.annotation.Keep;
  * Created by Sakurov on 16.03.2017.
  */
 @Keep
-public class FirebaseStepRecipe {
+public class RecipeStep {
     private String stepNumber;
     private String stepText;
     private String stepPhotoUrl;
 
-    public FirebaseStepRecipe() {
+    public RecipeStep() {
     }
 
-    public FirebaseStepRecipe(String stepNumber, String stepPhotoUrl, String stepText) {
+    public RecipeStep(String stepNumber, String stepPhotoUrl, String stepText) {
         this.stepNumber = stepNumber;
         this.stepText = stepText;
         this.stepPhotoUrl = stepPhotoUrl;

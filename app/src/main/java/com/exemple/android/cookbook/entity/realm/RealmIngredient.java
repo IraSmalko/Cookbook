@@ -1,6 +1,6 @@
 package com.exemple.android.cookbook.entity.realm;
 
-import com.exemple.android.cookbook.entity.firebase.FirebaseIngredient;
+import com.exemple.android.cookbook.entity.firebase.RecipeIngredient;
 import com.google.firebase.database.DataSnapshot;
 
 import io.realm.RealmObject;
@@ -18,10 +18,10 @@ public class RealmIngredient extends RealmObject {
     public RealmIngredient() {
     }
 
-    public RealmIngredient(FirebaseIngredient firebaseIngredient) {
-        name = firebaseIngredient.getName();
-        quantity = firebaseIngredient.getQuantity();
-        unit = firebaseIngredient.getUnit();
+    public RealmIngredient(RecipeIngredient recipeIngredient) {
+        name = recipeIngredient.getName();
+        quantity = recipeIngredient.getQuantity();
+        unit = recipeIngredient.getUnit();
     }
 
     public RealmIngredient(RealmIngredient realmIngredient){

@@ -8,6 +8,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,8 +18,10 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.adapters.IngredientsAdapter;
 import com.exemple.android.cookbook.entity.ImageCard;
-import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.entity.firebase.Recipe;
+import com.exemple.android.cookbook.entity.firebase.RecipeIngredient;
 import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.CropHelper;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
@@ -32,6 +36,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class AddRecipeActivity extends AppCompatActivity {
 
@@ -41,20 +46,26 @@ public class AddRecipeActivity extends AppCompatActivity {
     private static final String RECIPE_LIST = "recipeList";
     private static final String ARRAY_LIST_RECIPE = "ArrayListRecipe";
 
-    private EditText mInputNameRecipe, mInputIngredients;
+    private EditText mInputNameRecipe, mInputIngredients, mQuantity, mUnit;
     private ImageView mImageView;
     private ProgressDialog mProgressDialog;
 
-    private DatabaseReference mDatabaseReference;
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mDatabaseReference, mDatabaseReferenceIngredients;
     private StorageReference mStorageReference;
     private Uri mDownloadUrlCamera;
-    private ArrayList<String> mNameRecipesList = new ArrayList<>();
+    private List<String> mNameRecipesList = new ArrayList<>();
+    private List<RecipeIngredient> mIngredients = new ArrayList<>();
     private int mBackPressed = 0;
     private Intent mIntent;
     private PhotoFromCameraHelper mPhotoFromCameraHelper;
     private FirebaseHelper mFirebaseHelper;
     private CropHelper mCropHelper;
     private Context mContext = AddRecipeActivity.this;
+    private RecyclerView mRecyclerView;
+    private IngredientsAdapter mIngredientsAdapter;
+
+    private String mUsername;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,10 +74,18 @@ public class AddRecipeActivity extends AppCompatActivity {
 
         mImageView = (ImageView) findViewById(R.id.photoImageView);
         mInputNameRecipe = (EditText) findViewById(R.id.name);
-        mInputIngredients = (EditText) findViewById(R.id.addIngredients);
+        mInputIngredients = (EditText) findViewById(R.id.nameIngredients);
+        mQuantity = (EditText) findViewById(R.id.quantity);
+        mUnit = (EditText) findViewById(R.id.unit);
+        ImageButton plusIngredient = (ImageButton) findViewById(R.id.plus);
         ImageButton btnPhotoFromGallery = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlGallery);
         ImageButton btnPhotoFromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlCamera);
         Button btnSave = (Button) findViewById(R.id.btnSave);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerIngredients);
+
+        mIngredientsAdapter = new IngredientsAdapter(mIngredients);
+        mRecyclerView.setAdapter(mIngredientsAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
@@ -100,13 +119,13 @@ public class AddRecipeActivity extends AppCompatActivity {
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
         if (firebaseUser != null) {
-            String username = firebaseUser.getDisplayName();
+            mUsername = firebaseUser.getDisplayName();
 
             mIntent = getIntent();
             mNameRecipesList = mIntent.getStringArrayListExtra(ARRAY_LIST_RECIPE);
-            mDatabaseReference = firebaseDatabase.getReference().child(username + "/Recipe_lists/" + mIntent
+            mDatabaseReference = firebaseDatabase.getReference().child("Users_Recipes/" + mUsername + "/Recipe_lists/" + mIntent
                     .getStringExtra(RECIPE_LIST));
-            mStorageReference = firebaseStorage.getReference().child(username + "/Recipe" + "/" + mIntent
+            mStorageReference = firebaseStorage.getReference().child("Users_Photo/" + mUsername + "/Recipe" + "/" + mIntent
                     .getStringExtra(RECIPE_LIST));
 
             boolean isOnline = new CheckOnlineHelper(mContext).isOnline();
@@ -114,6 +133,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                 btnSave.setOnClickListener(onClickListener);
                 btnPhotoFromCamera.setOnClickListener(onClickListener);
                 btnPhotoFromGallery.setOnClickListener(onClickListener);
+                plusIngredient.setOnClickListener(onClickListener);
             } else {
                 Toast.makeText(mContext, getResources().getString(R.string.not_online), Toast.LENGTH_SHORT).show();
             }
@@ -134,17 +154,44 @@ public class AddRecipeActivity extends AppCompatActivity {
                 case R.id.categoryRecipesPhotoUrlCamera:
                     mPhotoFromCameraHelper.takePhoto();
                     break;
+                case R.id.plus:
+                    if (mInputIngredients.getText().toString().equals("") || mQuantity.getText()
+                            .toString().equals("") || mUnit.getText().toString().equals("")) {
+                        Toast.makeText(mContext, getResources().getString(R.string.fill_fields), Toast.LENGTH_SHORT).show();
+                    } else {
+                        mIngredients.add(new RecipeIngredient(mInputIngredients.getText().toString(), Float
+                                .valueOf(mQuantity.getText().toString()), mUnit.getText().toString()));
+                        mIngredientsAdapter.updateAdapter(mIngredients);
+                        mInputIngredients.setText("");
+                        mQuantity.setText("");
+                        mUnit.setText("");
+                    }
+                    break;
                 case R.id.btnSave:
                     if (mInputNameRecipe.getText().toString().equals("")) {
                         Toast.makeText(mContext, getResources().getString(R.string.no_recipe_name), Toast.LENGTH_SHORT).show();
-                    } else if (mInputIngredients.getText().toString().equals("")) {
+                    } else if (mIngredients == null && mInputNameRecipe.getText().toString().equals("")
+                            || mQuantity.getText().toString().equals("") || mUnit.getText().toString().equals("")) {
                         Toast.makeText(mContext, getResources().getString(R.string.no_ingredients), Toast.LENGTH_SHORT).show();
                     } else if (!mNameRecipesList.contains(mInputNameRecipe.getText().toString())) {
                         if (mDownloadUrlCamera != null) {
-                            Recipe recipes = new Recipe(mInputNameRecipe.getText().toString(),
-                                    mDownloadUrlCamera.toString(), mInputIngredients.getText().toString(), 0);
-                            String recipeId = mDatabaseReference.push().getKey();
-                            mDatabaseReference.child(recipeId).setValue(recipes);
+                            Recipe recipe = new Recipe(mInputNameRecipe.getText().toString(),
+                                    mDownloadUrlCamera.toString(), mInputIngredients.getText().toString(), 1);
+                            mDatabaseReference.child(mInputNameRecipe.getText().toString()).setValue(recipe);
+                            mDatabaseReferenceIngredients = mDatabaseReference.child(mInputNameRecipe.getText().toString()).child("ingredients");
+                            if (!mInputIngredients.getText().toString().equals("") && !mQuantity.getText()
+                                    .toString().equals("") && !mUnit.getText().toString().equals("")) {
+                                RecipeIngredient ingredient = new RecipeIngredient(mInputIngredients.getText().toString(), Float
+                                        .valueOf(mQuantity.getText().toString()), mUnit.getText().toString());
+                                String id = mDatabaseReferenceIngredients.push().getKey();
+                                mDatabaseReferenceIngredients.child(id).setValue(ingredient);
+                            }
+                            if (mIngredients != null) {
+                                for (RecipeIngredient ingredient : mIngredients) {
+                                    String id = mDatabaseReferenceIngredients.push().getKey();
+                                    mDatabaseReferenceIngredients.child(id).setValue(ingredient);
+                                }
+                            }
                             Toast.makeText(mContext, getResources().getString(R.string.data_save), Toast.LENGTH_SHORT).show();
                             mImageView.setImageResource(R.drawable.dishes);
                             IntentHelper.intentAddStepActivity(mContext, mIntent

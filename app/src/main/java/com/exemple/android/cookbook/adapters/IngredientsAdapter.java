@@ -7,7 +7,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.entity.firebase.RecipeIngredient;
 import com.exemple.android.cookbook.entity.realm.RealmIngredient;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.realm.RealmList;
 
@@ -17,7 +21,7 @@ import io.realm.RealmList;
 
 public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.ViewHolder> {
 
-    RealmList<RealmIngredient> realmIngredients;
+    List<RealmIngredient> realmIngredients;
 
     public IngredientsAdapter() {
 
@@ -27,6 +31,18 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
         realmIngredients = ingredients;
     }
 
+    public IngredientsAdapter(List<RecipeIngredient> ingredients) {
+        for (RecipeIngredient ingredient : ingredients) {
+            realmIngredients.add(new RealmIngredient(ingredient));
+        }
+    }
+
+    public void updateAdapter(List<RecipeIngredient> ingredients) {
+        realmIngredients = new ArrayList<>();
+        for (RecipeIngredient ingredient : ingredients) {
+            realmIngredients.add(new RealmIngredient(ingredient));
+        }
+    }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView ingredientNameTextView;
@@ -62,6 +78,6 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
 
     @Override
     public int getItemCount() {
-        return realmIngredients.size();
+        return (realmIngredients == null) ? 0 : realmIngredients.size();
     }
 }

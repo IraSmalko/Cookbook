@@ -7,7 +7,7 @@ import android.graphics.BitmapFactory;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.exemple.android.cookbook.entity.firebase.FirebaseStepRecipe;
+import com.exemple.android.cookbook.entity.firebase.RecipeStep;
 
 import java.io.ByteArrayOutputStream;
 
@@ -29,10 +29,10 @@ public class RealmStepRecipe extends RealmObject {
     public RealmStepRecipe() {
     }
 
-    public RealmStepRecipe(FirebaseStepRecipe firebaseStepRecipe) {
-        this.stepNumber = firebaseStepRecipe.getStepNumber();
-        this.stepText = firebaseStepRecipe.getStepText();
-        this.stepPhotoUrl = firebaseStepRecipe.getStepPhotoUrl();
+    public RealmStepRecipe(RecipeStep recipeStep) {
+        this.stepNumber = recipeStep.getStepNumber();
+        this.stepText = recipeStep.getStepText();
+        this.stepPhotoUrl = recipeStep.getStepPhotoUrl();
     }
 
 

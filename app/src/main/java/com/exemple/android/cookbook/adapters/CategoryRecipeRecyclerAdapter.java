@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.CategoryRecipes;
+import com.exemple.android.cookbook.entity.firebase.RecipesCategory;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 
 import java.util.ArrayList;
@@ -26,16 +26,16 @@ public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<Category
 
     private Context mContext;
     private LayoutInflater mInflater;
-    private CategoryRecipes mItem;
-    private List<CategoryRecipes> mItems = new ArrayList<>();
-    private List<CategoryRecipes> mItemsPendingRemoval;
+    private RecipesCategory mItem;
+    private List<RecipesCategory> mItems = new ArrayList<>();
+    private List<RecipesCategory> mItemsPendingRemoval;
     private CategoryRecipeRecyclerAdapter.ItemClickListener mClickListener;
 
     private static final int PENDING_REMOVAL_TIMEOUT = 3000;
     private Handler mHandler = new Handler();
-    private HashMap<CategoryRecipes, Runnable> pendingRunnables = new HashMap<>();
+    private HashMap<RecipesCategory, Runnable> pendingRunnables = new HashMap<>();
 
-    public CategoryRecipeRecyclerAdapter(Context context, List<CategoryRecipes> items,
+    public CategoryRecipeRecyclerAdapter(Context context, List<RecipesCategory> items,
                                          CategoryRecipeRecyclerAdapter.ItemClickListener clickListener) {
         updateAdapter(items);
         mContext = context;
@@ -43,10 +43,10 @@ public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<Category
         mItemsPendingRemoval = new ArrayList<>();
     }
 
-    public void updateAdapter(@Nullable List<CategoryRecipes> categoryRecipes) {
+    public void updateAdapter(@Nullable List<RecipesCategory> recipeCategories) {
         mItems.clear();
-        if (categoryRecipes != null) {
-            mItems.addAll(categoryRecipes);
+        if (recipeCategories != null) {
+            mItems.addAll(recipeCategories);
         }
         notifyDataSetChanged();
     }
@@ -61,7 +61,7 @@ public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<Category
 
     @Override
     public void onBindViewHolder(CustomViewHolder holder, int position) {
-        final CategoryRecipes item = mItems.get(position);
+        final RecipesCategory item = mItems.get(position);
         mItem = item;
         if (mItemsPendingRemoval.contains(item)) {
             holder.regularLayout.setVisibility(View.GONE);
@@ -89,7 +89,7 @@ public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<Category
         });
     }
 
-    private void undoOpt(CategoryRecipes item) {
+    private void undoOpt(RecipesCategory item) {
         Runnable pendingRemovalRunnable = pendingRunnables.get(item);
         pendingRunnables.remove(item);
         if (pendingRemovalRunnable != null)
@@ -100,7 +100,7 @@ public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<Category
     }
 
     public void pendingRemoval(int position) {
-        final CategoryRecipes data = mItems.get(position);
+        final RecipesCategory data = mItems.get(position);
         if (!mItemsPendingRemoval.contains(data)) {
             mItemsPendingRemoval.add(data);
             // this will redraw row in "undo" state
@@ -119,7 +119,7 @@ public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<Category
     }
 
     private void remove(int position) {
-        CategoryRecipes data = mItems.get(position);
+        RecipesCategory data = mItems.get(position);
         if (mItemsPendingRemoval.contains(data)) {
             mItemsPendingRemoval.remove(data);
         }
@@ -130,9 +130,9 @@ public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<Category
         }
     }
 
-    public boolean isPendingRemoval(int position, List<CategoryRecipes> categoryRecipes) {
-        CategoryRecipes data = mItems.get(position);
-        return categoryRecipes.contains(data) || mItemsPendingRemoval.contains(data);
+    public boolean isPendingRemoval(int position, List<RecipesCategory> recipeCategories) {
+        RecipesCategory data = mItems.get(position);
+        return recipeCategories.contains(data) || mItemsPendingRemoval.contains(data);
     }
 
     @Override
@@ -162,6 +162,6 @@ public class CategoryRecipeRecyclerAdapter extends RecyclerView.Adapter<Category
     }
 
     public interface ItemClickListener {
-        void onItemClick(CategoryRecipes item);
+        void onItemClick(RecipesCategory item);
     }
 }

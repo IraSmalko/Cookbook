@@ -18,7 +18,7 @@ import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.ImageCard;
-import com.exemple.android.cookbook.entity.firebase.FirebaseStepRecipe;
+import com.exemple.android.cookbook.entity.firebase.RecipeStep;
 import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.CropHelper;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
@@ -79,9 +79,9 @@ public class AddStepActivity extends AppCompatActivity {
             String username = firebaseUser.getDisplayName();
 
             mIntent = getIntent();
-            mDatabaseReference = firebaseDatabase.getReference().child(username + "/Step_recipe/" + mIntent
-                    .getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE));
-            mStorageReference = firebaseStorage.getReference().child(username + "/Step_Recipes" + "/" + mIntent
+            mDatabaseReference = firebaseDatabase.getReference().child("Users_Recipes/" + username + "/Recipe_lists/" + mIntent
+                    .getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/steps");
+            mStorageReference = firebaseStorage.getReference().child("Users_Photo/" + username + "/Step_Recipes" + "/" + mIntent
                     .getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE));
 
             mActionBar = getSupportActionBar();
@@ -145,12 +145,12 @@ public class AddStepActivity extends AppCompatActivity {
                                 .getString(R.string.no_description_step), Toast.LENGTH_SHORT).show();
                     } else {
                         if (mDownloadUrlCamera != null) {
-                            FirebaseStepRecipe stepRecipe = new FirebaseStepRecipe(getResources()
-                                    .getString(R.string.step) + " " + mNumberStep, mInputNameRecipe
-                                    .getText().toString(), mDownloadUrlCamera.toString());
+                            RecipeStep stepRecipe = new RecipeStep(getResources()
+                                    .getString(R.string.step) + " " + mNumberStep,
+                                    mDownloadUrlCamera.toString(),
+                                    mInputNameRecipe.getText().toString());
                             String recipeId = mDatabaseReference.push().getKey();
                             mDatabaseReference.child(recipeId).setValue(stepRecipe);
-
                             Toast.makeText(mContext, getResources()
                                     .getString(R.string.data_save), Toast.LENGTH_SHORT).show();
                             mNumberStep = ++mNumberStep;

@@ -15,7 +15,7 @@ import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.activities.BaseActivity;
 import com.exemple.android.cookbook.activities.MainActivity;
 import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
-import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.entity.firebase.Recipe;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.helpers.SwipeHelper;

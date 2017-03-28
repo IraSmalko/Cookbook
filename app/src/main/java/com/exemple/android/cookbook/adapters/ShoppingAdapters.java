@@ -8,7 +8,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.firebase.FirebaseIngredient;
+import com.exemple.android.cookbook.entity.firebase.RecipeIngredient;
 
 import java.util.List;
 
@@ -20,10 +20,10 @@ public class ShoppingAdapters {
 
     private static final Long ANIMATION_DELAY = 700L;
 
-    private List<FirebaseIngredient> mShopDataset;
-    private List<FirebaseIngredient> mBasketDataset;
+    private List<RecipeIngredient> mShopDataset;
+    private List<RecipeIngredient> mBasketDataset;
 
-    public ShoppingAdapters(List<FirebaseIngredient> shopDataset, List<FirebaseIngredient> basketDataset) {
+    public ShoppingAdapters(List<RecipeIngredient> shopDataset, List<RecipeIngredient> basketDataset) {
         mShopDataset = shopDataset;
         mBasketDataset = basketDataset;
     }

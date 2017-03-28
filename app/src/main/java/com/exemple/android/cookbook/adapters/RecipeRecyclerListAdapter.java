@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.entity.firebase.Recipe;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 
 import java.util.ArrayList;

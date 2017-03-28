@@ -1,15 +1,15 @@
-package com.exemple.android.cookbook.entity;
+package com.exemple.android.cookbook.entity.firebase;
 
 
-public class CategoryRecipes {
+public class RecipesCategory {
 
     protected String name;
     protected String photoUrl;
 
-    public CategoryRecipes() {
+    public RecipesCategory() {
     }
 
-    public CategoryRecipes(String name, String photoUrl) {
+    public RecipesCategory(String name, String photoUrl) {
         this.name = name;
         this.photoUrl = photoUrl;
     }

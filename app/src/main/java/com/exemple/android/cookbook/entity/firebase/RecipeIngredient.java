@@ -8,23 +8,23 @@ import com.exemple.android.cookbook.entity.realm.RealmIngredient;
  * Created by Sakurov on 16.03.2017.
  */
 @Keep
-public class FirebaseIngredient {
+public class RecipeIngredient {
     private String name;
     private float quantity;
     private String unit;
 
     private String id;
 
-    public FirebaseIngredient() {
+    public RecipeIngredient() {
     }
 
-    public FirebaseIngredient(String name, float quantity, String unit) {
+    public RecipeIngredient(String name, float quantity, String unit) {
         this.name = name;
         this.quantity = quantity;
         this.unit = unit;
     }
 
-    public FirebaseIngredient(RealmIngredient realmIngredient){
+    public RecipeIngredient(RealmIngredient realmIngredient){
         this.name = realmIngredient.getName();
         this.quantity = realmIngredient.getQuantity();
         this.unit = realmIngredient.getUnit();

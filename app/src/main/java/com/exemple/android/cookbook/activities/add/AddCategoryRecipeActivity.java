@@ -16,7 +16,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
-import com.exemple.android.cookbook.entity.CategoryRecipes;
+import com.exemple.android.cookbook.entity.firebase.RecipesCategory;
 import com.exemple.android.cookbook.entity.ImageCard;
 import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.CropHelper;
@@ -71,8 +71,8 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         if (firebaseUser != null) {
             String username = firebaseUser.getDisplayName();
 
-            mDatabaseReference = firebaseDatabase.getReference(username + "/Сategory_Recipes");
-            mStorageReference = firebaseStorage.getReference().child(username + "/Photo_Сategory_Recipes");
+            mDatabaseReference = firebaseDatabase.getReference("Users_Recipes/" + username + "/Сategory_Recipes");
+            mStorageReference = firebaseStorage.getReference().child("Users_Photo/" + username + "/Photo_Сategory_Recipes");
 
             mCropHelper = new CropHelper(mContext, new CropHelper.OnCrop() {
                 @Override
@@ -128,10 +128,10 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
                                 .getString(R.string.no_category_name), Toast.LENGTH_SHORT).show();
                     } else {
                         if (mDownloadUrlCamera != null) {
-                            CategoryRecipes categoryRecipes = new CategoryRecipes(mInputCategoryName
+                            RecipesCategory recipesCategory = new RecipesCategory(mInputCategoryName
                                     .getText().toString(), mDownloadUrlCamera.toString());
                             String recipeId = mDatabaseReference.push().getKey();
-                            mDatabaseReference.child(recipeId).setValue(categoryRecipes);
+                            mDatabaseReference.child(recipeId).setValue(recipesCategory);
                             Toast.makeText(mContext, getResources()
                                     .getString(R.string.data_save), Toast.LENGTH_SHORT).show();
                             mImageView.setImageResource(R.drawable.dishes);
