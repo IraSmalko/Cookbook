@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,6 +28,7 @@ import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.CropHelper;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
+import com.exemple.android.cookbook.helpers.PermissionsHelper;
 import com.exemple.android.cookbook.helpers.PhotoFromCameraHelper;
 import com.exemple.android.cookbook.helpers.ProcessPhotoAsyncTask;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,6 +41,10 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.Manifest.permission.CAMERA;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
 public class AddRecipeActivity extends AppCompatActivity {
 
     private static final int REQUEST_CROP_PICTURE = 2;
@@ -45,6 +52,8 @@ public class AddRecipeActivity extends AppCompatActivity {
     private static final int GALLERY_REQUEST = 13;
     private static final String RECIPE_LIST = "recipeList";
     private static final String ARRAY_LIST_RECIPE = "ArrayListRecipe";
+    private final int CAMERA_PERMISSION_REQUEST = 14;
+    private final int READ_EXTERNAL_STORAGE_REQUEST = 15;
 
     private EditText mInputNameRecipe, mInputIngredients, mQuantity, mUnit;
     private ImageView mImageView;
@@ -146,10 +155,32 @@ public class AddRecipeActivity extends AppCompatActivity {
             switch (v.getId()) {
 
                 case R.id.categoryRecipesPhotoUrlGallery:
-                    mPhotoFromCameraHelper.pickPhoto();
+                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), READ_EXTERNAL_STORAGE)
+                            != PERMISSION_GRANTED) {
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(AddRecipeActivity
+                                .this, READ_EXTERNAL_STORAGE)) {
+                            new PermissionsHelper(AddRecipeActivity.this).showExternalPermissionDialog();
+                        } else {
+                            ActivityCompat.requestPermissions(AddRecipeActivity.this,
+                                    new String[]{READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_REQUEST);
+                        }
+                    } else {
+                        mPhotoFromCameraHelper.pickPhoto();
+                    }
                     break;
                 case R.id.categoryRecipesPhotoUrlCamera:
-                    mPhotoFromCameraHelper.takePhoto();
+                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), CAMERA)
+                            != PERMISSION_GRANTED) {
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(AddRecipeActivity
+                                .this, CAMERA)) {
+                            new PermissionsHelper(AddRecipeActivity.this).showExternalPermissionDialog();
+                        } else {
+                            ActivityCompat.requestPermissions(AddRecipeActivity.this,
+                                    new String[]{CAMERA}, CAMERA_PERMISSION_REQUEST);
+                        }
+                    } else {
+                        mPhotoFromCameraHelper.takePhoto();
+                    }
                     break;
                 case R.id.plus:
                     if (mInputIngredients.getText().toString().equals("") || mQuantity.getText()
@@ -158,7 +189,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                     } else {
                         mIngredients.add(new Ingredient(mInputIngredients.getText().toString(), Float
                                 .valueOf(mQuantity.getText().toString()), mUnit.getText().toString()));
-mIngredientsAdapter.updateAdapter(mIngredients);
+                        mIngredientsAdapter.updateAdapter(mIngredients);
                         mInputIngredients.setText("");
                         mQuantity.setText("");
                         mUnit.setText("");
@@ -167,7 +198,7 @@ mIngredientsAdapter.updateAdapter(mIngredients);
                 case R.id.btnSave:
                     if (mInputNameRecipe.getText().toString().equals("")) {
                         Toast.makeText(mContext, getResources().getString(R.string.no_recipe_name), Toast.LENGTH_SHORT).show();
-                    } else if (mIngredients == null && mInputNameRecipe.getText().toString().equals("")
+                    } else if (mIngredients == null || mInputNameRecipe.getText().toString().equals("")
                             || mQuantity.getText().toString().equals("") || mUnit.getText().toString().equals("")) {
                         Toast.makeText(mContext, getResources().getString(R.string.no_ingredients), Toast.LENGTH_SHORT).show();
                     } else if (!mNameRecipesList.contains(mInputNameRecipe.getText().toString())) {
@@ -247,6 +278,25 @@ mIngredientsAdapter.updateAdapter(mIngredients);
             }
         } else {
             IntentHelper.intentRecipeListActivity(mContext, mIntent.getStringExtra(RECIPE_LIST));
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == CAMERA_PERMISSION_REQUEST) {
+            if (grantResults[0] == PERMISSION_GRANTED) {
+                mPhotoFromCameraHelper.takePhoto();
+            } else {
+                new PermissionsHelper(AddRecipeActivity.this).showExternalPermissionDialog();
+            }
+        } else if (requestCode == READ_EXTERNAL_STORAGE_REQUEST) {
+            if (grantResults[0] == PERMISSION_GRANTED) {
+                mPhotoFromCameraHelper.pickPhoto();
+            } else {
+                new PermissionsHelper(AddRecipeActivity.this).showExternalPermissionDialog();
+            }
         }
     }
 }

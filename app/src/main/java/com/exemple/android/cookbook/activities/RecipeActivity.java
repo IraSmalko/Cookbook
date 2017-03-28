@@ -5,10 +5,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -41,6 +41,7 @@ import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
+import com.exemple.android.cookbook.helpers.PermissionsHelper;
 import com.exemple.android.cookbook.helpers.VoiceRecognitionHelper;
 import com.exemple.android.cookbook.helpers.WriterDAtaSQLiteAsyncTask;
 import com.exemple.android.cookbook.supporting.Comment;
@@ -62,6 +63,9 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
 public class RecipeActivity extends BaseActivity
         implements GoogleApiClient.OnConnectionFailedListener {
 
@@ -72,6 +76,7 @@ public class RecipeActivity extends BaseActivity
     private static final String IS_PERSONAL = "isPersonal";
     private static final int INT_EXTRA = 0;
     private static final int VOICE_REQUEST_CODE = 1234;
+    private final int WRITE_EXTERNAL_STORAGE_REQUEST = 12;
 
     private Intent mIntent;
     private ImageView mImageView;
@@ -530,12 +535,33 @@ public class RecipeActivity extends BaseActivity
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == WRITE_EXTERNAL_STORAGE_REQUEST) {
+            if (grantResults[0] == PERMISSION_GRANTED) {
+                saveRecipe(DataSourceSQLite.REQUEST_SAVED);
+            } else {
+                new PermissionsHelper(RecipeActivity.this).showExternalPermissionDialog();
+            }
+        }
+    }
+
     private void saveRecipe(int target) {
+        if (ActivityCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, WRITE_EXTERNAL_STORAGE)) {
+                new PermissionsHelper(RecipeActivity.this).showExternalPermissionDialog();
+            } else {
+                ActivityCompat.requestPermissions(RecipeActivity.this,
+                        new String[]{WRITE_EXTERNAL_STORAGE}, WRITE_EXTERNAL_STORAGE_REQUEST);
+            }
+        }
         int inSaved = 0;
         int inBasket = 0;
         if (target == DataSourceSQLite.REQUEST_BASKET) {
             inBasket = 1;
-        } else if (target == DataSourceSQLite.REQUEST_SAVED){
+        } else if (target == DataSourceSQLite.REQUEST_SAVED) {
             inSaved = 1;
         }
         boolean isOnline = new CheckOnlineHelper(this).isOnline();

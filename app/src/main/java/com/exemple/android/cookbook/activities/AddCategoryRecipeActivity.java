@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -21,6 +23,7 @@ import com.exemple.android.cookbook.entity.ImageCard;
 import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.CropHelper;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
+import com.exemple.android.cookbook.helpers.PermissionsHelper;
 import com.exemple.android.cookbook.helpers.PhotoFromCameraHelper;
 import com.exemple.android.cookbook.helpers.ProcessPhotoAsyncTask;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,11 +33,17 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import static android.Manifest.permission.CAMERA;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
 public class AddCategoryRecipeActivity extends AppCompatActivity {
 
     private static final int REQUEST_CROP_PICTURE = 2;
     private static final int REQUEST_IMAGE_CAPTURE = 22;
     private static final int GALLERY_REQUEST = 13;
+    private static final int CAMERA_PERMISSION_REQUEST = 14;
+    private static final int READ_EXTERNAL_STORAGE_REQUEST = 15;
 
     private EditText mInputCategoryName;
     private ImageView mImageView;
@@ -117,10 +126,32 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.categoryRecipesPhotoUrlGallery:
-                    mPhotoFromCameraHelper.pickPhoto();
+                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), READ_EXTERNAL_STORAGE)
+                            != PERMISSION_GRANTED) {
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(AddCategoryRecipeActivity
+                                .this, READ_EXTERNAL_STORAGE)) {
+                            new PermissionsHelper(AddCategoryRecipeActivity.this).showExternalPermissionDialog();
+                        } else {
+                            ActivityCompat.requestPermissions(AddCategoryRecipeActivity.this,
+                                    new String[]{READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_REQUEST);
+                        }
+                    } else {
+                        mPhotoFromCameraHelper.pickPhoto();
+                    }
                     break;
                 case R.id.categoryRecipesPhotoUrlCamera:
-                    mPhotoFromCameraHelper.takePhoto();
+                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), CAMERA)
+                            != PERMISSION_GRANTED) {
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(AddCategoryRecipeActivity
+                                .this, CAMERA)) {
+                            new PermissionsHelper(AddCategoryRecipeActivity.this).showExternalPermissionDialog();
+                        } else {
+                            ActivityCompat.requestPermissions(AddCategoryRecipeActivity.this,
+                                    new String[]{CAMERA}, CAMERA_PERMISSION_REQUEST);
+                        }
+                    } else {
+                        mPhotoFromCameraHelper.takePhoto();
+                    }
                     break;
                 case R.id.btnSave:
                     if (mInputCategoryName.getText().toString().equals("")) {
@@ -184,6 +215,25 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
             }
         } else {
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == CAMERA_PERMISSION_REQUEST) {
+            if (grantResults[0] == PERMISSION_GRANTED) {
+                mPhotoFromCameraHelper.takePhoto();
+            } else {
+                new PermissionsHelper(AddCategoryRecipeActivity.this).showExternalPermissionDialog();
+            }
+        } else if (requestCode == READ_EXTERNAL_STORAGE_REQUEST) {
+            if (grantResults[0] == PERMISSION_GRANTED) {
+                mPhotoFromCameraHelper.pickPhoto();
+            } else {
+                new PermissionsHelper(AddCategoryRecipeActivity.this).showExternalPermissionDialog();
+            }
         }
     }
 }
