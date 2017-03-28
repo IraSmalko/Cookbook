@@ -9,6 +9,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -32,6 +34,7 @@ public class SelectedRecipeActivity extends AppCompatActivity {
     private static final String ID_RECIPE = "id_recipe";
 
     private List<Ingredient> mRecipeIngredients = new ArrayList<>();
+    private Intent mIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,14 +46,14 @@ public class SelectedRecipeActivity extends AppCompatActivity {
         Button btnDetailRecipe = (Button) findViewById(R.id.btnDetailRecipe);
         ActionBar actionBar = getSupportActionBar();
 
-        final Intent intent = getIntent();
+        mIntent = getIntent();
 
-        actionBar.setTitle(intent.getStringExtra(RECIPE));
-        descriptionRecipe.setText(intent.getStringExtra(DESCRIPTION));
+        actionBar.setTitle(mIntent.getStringExtra(RECIPE));
+        descriptionRecipe.setText(mIntent.getStringExtra(DESCRIPTION));
 
         try {
             imageView.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
-                    .parse(intent.getStringExtra(PHOTO))));
+                    .parse(mIntent.getStringExtra(PHOTO))));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -58,14 +61,35 @@ public class SelectedRecipeActivity extends AppCompatActivity {
         btnDetailRecipe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                IntentHelper.intentSelectedStepRecipeActivity(getApplicationContext(), intent
-                        .getStringExtra(RECIPE), intent.getStringExtra(PHOTO), intent
-                        .getStringExtra(DESCRIPTION), intent.getIntExtra(ID_RECIPE, INT_EXTRA));
+                IntentHelper.intentSelectedStepRecipeActivity(getApplicationContext(), mIntent
+                        .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent
+                        .getStringExtra(DESCRIPTION), mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
             }
         });
 
         DataSourceSQLite dataSource = new DataSourceSQLite(this);
-        mRecipeIngredients = dataSource.readRecipeIngredients(intent.getIntExtra(ID_RECIPE, INT_EXTRA));
+        mRecipeIngredients = dataSource.readRecipeIngredients(mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_recipe_selected, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.edit_recipe) {
+            Intent intent = mIntent;
+            intent.setClass(this,EditRecipeActivity.class);
+//            Intent intent = new Intent(this, EditRecipeActivity.class);
+//            intent.putExtra(RECIPE,mIntent.getStringExtra(RECIPE));
+//            intent.putExtra(PHOTO,mIntent.getStringExtra(PHOTO));
+//            intent.putExtra(DESCRIPTION,mIntent.getStringExtra(DESCRIPTION));
+//            intent.putExtra(ID_RECIPE,mIntent.getIntExtra(ID_RECIPE,INT_EXTRA));
+            startActivity(intent);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
