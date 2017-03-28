@@ -3,8 +3,8 @@ package com.exemple.android.cookbook.entity;
 
 public class CategoryRecipes {
 
-    protected String name;
-    protected String photoUrl;
+    private String name;
+    private String photoUrl;
 
     public CategoryRecipes() {
     }

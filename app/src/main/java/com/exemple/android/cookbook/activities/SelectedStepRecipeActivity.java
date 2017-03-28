@@ -29,7 +29,6 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
     private static final int INT_EXTRA = 0;
     private static final String RECIPE = "recipe";
     private static final String PHOTO = "photo";
-    private static final String DESCRIPTION = "description";
     private static final String ID_RECIPE = "id_recipe";
 
     private List<SelectedStepRecipe> mSelectedStepRecipes = new ArrayList<>();
@@ -89,8 +88,7 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
             }
         } else {
             IntentHelper.intentSelectedRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
-                    .getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
-                    .getIntExtra(ID_RECIPE, INT_EXTRA));
+                    .getStringExtra(PHOTO), mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
         }
     }
 }

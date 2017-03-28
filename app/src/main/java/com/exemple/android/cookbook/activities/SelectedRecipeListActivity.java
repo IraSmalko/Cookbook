@@ -29,7 +29,7 @@ public class SelectedRecipeListActivity extends AppCompatActivity {
                             @Override
                             public void onItemClick(SelectedRecipe item) {
                                 IntentHelper.intentSelectedRecipeActivity(getApplicationContext(), item
-                                        .getName(), item.getPhotoUrl(), item.getDescription(), item.getIdRecipe());
+                                        .getName(), item.getPhotoUrl(), item.getIdRecipe());
                             }
                         });
         recyclerView.setAdapter(recipeRecyclerAdapter);

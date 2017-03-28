@@ -28,11 +28,8 @@ public class SelectedRecipeActivity extends AppCompatActivity {
 
     private static final int INT_EXTRA = 0;
     private static final String RECIPE = "recipe";
-    private static final String DESCRIPTION = "description";
     private static final String PHOTO = "photo";
     private static final String ID_RECIPE = "id_recipe";
-
-    private List<Ingredient> mRecipeIngredients = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,15 +56,14 @@ public class SelectedRecipeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 IntentHelper.intentSelectedStepRecipeActivity(getApplicationContext(), intent
-                        .getStringExtra(RECIPE), intent.getStringExtra(PHOTO), intent
-                        .getStringExtra(DESCRIPTION), intent.getIntExtra(ID_RECIPE, INT_EXTRA));
+                        .getStringExtra(RECIPE), intent.getStringExtra(PHOTO), intent.getIntExtra(ID_RECIPE, INT_EXTRA));
             }
         });
 
         DataSourceSQLite dataSource = new DataSourceSQLite(this);
-        mRecipeIngredients = dataSource.readRecipeIngredients(intent.getIntExtra(ID_RECIPE, INT_EXTRA));
+        List<Ingredient> recipeIngredients = dataSource.readRecipeIngredients(intent.getIntExtra(ID_RECIPE, INT_EXTRA));
 
-        IngredientsAdapter ingredientsAdapter = new IngredientsAdapter(getApplicationContext(), mRecipeIngredients);
+        IngredientsAdapter ingredientsAdapter = new IngredientsAdapter(getApplicationContext(), recipeIngredients);
         recyclerView.setAdapter(ingredientsAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }

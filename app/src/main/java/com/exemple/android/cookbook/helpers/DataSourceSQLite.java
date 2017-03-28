@@ -26,7 +26,6 @@ public class DataSourceSQLite {
 
     private static final String RECIPE = "recipe";
     private static final String PHOTO = "photo";
-    private static final String DESCRIPTION = "description";
     private static final String ID_RECIPE = "id_recipe";
     private static final String TEXT_STEP = "text_step";
     private static final String PHOTO_STEP = "photo_step";
@@ -69,7 +68,6 @@ public class DataSourceSQLite {
 
         cvRecipe.put(RECIPE, recipe.getName());
         cvRecipe.put(PHOTO, recipe.getPhotoUrl());
-        cvRecipe.put(DESCRIPTION, recipe.getDescription());
         cvRecipe.put(IN_SAVED,recipe.getIsInSaved());
         cvRecipe.put(IN_BASKET,recipe.getIsInBasket());
         long rowID = mDatabase.insertOrThrow(DBHelper.TABLE_RECIPE, null, cvRecipe);
@@ -144,11 +142,6 @@ public class DataSourceSQLite {
                         c.getString(ingredientUnitIndex)));
 
             } while (c.moveToNext());
-
-        } else {
-            c.close();
-            Toast.makeText(mContext, mContext.getResources().getString(R.string
-                    .no_information_available), Toast.LENGTH_SHORT).show();
         }
         return mRecipeIngredients;
     }
@@ -199,10 +192,9 @@ public class DataSourceSQLite {
                 int idColIndex = c.getColumnIndex(ID);
                 int recipeColIndex = c.getColumnIndex(RECIPE);
                 int photoColIndex = c.getColumnIndex(PHOTO);
-                int descriptionColIndex = c.getColumnIndex(DESCRIPTION);
 
                 recipesList.add(new SelectedRecipe(c.getString(recipeColIndex), c
-                        .getString(photoColIndex), c.getString(descriptionColIndex), c.getInt(idColIndex)));
+                        .getString(photoColIndex), c.getInt(idColIndex)));
             } while (c.moveToNext());
         } else {
             c.close();
@@ -233,10 +225,9 @@ public class DataSourceSQLite {
                 int idColIndex = c.getColumnIndex(ID);
                 int recipeColIndex = c.getColumnIndex(RECIPE);
                 int photoColIndex = c.getColumnIndex(PHOTO);
-                int descriptionColIndex = c.getColumnIndex(DESCRIPTION);
 
                 recipesList.add(new SelectedRecipe(c.getString(recipeColIndex), c
-                        .getString(photoColIndex), c.getString(descriptionColIndex), c.getInt(idColIndex)));
+                        .getString(photoColIndex), c.getInt(idColIndex)));
             } while (c.moveToNext());
         } else {
             c.close();

@@ -68,7 +68,6 @@ public class RecipeActivity extends BaseActivity
     private static final String RECIPE_LIST = "recipeList";
     private static final String RECIPE = "recipe";
     private static final String PHOTO = "photo";
-    private static final String DESCRIPTION = "description";
     private static final String USERNAME = "username";
     private static final String IS_PERSONAL = "isPersonal";
     private static final int INT_EXTRA = 0;
@@ -170,8 +169,7 @@ public class RecipeActivity extends BaseActivity
             public void onClick(View view) {
                 IntentHelper.intentStepRecipeActivity(getApplicationContext(), mIntent
                         .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent
-                        .getStringExtra(DESCRIPTION), mIntent.getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent
-                        .getStringExtra(RECIPE_LIST));
+                        .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST));
             }
         });
 
@@ -525,9 +523,9 @@ public class RecipeActivity extends BaseActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == VOICE_REQUEST_CODE) {
-            new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data, new Recipe(mIntent
-                    .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
-                    .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST));
+            new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data,
+                    new Recipe(mIntent.getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent
+                            .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST));
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -551,8 +549,7 @@ public class RecipeActivity extends BaseActivity
                             .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST), mIntent
                             .getStringExtra(RECIPE), mIntent.getStringExtra(USERNAME));
                 }
-            }).execute(new RecipeForSQLite(mIntent.getStringExtra(RECIPE), path, mIntent
-                    .getStringExtra(DESCRIPTION), 0, mIngredients, inSaved, inBasket));
+            }).execute(new RecipeForSQLite(mIntent.getStringExtra(RECIPE), path, 0, mIngredients, inSaved, inBasket));
 
         } else {
             Toast.makeText(RecipeActivity.this, getResources()

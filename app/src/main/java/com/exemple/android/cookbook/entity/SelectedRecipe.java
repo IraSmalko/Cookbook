@@ -2,7 +2,7 @@ package com.exemple.android.cookbook.entity;
 
 
 
-public class SelectedRecipe extends Recipe {
+public class SelectedRecipe extends CategoryRecipes {
 
     private int idRecipe;
 
@@ -12,10 +12,8 @@ public class SelectedRecipe extends Recipe {
     public SelectedRecipe() {
     }
 
-    public SelectedRecipe(String name, String photoUrl, String description, int idRecipe) {
-        this.name = name;
-        this.photoUrl = photoUrl;
-        this.description = description;
+    public SelectedRecipe(String name, String photoUrl, int idRecipe) {
+        super(name, photoUrl);
         this.idRecipe = idRecipe;
     }
 

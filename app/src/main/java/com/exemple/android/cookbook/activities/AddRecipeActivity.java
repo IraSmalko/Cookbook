@@ -173,7 +173,7 @@ mIngredientsAdapter.updateAdapter(mIngredients);
                     } else if (!mNameRecipesList.contains(mInputNameRecipe.getText().toString())) {
                         if (mDownloadUrlCamera != null) {
                             Recipe recipes = new Recipe(mInputNameRecipe.getText().toString(),
-                                    mDownloadUrlCamera.toString(), mInputIngredients.getText().toString(), 0);
+                                    mDownloadUrlCamera.toString(), 0);
                             mDatabaseReferenceIngredients = mFirebaseDatabase.getReference().child(new FirebaseHelper()
                                     .getUsername() + "/Ingredient/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mInputNameRecipe
                                     .getText().toString());

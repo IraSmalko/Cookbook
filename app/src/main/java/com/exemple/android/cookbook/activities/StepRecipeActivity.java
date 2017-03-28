@@ -41,7 +41,6 @@ public class StepRecipeActivity extends AppCompatActivity
     private static final String RECIPE_LIST = "recipeList";
     private static final String RECIPE = "recipe";
     private static final String PHOTO = "photo";
-    private static final String DESCRIPTION = "description";
     private static final String IS_PERSONAL = "isPersonal";
     private static final int INT_EXTRA = 0;
     private static final int VOICE_REQUEST_CODE = 1234;
@@ -131,8 +130,8 @@ public class StepRecipeActivity extends AppCompatActivity
             Glide.with(mContext).load(mStepRecipe.get(iterator).getPhotoUrlStep()).into(mImgStepRecipe);
         } else {
             IntentHelper.intentRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
-                    .getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
-                    .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST), mUsername);
+                    .getStringExtra(PHOTO), mIntent.getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent
+                    .getStringExtra(RECIPE_LIST), mUsername);
         }
     }
 
@@ -140,8 +139,8 @@ public class StepRecipeActivity extends AppCompatActivity
     public void onBackPressed() {
         if (mIterator == 0) {
             IntentHelper.intentRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
-                    .getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
-                    .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST), mUsername);
+                    .getStringExtra(PHOTO), mIntent.getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent
+                    .getStringExtra(RECIPE_LIST), mUsername);
         } else {
             updateData(--mIterator);
         }
@@ -173,9 +172,8 @@ public class StepRecipeActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == VOICE_REQUEST_CODE) {
             mIterator = new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data, new Recipe(mIntent
-                            .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent.getStringExtra(DESCRIPTION), mIntent
-                            .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST), mIterator, mStepRecipe,
-                    mActionBar, mTxtStepRecipe, mImgStepRecipe);
+                            .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent.getIntExtra(IS_PERSONAL, INT_EXTRA)),
+                    mIntent.getStringExtra(RECIPE_LIST), mIterator, mStepRecipe, mActionBar, mTxtStepRecipe, mImgStepRecipe);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

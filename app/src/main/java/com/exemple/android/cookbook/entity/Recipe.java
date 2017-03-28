@@ -4,8 +4,7 @@ package com.exemple.android.cookbook.entity;
 
 public class Recipe extends CategoryRecipes {
 
-    protected String description;
-    protected int isPersonal;
+    private int isPersonal;
 
     private int isInBasket = 0;
     private int isInSaved = 1;
@@ -13,19 +12,9 @@ public class Recipe extends CategoryRecipes {
     public Recipe() {
     }
 
-    public Recipe(String name, String photoUrl, String description, int isPersonal) {
-        this.name = name;
-        this.photoUrl = photoUrl;
-        this.description = description;
+    public Recipe(String name, String photoUrl, int isPersonal) {
+        super(name, photoUrl);
         this.isPersonal = isPersonal;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public int getIsPersonal() {
