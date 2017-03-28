@@ -163,8 +163,8 @@ public class RecipeActivity extends BaseActivity
         mIntent = getIntent();
         getSupportActionBar().setTitle(mIntent.getStringExtra(RECIPE));
 
-        boolean isPersonal = mIntent.getStringExtra(USERNAME) != null;
-
+//        boolean isPersonal = mIntent.getStringExtra(USERNAME) != null;
+        boolean isPersonal = false;
         Glide.with(getApplicationContext())
                 .load(mIntent.getStringExtra(PHOTO))
                 .asBitmap()
