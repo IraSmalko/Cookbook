@@ -37,7 +37,7 @@ public class ShoppingBasketActivity extends AppCompatActivity {
                     public void onItemClick(RealmRecipe item) {
                         IntentHelper.intentShoppingBasketActivity(ShoppingBasketActivity.this, item.getRecipeName());
                     }
-                });
+                },SelectedRecipeListRealmAdapter.BASKET);
 
         recyclerView.setAdapter(recipeListRealmAdapter);
         new SwipeHelper(recyclerView, getApplicationContext()).attachSwipeSelectedRecipe();

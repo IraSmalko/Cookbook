@@ -124,6 +124,7 @@ public class RealmHelper {
                 oldRecipe.setInSaved(true);
             } else {
                 Toast.makeText(mContext, "Збережено", Toast.LENGTH_SHORT).show();
+                oldRecipe.setInSaved(true);
             }
 
         } else if (updateTarget == BASKET) {

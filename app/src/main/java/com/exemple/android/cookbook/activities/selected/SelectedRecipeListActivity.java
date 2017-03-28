@@ -45,7 +45,7 @@ public class SelectedRecipeListActivity extends AppCompatActivity {
                         IntentHelper.intentSelectedRecipeActivity(getApplicationContext(), item
                                 .getRecipeName(), item.getRecipePhotoUrl(), item.getRecipeDescription());
                     }
-                });
+                },SelectedRecipeListRealmAdapter.SELECTED);
 
         recyclerView.setAdapter(recipeListRealmAdapter);
         new SwipeHelper(recyclerView, getApplicationContext()).attachSwipeSelectedRecipe();

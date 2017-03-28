@@ -28,6 +28,9 @@ import io.realm.Realm;
 
 public class SelectedRecipeListRealmAdapter extends RecyclerView.Adapter<SelectedRecipeListRealmAdapter.CustomViewHolder> {
 
+    public static final int BASKET = 241;
+    public static final int SELECTED = 141;
+
     private Context mContext;
     private LayoutInflater mInflater;
     private RealmRecipe mItem;
@@ -41,13 +44,17 @@ public class SelectedRecipeListRealmAdapter extends RecyclerView.Adapter<Selecte
 
     private Realm mRealm = Realm.getDefaultInstance();
 
+    private int mTarget;
+
     public SelectedRecipeListRealmAdapter(Context context,
                                           List<RealmRecipe> items,
-                                          SelectedRecipeListRealmAdapter.ItemClickListener clickListener) {
+                                          SelectedRecipeListRealmAdapter.ItemClickListener clickListener,
+                                          int target) {
         updateAdapter(items);
         mContext = context;
         mClickListener = clickListener;
         mItemsPendingRemoval = new ArrayList<>();
+        mTarget = target;
     }
 
     public void updateAdapter(@Nullable List<RealmRecipe> selectedRecipe) {
@@ -131,11 +138,25 @@ public class SelectedRecipeListRealmAdapter extends RecyclerView.Adapter<Selecte
             mItemsPendingRemoval.remove(data);
         }
         if (mItems.contains(data)) {
+            mRealm.beginTransaction();
+            if (mTarget == SELECTED) {
+                RealmRecipe realmRecipe = mRealm.where(RealmRecipe.class).equalTo("recipeName", data.getRecipeName()).findAll().get(0);
+                if (realmRecipe.isInBasket()){
+                    realmRecipe.setInSaved(false);
+                } else {
+                    realmRecipe.removeFromRealm();
+                }
+            } else if (mTarget == BASKET) {
+                RealmRecipe realmRecipe = mRealm.where(RealmRecipe.class).equalTo("recipeName", data.getRecipeName()).findAll().get(0);
+                if (realmRecipe.isInSaved()){
+                    realmRecipe.setInBasket(false);
+                } else {
+                    realmRecipe.removeFromRealm();
+                }
+            }
+            mRealm.commitTransaction();
             mItems.remove(position);
             notifyItemRemoved(position);
-            mRealm.beginTransaction();
-            mRealm.where(RealmRecipe.class).equalTo("recipeName", data.getRecipeName()).findAll().removeLast();
-            mRealm.commitTransaction();
         }
     }
 
