@@ -23,9 +23,9 @@
                 android:layout_height="220dp"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:scaleType="fitXY"
                 android:layout_marginTop="48dp"
-                app:srcCompat="@drawable/ic_launcher"/>
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/ic_launcher" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/commentsRecyclerView"
@@ -67,7 +67,9 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:background="#99ECEFF1"/>
+                android:background="#99ECEFF1"
+                android:paddingLeft="4dp"
+                android:paddingBottom="4dp"/>
 
             <Button
                 android:id="@+id/save_comments"
