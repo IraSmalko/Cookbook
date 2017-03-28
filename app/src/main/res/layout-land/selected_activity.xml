@@ -10,8 +10,8 @@
 
         <ImageView
             android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="220dp"
+            android:layout_width="285dp"
+            android:layout_height="180dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:scaleType="fitXY"
@@ -23,19 +23,22 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_marginRight="8dp"
-            android:layout_marginTop="110dp"
-            android:text="@string/btn_detail_recipe" />
+            android:layout_marginTop="64dp"
+            android:text="@string/detail" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerIngredients"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
             android:layout_below="@+id/btnDetailRecipe"
-            android:layout_centerHorizontal="true"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="22dp"
+            android:layout_toEndOf="@+id/imageView"
             android:background="#99ECEFF1"
+            android:paddingBottom="4dp"
+            android:paddingLeft="4dp"
             android:textColor="#000" />
 
     </RelativeLayout>

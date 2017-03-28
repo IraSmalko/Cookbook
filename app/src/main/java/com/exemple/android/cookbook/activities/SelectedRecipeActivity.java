@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.adapters.IngredientsAdapter;
 import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.helpers.IntentHelper;
@@ -38,15 +39,14 @@ public class SelectedRecipeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.selected_activity);
 
-        TextView descriptionRecipe = (TextView) findViewById(R.id.textView);
         ImageView imageView = (ImageView) findViewById(R.id.imageView);
         Button btnDetailRecipe = (Button) findViewById(R.id.btnDetailRecipe);
         ActionBar actionBar = getSupportActionBar();
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerIngredients);
 
         final Intent intent = getIntent();
 
         actionBar.setTitle(intent.getStringExtra(RECIPE));
-        descriptionRecipe.setText(intent.getStringExtra(DESCRIPTION));
 
         try {
             imageView.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
@@ -66,6 +66,10 @@ public class SelectedRecipeActivity extends AppCompatActivity {
 
         DataSourceSQLite dataSource = new DataSourceSQLite(this);
         mRecipeIngredients = dataSource.readRecipeIngredients(intent.getIntExtra(ID_RECIPE, INT_EXTRA));
+
+        IngredientsAdapter ingredientsAdapter = new IngredientsAdapter(getApplicationContext(), mRecipeIngredients);
+        recyclerView.setAdapter(ingredientsAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     @Override
