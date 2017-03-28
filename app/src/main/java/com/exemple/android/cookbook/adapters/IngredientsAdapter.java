@@ -8,7 +8,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
@@ -26,16 +25,14 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
     private Ingredient mItem;
     private List<Ingredient> mItems = new ArrayList<>();
     private List<Ingredient> mItemsPendingRemoval;
-    private ItemClickListener mClickListener;
 
     private static final int PENDING_REMOVAL_TIMEOUT = 3000;
     private Handler mHandler = new Handler();
-    private HashMap<Ingredient, Runnable> pendingRunnables = new HashMap<>();
+    private HashMap<Ingredient, Runnable> mPendingRunnables = new HashMap<>();
 
-    public IngredientsAdapter(Context context, List<Ingredient> items, ItemClickListener clickListener) {
+    public IngredientsAdapter(Context context, List<Ingredient> items) {
         updateAdapter(items);
         mContext = context;
-        mClickListener = clickListener;
         mItemsPendingRemoval = new ArrayList<>();
     }
 
@@ -63,17 +60,11 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
         holder.nameIngredients.setText(item.getName());
         holder.quantity.setText(String.valueOf(item.getQuantity()));
         holder.unit.setText(item.getUnit());
-        holder.nameIngredients.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mClickListener.onItemClick(item);
-            }
-        });
     }
 
     private void undoOpt(Ingredient item) {
-        Runnable pendingRemovalRunnable = pendingRunnables.get(item);
-        pendingRunnables.remove(item);
+        Runnable pendingRemovalRunnable = mPendingRunnables.get(item);
+        mPendingRunnables.remove(item);
         if (pendingRemovalRunnable != null)
             mHandler.removeCallbacks(pendingRemovalRunnable);
         mItemsPendingRemoval.remove(item);
@@ -95,7 +86,7 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
                 }
             };
             mHandler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);
-            pendingRunnables.put(data, pendingRemovalRunnable);
+            mPendingRunnables.put(data, pendingRemovalRunnable);
         }
 
     }
@@ -137,9 +128,5 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
             this.unit = (TextView) v.findViewById(R.id.unit);
             this.nameIngredients = (TextView) v.findViewById(R.id.nameIngredients);
         }
-    }
-
-    public interface ItemClickListener {
-        void onItemClick(Ingredient item);
     }
 }

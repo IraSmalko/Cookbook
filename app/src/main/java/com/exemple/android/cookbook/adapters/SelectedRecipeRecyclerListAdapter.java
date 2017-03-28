@@ -33,7 +33,7 @@ public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<Sele
 
     private static final int PENDING_REMOVAL_TIMEOUT = 3000;
     private Handler mHandler = new Handler();
-    private HashMap<SelectedRecipe, Runnable> pendingRunnables = new HashMap<>();
+    private HashMap<SelectedRecipe, Runnable> mPendingRunnables = new HashMap<>();
 
     public SelectedRecipeRecyclerListAdapter(Context context, List<SelectedRecipe> items,
                                              SelectedRecipeRecyclerListAdapter.ItemClickListener clickListener) {
@@ -90,8 +90,8 @@ public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<Sele
     }
 
     private void undoOpt(SelectedRecipe item) {
-        Runnable pendingRemovalRunnable = pendingRunnables.get(item);
-        pendingRunnables.remove(item);
+        Runnable pendingRemovalRunnable = mPendingRunnables.get(item);
+        mPendingRunnables.remove(item);
         if (pendingRemovalRunnable != null)
             mHandler.removeCallbacks(pendingRemovalRunnable);
         mItemsPendingRemoval.remove(item);
@@ -114,7 +114,7 @@ public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<Sele
                 }
             };
             mHandler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);
-            pendingRunnables.put(data, pendingRemovalRunnable);
+            mPendingRunnables.put(data, pendingRemovalRunnable);
         }
     }
 

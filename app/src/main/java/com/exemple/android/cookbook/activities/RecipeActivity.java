@@ -33,6 +33,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.adapters.IngredientsAdapter;
 import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.entity.RecipeForSQLite;
@@ -116,12 +117,14 @@ public class RecipeActivity extends BaseActivity
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseRecyclerAdapter<Comment, CommentViewHolder> mFirebaseAdapter;
     private RecipeRating mRecipeRating;
+    private IngredientsAdapter mIngredientsAdapter;
+    private RecyclerView mRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        TextView descriptionRecipe = (TextView) findViewById(R.id.textView);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerIngredients);
         mImageView = (ImageView) findViewById(R.id.imageView);
         Button btnDetailRecipe = (Button) findViewById(R.id.btnDetailRecipe);
         mRatingBar = (RatingBar) findViewById(R.id.ratingBar);
@@ -144,6 +147,9 @@ public class RecipeActivity extends BaseActivity
             @Override
             public void OnGet(List<Ingredient> ingredients) {
                 mIngredients = ingredients;
+                mIngredientsAdapter = new IngredientsAdapter(getApplicationContext(), mIngredients);
+                mRecyclerView.setAdapter(mIngredientsAdapter);
+                mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
             }
         }).getIngredients(mIntent.getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent
                 .getStringExtra(RECIPE_LIST), mIntent.getStringExtra(RECIPE));
@@ -158,8 +164,6 @@ public class RecipeActivity extends BaseActivity
                         mImageView.setImageBitmap(mLoadPhotoStep);
                     }
                 });
-
-        descriptionRecipe.setText(mIntent.getStringExtra(DESCRIPTION));
 
         btnDetailRecipe.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -539,7 +543,7 @@ public class RecipeActivity extends BaseActivity
         boolean isOnline = new CheckOnlineHelper(this).isOnline();
         if (isOnline) {
             String path = MediaStore.Images.Media.insertImage(getContentResolver(),
-                    mLoadPhotoStep, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
+                    mLoadPhotoStep, getApplicationContext().getCacheDir().getAbsolutePath(), null);
             new WriterDAtaSQLiteAsyncTask.WriterRecipe(this, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
                 @Override
                 public void onDataReady(Integer integer) {

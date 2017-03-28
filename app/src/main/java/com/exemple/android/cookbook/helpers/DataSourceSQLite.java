@@ -116,7 +116,7 @@ public class DataSourceSQLite {
                 @Override
                 public void onBitmapReady(Bitmap bitmap) {
                     mPathPhotoStep = MediaStore.Images.Media.insertImage(mContext.getContentResolver(),
-                            bitmap, Environment.getExternalStorageDirectory().getAbsolutePath(), null);
+                            bitmap, mContext.getCacheDir().getAbsolutePath(), null);
                     mWriterStepsRecipe.setPathPhotoStep(mPathPhotoStep);
                     new WriterDAtaSQLiteAsyncTask.WriterStepsRecipe(mContext)
                             .execute(mWriterStepsRecipe);
