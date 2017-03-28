@@ -242,7 +242,7 @@ public class RecipeActivity extends BaseActivity
                 for (DataSnapshot data : dataSnapshot.getChildren()) {
                     final Comment comment = data.getValue(Comment.class);
                     final DatabaseReference ref = data.getRef();
-                    if (mUserId.equals(comment.getUserId())) {
+                    if (comment.getUserId().equals(mUserId)) {
                         if (mSendButton.getVisibility() == View.VISIBLE) {
                             mSendButton.setVisibility(View.INVISIBLE);
                         }
