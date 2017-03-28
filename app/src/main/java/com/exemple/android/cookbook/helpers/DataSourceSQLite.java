@@ -213,7 +213,6 @@ public class DataSourceSQLite {
 
     public List<SelectedRecipe> getRecipes(int requestCode) {
 
-
         List<SelectedRecipe> recipesList = new ArrayList<>();
         open();
 

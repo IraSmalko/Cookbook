@@ -95,7 +95,8 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/fb_app_id" />
 
-        <activity android:name=".activities.EditRecipeActivity"></activity>
+        <activity android:name=".activities.EditRecipeActivity" />
+        <activity android:name=".activities.EditRecipeStepActivity"></activity>
     </application>
 
 </manifest>
