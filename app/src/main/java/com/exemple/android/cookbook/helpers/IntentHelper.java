@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.activities.AddRecipeActivity;
 import com.exemple.android.cookbook.activities.AddStepActivity;
+import com.exemple.android.cookbook.activities.EditRecipeStepActivity;
 import com.exemple.android.cookbook.activities.RecipeActivity;
 import com.exemple.android.cookbook.activities.RecipeListActivity;
 import com.exemple.android.cookbook.activities.SelectedRecipeActivity;
@@ -112,6 +113,15 @@ public class IntentHelper {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(RECIPE, recipe);
         intent.putExtra(ID_RECIPE, idRecipe);
+        ActivityCompat.startActivity(context, intent, null);
+    }
+
+    static public void intentEditRecipeStepActivity(Context context, String recipe, String photo, int id_recipe) {
+        Intent intent = new Intent(context, EditRecipeStepActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(RECIPE, recipe);
+        intent.putExtra(PHOTO, photo);
+        intent.putExtra(ID_RECIPE, id_recipe);
         ActivityCompat.startActivity(context, intent, null);
     }
 }

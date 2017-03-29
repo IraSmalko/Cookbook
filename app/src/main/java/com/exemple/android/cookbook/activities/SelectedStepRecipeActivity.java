@@ -61,8 +61,8 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
             mActionBar.setTitle(mSelectedStepRecipes.get(0).getNumberStep());
             mTxtStepRecipe.setText(mSelectedStepRecipes.get(0).getTextStep());
             try {
-                mImgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
-                        .parse(mSelectedStepRecipes.get(0).getPhotoUrlStep())));
+                mImgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(),
+                        Uri.parse(mSelectedStepRecipes.get(0).getPhotoUrlStep())));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -104,7 +104,7 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.edit_recipe) {
             Intent intent = mIntent;
-            intent.setClass(this,EditRecipeStepActivity.class);
+            intent.setClass(this, EditRecipeStepActivity.class);
             startActivity(intent);
         }
         return super.onOptionsItemSelected(item);

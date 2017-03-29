@@ -50,25 +50,21 @@ public class EditRecipeStepActivity extends AppCompatActivity {
     private static final String PHOTO = "photo";
     private static final String ID_RECIPE = "id_recipe";
     private static final int INT_EXTRA = 0;
-    private static final String DESCRIPTION = "description";
 
-    private EditText mInputNameRecipe;
+    private EditText mInputStepText;
     private ImageView mImageView;
     private ProgressDialog mProgressDialog;
     private ActionBar mActionBar;
 
-    private DatabaseReference mDatabaseReference;
-    private StorageReference mStorageReference;
-    private Uri mDownloadUrlCamera;
-    private int mNumberStep = 1;
+    private int mNumberStep = 0;
     private Intent mIntent;
     private PhotoFromCameraHelper mPhotoFromCameraHelper;
-    private FirebaseHelper mFirebaseHelper;
     private CropHelper mCropHelper;
     private Context mContext = EditRecipeStepActivity.this;
 
     private List<SelectedStepRecipe> mSelectedStepRecipes;
-    private List<StepRecipe> mStepRecipe = new ArrayList<>();
+
+    private String newPhotoPath;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,7 +72,7 @@ public class EditRecipeStepActivity extends AppCompatActivity {
         setContentView(R.layout.add_step_activity);
 
         mImageView = (ImageView) findViewById(R.id.photoImageView);
-        mInputNameRecipe = (EditText) findViewById(R.id.name);
+        mInputStepText = (EditText) findViewById(R.id.name);
         ImageButton btnPhotoFromGallery = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlGallery);
         ImageButton btnPhotoFromCamera = (ImageButton) findViewById(R.id.categoryRecipesPhotoUrlCamera);
         Button btnSave = (Button) findViewById(R.id.btnSave);
@@ -84,13 +80,9 @@ public class EditRecipeStepActivity extends AppCompatActivity {
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
 
-
         mIntent = getIntent();
 
         mActionBar = getSupportActionBar();
-
-
-        mActionBar.setTitle(getResources().getString(R.string.step) + " " + mNumberStep);
 
         DataSourceSQLite dataSource = new DataSourceSQLite(this);
         mSelectedStepRecipes = dataSource.readStepRecipe(mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
@@ -98,9 +90,11 @@ public class EditRecipeStepActivity extends AppCompatActivity {
         if (mSelectedStepRecipes.isEmpty()) {
             Toast.makeText(mContext, getResources().getString(R.string
                     .no_information_available), Toast.LENGTH_SHORT).show();
+            IntentHelper.intentSelectedRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
+                    .getStringExtra(PHOTO), mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
         } else {
             mActionBar.setTitle(mSelectedStepRecipes.get(0).getNumberStep());
-            mInputNameRecipe.setText(mSelectedStepRecipes.get(0).getTextStep());
+            mInputStepText.setText(mSelectedStepRecipes.get(0).getTextStep());
             try {
                 mImageView.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
                         .parse(mSelectedStepRecipes.get(0).getPhotoUrlStep())));
@@ -116,14 +110,6 @@ public class EditRecipeStepActivity extends AppCompatActivity {
             }
         });
 
-        mFirebaseHelper = new FirebaseHelper(new FirebaseHelper.OnSaveImage() {
-            @Override
-            public void OnSave(Uri photoUri) {
-                mDownloadUrlCamera = photoUri;
-                mProgressDialog.dismiss();
-            }
-        });
-
         mCropHelper = new CropHelper(mContext, new CropHelper.OnCrop() {
             @Override
             public void onCrop(Uri cropImageUri) {
@@ -132,12 +118,25 @@ public class EditRecipeStepActivity extends AppCompatActivity {
             }
         });
 
-
         btnSave.setOnClickListener(onClickListener);
         btnPhotoFromCamera.setOnClickListener(onClickListener);
         btnPhotoFromGallery.setOnClickListener(onClickListener);
 
     }
+
+    private final ProcessPhotoAsyncTask.OnPhotoProcessed listener = new ProcessPhotoAsyncTask.OnPhotoProcessed() {
+        @Override
+        public void onDataReady(@Nullable ImageCard imageCard) {
+            if (imageCard != null) {
+                mImageView.setImageBitmap(imageCard.getImage());
+                newPhotoPath = MediaStore.Images.Media.insertImage(
+                        getContentResolver(),
+                        imageCard.getImage(),
+                        getApplicationContext().getCacheDir().getAbsolutePath(),
+                        null);
+            }
+        }
+    };
 
     View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
@@ -150,28 +149,23 @@ public class EditRecipeStepActivity extends AppCompatActivity {
                     mPhotoFromCameraHelper.takePhoto();
                     break;
                 case R.id.btnSave:
-                    if (mInputNameRecipe.getText().toString().equals("")) {
+                    if (mInputStepText.getText().toString().equals("")) {
                         Toast.makeText(mContext, getResources()
                                 .getString(R.string.no_description_step), Toast.LENGTH_SHORT).show();
                     } else {
-//                        if (mDownloadUrlCamera != null) {
-//                            StepRecipe stepRecipe = new StepRecipe(getResources()
-//                                    .getString(R.string.step) + " " + mNumberStep, mInputNameRecipe
-//                                    .getText().toString(), mDownloadUrlCamera.toString());
-//                            SelectedStepRecipe selectedStepRecipe = new SelectedStepRecipe(stepRecipe,mIntent.getIntExtra(ID_RECIPE,INT_EXTRA));
-//                            mSelectedStepRecipes
-//                            new DataSourceSQLite(mContext).saveStepsSQLite();
-//                            Toast.makeText(mContext, getResources()
-//                                    .getString(R.string.data_save), Toast.LENGTH_SHORT).show();
-//                            mNumberStep = ++mNumberStep;
-//                            mActionBar.setTitle(getResources().getString(R.string.step) + " " + mNumberStep);
-//                            mImageView.setImageResource(R.drawable.dishes);
-//                            mInputNameRecipe.setText("");
-//                            mDownloadUrlCamera = null;
-//                        } else {
-//                            Toast.makeText(mContext, getResources()
-//                                    .getString(R.string.no_photo), Toast.LENGTH_LONG).show();
-//                        }
+                        if (newPhotoPath == null) {
+                            newPhotoPath = mSelectedStepRecipes.get(mNumberStep).getPhotoUrlStep();
+                        }
+                        StepRecipe stepRecipe = new StepRecipe(
+                                mSelectedStepRecipes.get(mNumberStep).getNumberStep(),
+                                mInputStepText.getText().toString(),
+                                newPhotoPath);
+                        new DataSourceSQLite(mContext).replaceStepSQlite(mIntent.getIntExtra(ID_RECIPE, INT_EXTRA), stepRecipe);
+                        mNumberStep = ++mNumberStep;
+                        if (mNumberStep < mSelectedStepRecipes.size()) {
+                            Toast.makeText(mContext, "Крок збережено", Toast.LENGTH_SHORT).show();
+                        }
+                        updateData(mNumberStep);
                     }
                     break;
             }
@@ -190,17 +184,6 @@ public class EditRecipeStepActivity extends AppCompatActivity {
         }
     }
 
-    private final ProcessPhotoAsyncTask.OnPhotoProcessed listener = new ProcessPhotoAsyncTask.OnPhotoProcessed() {
-        @Override
-        public void onDataReady(@Nullable ImageCard imageCard) {
-            if (imageCard != null) {
-                mImageView.setImageBitmap(imageCard.getImage());
-            }
-            mProgressDialog.setMessage(getResources().getString(R.string.progress_vait));
-            mProgressDialog.show();
-            mFirebaseHelper.saveImage(mStorageReference, imageCard);
-        }
-    };
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -214,5 +197,23 @@ public class EditRecipeStepActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         IntentHelper.intentRecipeListActivity(mContext, mIntent.getStringExtra(RECIPE_LIST));
+    }
+
+    public void updateData(int i) {
+        if (i < mSelectedStepRecipes.size()) {
+            newPhotoPath = null;
+            mActionBar.setTitle(mSelectedStepRecipes.get(i).getNumberStep());
+            mInputStepText.setText(mSelectedStepRecipes.get(i).getTextStep());
+            try {
+                mImageView.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
+                        .parse(mSelectedStepRecipes.get(i).getPhotoUrlStep())));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Toast.makeText(mContext, "Рецепт збережено", Toast.LENGTH_SHORT).show();
+            IntentHelper.intentSelectedRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
+                    .getStringExtra(PHOTO), mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
+        }
     }
 }

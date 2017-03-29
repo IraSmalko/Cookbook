@@ -23,11 +23,13 @@ import com.exemple.android.cookbook.entity.ImageCard;
 import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.entity.RecipeForSQLite;
 import com.exemple.android.cookbook.entity.SelectedRecipe;
+import com.exemple.android.cookbook.entity.SelectedStepRecipe;
 import com.exemple.android.cookbook.helpers.CropHelper;
 import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.helpers.PhotoFromCameraHelper;
 import com.exemple.android.cookbook.helpers.ProcessPhotoAsyncTask;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,20 +39,17 @@ public class EditRecipeActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 22;
     private static final int GALLERY_REQUEST = 13;
     private static final String RECIPE_LIST = "recipeList";
-    private static final String ARRAY_LIST_RECIPE = "ArrayListRecipe";
 
     private static final String RECIPE = "recipe";
     private static final String PHOTO = "photo";
     private static final String ID_RECIPE = "id_recipe";
     private static final int INT_EXTRA = 0;
-    private static final String DESCRIPTION = "description";
 
     private EditText mInputNameRecipe, mInputIngredients, mQuantity, mUnit;
     private ImageView mImageView;
     private ProgressDialog mProgressDialog;
 
     private Uri mDownloadUrlCamera;
-    private List<String> mNameRecipesList = new ArrayList<>();
     private List<Ingredient> mIngredients = new ArrayList<>();
     private int mBackPressed = 0;
     private Intent mIntent;
@@ -59,6 +58,10 @@ public class EditRecipeActivity extends AppCompatActivity {
     private Context mContext = EditRecipeActivity.this;
     private RecyclerView mRecyclerView;
     private IngredientsAdapter mIngredientsAdapter;
+
+    private List<SelectedStepRecipe> mSelectedStepsRecipe;
+
+    private String newPhotoPath;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,16 +79,27 @@ public class EditRecipeActivity extends AppCompatActivity {
         Button btnSave = (Button) findViewById(R.id.btnSave);
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerIngredients);
 
-        mIngredientsAdapter = new IngredientsAdapter(getApplicationContext(), mIngredients, new IngredientsAdapter.ItemClickListener() {
-            @Override
-            public void onItemClick(Ingredient item) {
-                Toast.makeText(mContext, getResources().getString(R.string.no_ingredients), Toast.LENGTH_SHORT).show();
-            }
-        });
-        mRecyclerView.setAdapter(mIngredientsAdapter);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle(getResources().getString(R.string.progress_dialog_title));
+
+        mIntent = getIntent();
+        newPhotoPath = mIntent.getStringExtra(PHOTO);
+        mInputNameRecipe.setText(mIntent.getStringExtra(RECIPE));
+
+        try {
+            mImageView.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(),
+                    Uri.parse(mIntent.getStringExtra(PHOTO))));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        DataSourceSQLite dataSource = new DataSourceSQLite(this);
+        mIngredients = dataSource.readRecipeIngredients(mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
+        mSelectedStepsRecipe = dataSource.readStepRecipe(mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
+
+        mIngredientsAdapter = new IngredientsAdapter(getApplicationContext(), mIngredients);
+        mRecyclerView.setAdapter(mIngredientsAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         mPhotoFromCameraHelper = new PhotoFromCameraHelper(mContext, new PhotoFromCameraHelper.OnPhotoPicked() {
             @Override
@@ -103,23 +117,6 @@ public class EditRecipeActivity extends AppCompatActivity {
             }
         });
 
-        mIntent = getIntent();
-
-        mInputNameRecipe.setText(mIntent.getStringExtra(RECIPE));
-
-        try {
-            mImageView.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(),
-                    Uri.parse(mIntent.getStringExtra(PHOTO))));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        DataSourceSQLite dataSource = new DataSourceSQLite(this);
-        mIngredients = dataSource.readRecipeIngredients(mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
-
-        mIngredientsAdapter.updateAdapter(mIngredients);
-
         btnSave.setOnClickListener(onClickListener);
         btnPhotoFromCamera.setOnClickListener(onClickListener);
         btnPhotoFromGallery.setOnClickListener(onClickListener);
@@ -132,6 +129,11 @@ public class EditRecipeActivity extends AppCompatActivity {
         public void onDataReady(@Nullable ImageCard imageCard) {
             if (imageCard != null) {
                 mImageView.setImageBitmap(imageCard.getImage());
+                newPhotoPath = MediaStore.Images.Media.insertImage(
+                        getContentResolver(),
+                        imageCard.getImage(),
+                        getApplicationContext().getCacheDir().getAbsolutePath(),
+                        null);
             }
         }
     };
@@ -170,16 +172,19 @@ public class EditRecipeActivity extends AppCompatActivity {
                     }
                     if (!inSaved) {
                         int newIdRecipe = dataSource.saveRecipe(new RecipeForSQLite(mInputNameRecipe.getText().toString(),
-                                mDownloadUrlCamera.toString(),
-                                mIntent.getStringExtra(DESCRIPTION),
+                                newPhotoPath,
                                 0,
                                 mIngredients,
                                 1,
                                 0));
-                        new IntentHelper().intentSelectedRecipeActivity(mContext,
+                        if (!mSelectedStepsRecipe.isEmpty()){
+                            dataSource.copyStepsSQLite(newIdRecipe, mSelectedStepsRecipe);
+                        }
+                        Toast.makeText(mContext, getResources()
+                                .getString(R.string.data_save), Toast.LENGTH_SHORT).show();
+                        new IntentHelper().intentEditRecipeStepActivity(mContext,
                                 mInputNameRecipe.getText().toString(),
-                                mDownloadUrlCamera.toString(),
-                                mIntent.getStringExtra(DESCRIPTION), newIdRecipe);
+                                newPhotoPath, newIdRecipe);
                     } else {
                         Toast.makeText(mContext, "Рецепт з такою назвою вже існує, змініть назву", Toast.LENGTH_SHORT).show();
                     }
@@ -200,7 +205,6 @@ public class EditRecipeActivity extends AppCompatActivity {
             }
         }
     }
-
 
     @Override
     public void onBackPressed() {

@@ -68,11 +68,11 @@ public class DataSourceSQLite {
 
         cvRecipe.put(RECIPE, recipe.getName());
         cvRecipe.put(PHOTO, recipe.getPhotoUrl());
-        cvRecipe.put(IN_SAVED,recipe.getIsInSaved());
-        cvRecipe.put(IN_BASKET,recipe.getIsInBasket());
+        cvRecipe.put(IN_SAVED, recipe.getIsInSaved());
+        cvRecipe.put(IN_BASKET, recipe.getIsInBasket());
         long rowID = mDatabase.insertOrThrow(DBHelper.TABLE_RECIPE, null, cvRecipe);
-
         close();
+        saveIngredient(recipe.getIngredients(), (int) rowID);
         return (int) rowID;
     }
 
@@ -85,6 +85,31 @@ public class DataSourceSQLite {
             cvIngredient.put(INGREDIENT_QUANTITY, ingredient.getQuantity());
             cvIngredient.put(INGREDIENT_UNIT, ingredient.getUnit());
             mDatabase.insertOrThrow(DBHelper.TABLE_INGREDIENTS_RECIPE, null, cvIngredient);
+        }
+        close();
+    }
+
+    public void replaceStepSQlite(int idRecipe, StepRecipe stepRecipe) {
+        open();
+        ContentValues cvStepRecipe = new ContentValues();
+        cvStepRecipe.put(TEXT_STEP, stepRecipe.getTextStep());
+        cvStepRecipe.put(PHOTO_STEP, stepRecipe.getPhotoUrlStep());
+        mDatabase.update(DBHelper.TABLE_STEP_RECIPE,
+                cvStepRecipe,
+                ID_RECIPE + "=?" + " AND " + NUMBER_STEP + "=?",
+                new String[]{"" + idRecipe, stepRecipe.getNumberStep()});
+        close();
+    }
+
+    public void copyStepsSQLite(int idRecipe, List<SelectedStepRecipe> stepRecipes) {
+        open();
+        ContentValues cvStepRecipe = new ContentValues();
+        for (StepRecipe stepRecipe : stepRecipes) {
+            cvStepRecipe.put(ID_RECIPE, idRecipe);
+            cvStepRecipe.put(NUMBER_STEP, stepRecipe.getNumberStep());
+            cvStepRecipe.put(TEXT_STEP, stepRecipe.getTextStep());
+            cvStepRecipe.put(PHOTO_STEP, stepRecipe.getPhotoUrlStep());
+            mDatabase.insertOrThrow(DBHelper.TABLE_STEP_RECIPE, null, cvStepRecipe);
         }
         close();
     }
