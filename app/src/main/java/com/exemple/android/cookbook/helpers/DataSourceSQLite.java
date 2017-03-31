@@ -6,14 +6,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.ForWriterStepsRecipe;
 import com.exemple.android.cookbook.entity.Ingredient;
-import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.entity.RecipeForSQLite;
 import com.exemple.android.cookbook.entity.SelectedRecipe;
 import com.exemple.android.cookbook.entity.SelectedStepRecipe;
@@ -68,8 +66,8 @@ public class DataSourceSQLite {
 
         cvRecipe.put(RECIPE, recipe.getName());
         cvRecipe.put(PHOTO, recipe.getPhotoUrl());
-        cvRecipe.put(IN_SAVED,recipe.getIsInSaved());
-        cvRecipe.put(IN_BASKET,recipe.getIsInBasket());
+        cvRecipe.put(IN_SAVED, recipe.getIsInSaved());
+        cvRecipe.put(IN_BASKET, recipe.getIsInBasket());
         long rowID = mDatabase.insertOrThrow(DBHelper.TABLE_RECIPE, null, cvRecipe);
 
         close();
@@ -177,8 +175,8 @@ public class DataSourceSQLite {
     public void removeRecipe(int id) {
         open();
         mDatabase.delete(DBHelper.TABLE_RECIPE, "id = " + id, null);
-        mDatabase.execSQL("DELETE FROM " + DBHelper
-                .TABLE_STEP_RECIPE + " WHERE " + ID_RECIPE + "='" + id + "'");
+        mDatabase.delete(DBHelper.TABLE_INGREDIENTS_RECIPE, "id_recipe = " + id, null);
+        mDatabase.delete(DBHelper.TABLE_STEP_RECIPE, "id_recipe = " + id, null);
         close();
     }
 

@@ -198,7 +198,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                 case R.id.btnSave:
                     if (mInputNameRecipe.getText().toString().equals("")) {
                         Toast.makeText(mContext, getResources().getString(R.string.no_recipe_name), Toast.LENGTH_SHORT).show();
-                    } else if (mIngredients == null || mInputNameRecipe.getText().toString().equals("")
+                    } else if (mIngredients == null && mInputNameRecipe.getText().toString().equals("")
                             || mQuantity.getText().toString().equals("") || mUnit.getText().toString().equals("")) {
                         Toast.makeText(mContext, getResources().getString(R.string.no_ingredients), Toast.LENGTH_SHORT).show();
                     } else if (!mNameRecipesList.contains(mInputNameRecipe.getText().toString())) {
@@ -276,7 +276,9 @@ public class AddRecipeActivity extends AppCompatActivity {
             } else {
                 IntentHelper.intentRecipeListActivity(mContext, mIntent.getStringExtra(RECIPE_LIST));
             }
-        } else {
+        } else if(mIntent.getStringExtra(RECIPE_LIST) == null){
+            startActivity(new Intent(this, MainActivity.class));
+        }else {
             IntentHelper.intentRecipeListActivity(mContext, mIntent.getStringExtra(RECIPE_LIST));
         }
     }
