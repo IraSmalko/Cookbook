@@ -8,9 +8,11 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
+import com.exemple.android.cookbook.adapters.IngredientsAdapter;
 import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.adapters.SelectedRecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
+import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.supporting.SwipeUtil;
 
@@ -21,6 +23,7 @@ public class SwipeHelper {
 
     private List<CategoryRecipes> mCategoryRecipesList = new ArrayList<>();
     private List<Recipe> mRecipesList = new ArrayList<>();
+    private List<Ingredient> mIngredientsList = new ArrayList<>();
     private RecyclerView mRecyclerView;
     private Context mContext;
 
@@ -95,6 +98,28 @@ public class SwipeHelper {
         };
     }
 
+    private SwipeUtil setSwipeIngredient() {
+
+        return new SwipeUtil(0, ItemTouchHelper.LEFT, mContext) {
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                int swipedPosition = viewHolder.getAdapterPosition();
+                IngredientsAdapter adapter = (IngredientsAdapter) mRecyclerView.getAdapter();
+                adapter.pendingRemoval(swipedPosition);
+            }
+
+            @Override
+            public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                int position = viewHolder.getAdapterPosition();
+                IngredientsAdapter adapter = (IngredientsAdapter) mRecyclerView.getAdapter();
+                if (adapter.isPendingRemoval(position)) {
+                    return 0;
+                }
+                return super.getSwipeDirs(recyclerView, viewHolder);
+            }
+        };
+    }
+
     public void attachSwipeSelectedRecipe() {
         SwipeUtil swipeHelper = new SwipeHelper(mRecyclerView, mContext).setSwipeSelectedRecipe();
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeHelper);
@@ -113,6 +138,14 @@ public class SwipeHelper {
 
     public void attachSwipeCategory(List<CategoryRecipes> categoryRecipes) {
         SwipeUtil swipeHelper = new SwipeHelper(mRecyclerView, mContext).setSwipeForCategory(categoryRecipes);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeHelper);
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
+        swipeHelper.setmLeftSwipeLable(mContext.getResources().getString(R.string.extraction));
+        swipeHelper.setmLeftcolorCode(ContextCompat.getColor(mContext, R.color.starFullySelected));
+    }
+
+    public void attachSwipeIngredients() {
+        SwipeUtil swipeHelper = new SwipeHelper(mRecyclerView, mContext).setSwipeIngredient();
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeHelper);
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
         swipeHelper.setmLeftSwipeLable(mContext.getResources().getString(R.string.extraction));

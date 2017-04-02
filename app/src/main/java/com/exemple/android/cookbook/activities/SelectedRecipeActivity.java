@@ -21,6 +21,7 @@ import com.exemple.android.cookbook.adapters.IngredientsAdapter;
 import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.helpers.IntentHelper;
+import com.exemple.android.cookbook.helpers.SwipeHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;

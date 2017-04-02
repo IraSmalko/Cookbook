@@ -72,8 +72,22 @@ public class DataSourceSQLite {
         cvRecipe.put(IN_BASKET, recipe.getIsInBasket());
         long rowID = mDatabase.insertOrThrow(DBHelper.TABLE_RECIPE, null, cvRecipe);
         close();
-        saveIngredient(recipe.getIngredients(), (int) rowID);
         return (int) rowID;
+    }
+
+    public void replaceRecipe(RecipeForSQLite recipe, int idRecipe) {
+        open();
+        ContentValues cvRecipe = new ContentValues();
+
+        cvRecipe.put(RECIPE, recipe.getName());
+        cvRecipe.put(PHOTO, recipe.getPhotoUrl());
+        cvRecipe.put(IN_SAVED, recipe.getIsInSaved());
+        cvRecipe.put(IN_BASKET, recipe.getIsInBasket());
+
+        mDatabase.update(DBHelper.TABLE_RECIPE, cvRecipe, ID + "=?", new String[]{"" + idRecipe});
+        mDatabase.delete(DBHelper.TABLE_INGREDIENTS_RECIPE, ID_RECIPE + "=?", new String[]{"" + idRecipe});
+        saveIngredient(recipe.getIngredients(), idRecipe);
+        close();
     }
 
     public void saveIngredient(List<Ingredient> ingredients, int idRecipe) {
@@ -202,8 +216,16 @@ public class DataSourceSQLite {
     public void removeRecipe(int id) {
         open();
         mDatabase.delete(DBHelper.TABLE_RECIPE, "id = " + id, null);
-        mDatabase.execSQL("DELETE FROM " + DBHelper
-                .TABLE_STEP_RECIPE + " WHERE " + ID_RECIPE + "='" + id + "'");
+        mDatabase.execSQL("DELETE FROM " +
+                DBHelper.TABLE_STEP_RECIPE + " WHERE " + ID_RECIPE + "='" + id + "'");
+        close();
+    }
+
+    public void removeIngredient(int idRecipe, Ingredient ingredient) {
+        open();
+        mDatabase.delete(DBHelper.TABLE_INGREDIENTS_RECIPE,
+                ID_RECIPE + "=?" + " AND " + INGREDIENT_NAME + "=?",
+                new String[]{"" + idRecipe, ingredient.getName()});
         close();
     }
 
