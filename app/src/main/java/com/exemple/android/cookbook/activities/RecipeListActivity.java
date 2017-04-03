@@ -55,7 +55,7 @@ public class RecipeListActivity extends BaseActivity {
         }
 
         Log.d("LOG", "InListCreate");
-        Log.d("LOG", recipeCategory);
+        Log.d("LOG", " " + recipeCategory);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab1);
 

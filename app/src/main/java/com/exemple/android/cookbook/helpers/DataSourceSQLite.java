@@ -69,9 +69,23 @@ public class DataSourceSQLite {
         cvRecipe.put(IN_SAVED, recipe.getIsInSaved());
         cvRecipe.put(IN_BASKET, recipe.getIsInBasket());
         long rowID = mDatabase.insertOrThrow(DBHelper.TABLE_RECIPE, null, cvRecipe);
-
         close();
         return (int) rowID;
+    }
+
+    public void replaceRecipe(RecipeForSQLite recipe, int idRecipe) {
+        open();
+        ContentValues cvRecipe = new ContentValues();
+
+        cvRecipe.put(RECIPE, recipe.getName());
+        cvRecipe.put(PHOTO, recipe.getPhotoUrl());
+        cvRecipe.put(IN_SAVED, recipe.getIsInSaved());
+        cvRecipe.put(IN_BASKET, recipe.getIsInBasket());
+
+        mDatabase.update(DBHelper.TABLE_RECIPE, cvRecipe, ID + "=?", new String[]{"" + idRecipe});
+        mDatabase.delete(DBHelper.TABLE_INGREDIENTS_RECIPE, ID_RECIPE + "=?", new String[]{"" + idRecipe});
+        saveIngredient(recipe.getIngredients(), idRecipe);
+        close();
     }
 
     public void saveIngredient(List<Ingredient> ingredients, int idRecipe) {
@@ -83,6 +97,31 @@ public class DataSourceSQLite {
             cvIngredient.put(INGREDIENT_QUANTITY, ingredient.getQuantity());
             cvIngredient.put(INGREDIENT_UNIT, ingredient.getUnit());
             mDatabase.insertOrThrow(DBHelper.TABLE_INGREDIENTS_RECIPE, null, cvIngredient);
+        }
+        close();
+    }
+
+    public void replaceStepSQlite(int idRecipe, StepRecipe stepRecipe) {
+        open();
+        ContentValues cvStepRecipe = new ContentValues();
+        cvStepRecipe.put(TEXT_STEP, stepRecipe.getTextStep());
+        cvStepRecipe.put(PHOTO_STEP, stepRecipe.getPhotoUrlStep());
+        mDatabase.update(DBHelper.TABLE_STEP_RECIPE,
+                cvStepRecipe,
+                ID_RECIPE + "=?" + " AND " + NUMBER_STEP + "=?",
+                new String[]{"" + idRecipe, stepRecipe.getNumberStep()});
+        close();
+    }
+
+    public void copyStepsSQLite(int idRecipe, List<SelectedStepRecipe> stepRecipes) {
+        open();
+        ContentValues cvStepRecipe = new ContentValues();
+        for (StepRecipe stepRecipe : stepRecipes) {
+            cvStepRecipe.put(ID_RECIPE, idRecipe);
+            cvStepRecipe.put(NUMBER_STEP, stepRecipe.getNumberStep());
+            cvStepRecipe.put(TEXT_STEP, stepRecipe.getTextStep());
+            cvStepRecipe.put(PHOTO_STEP, stepRecipe.getPhotoUrlStep());
+            mDatabase.insertOrThrow(DBHelper.TABLE_STEP_RECIPE, null, cvStepRecipe);
         }
         close();
     }
@@ -180,6 +219,14 @@ public class DataSourceSQLite {
         close();
     }
 
+    public void removeIngredient(int idRecipe, Ingredient ingredient) {
+        open();
+        mDatabase.delete(DBHelper.TABLE_INGREDIENTS_RECIPE,
+                ID_RECIPE + "=?" + " AND " + INGREDIENT_NAME + "=?",
+                new String[]{"" + idRecipe, ingredient.getName()});
+        close();
+    }
+
     public List<SelectedRecipe> getRecipe() {
         List<SelectedRecipe> recipesList = new ArrayList<>();
         open();
@@ -202,7 +249,6 @@ public class DataSourceSQLite {
     }
 
     public List<SelectedRecipe> getRecipes(int requestCode) {
-
 
         List<SelectedRecipe> recipesList = new ArrayList<>();
         open();

@@ -10,6 +10,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -59,8 +61,8 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
             mActionBar.setTitle(mSelectedStepRecipes.get(0).getNumberStep());
             mTxtStepRecipe.setText(mSelectedStepRecipes.get(0).getTextStep());
             try {
-                mImgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
-                        .parse(mSelectedStepRecipes.get(0).getPhotoUrlStep())));
+                mImgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(),
+                        Uri.parse(mSelectedStepRecipes.get(0).getPhotoUrlStep())));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -90,5 +92,21 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
             IntentHelper.intentSelectedRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
                     .getStringExtra(PHOTO), mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_recipe_selected, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.edit_recipe) {
+            Intent intent = mIntent;
+            intent.setClass(this, EditRecipeStepActivity.class);
+            startActivity(intent);
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

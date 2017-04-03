@@ -1,6 +1,5 @@
 package com.exemple.android.cookbook.adapters;
 
-
 import android.content.Context;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -8,11 +7,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.Ingredient;
-import com.exemple.android.cookbook.helpers.FirebaseHelper;
+import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,10 +30,20 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
     private Handler mHandler = new Handler();
     private HashMap<Ingredient, Runnable> mPendingRunnables = new HashMap<>();
 
+    private boolean swipeRemoveNeeded = false;
+
     public IngredientsAdapter(Context context, List<Ingredient> items) {
         updateAdapter(items);
         mContext = context;
         mItemsPendingRemoval = new ArrayList<>();
+        swipeRemoveNeeded = false;
+    }
+
+    public IngredientsAdapter(Context context, List<Ingredient> items, boolean isSwipeNeeded) {
+        updateAdapter(items);
+        mContext = context;
+        mItemsPendingRemoval = new ArrayList<>();
+        swipeRemoveNeeded = isSwipeNeeded;
     }
 
     public void updateAdapter(@Nullable List<Ingredient> ingredient) {
@@ -57,9 +67,31 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
         final Ingredient item = mItems.get(position);
         mItem = item;
 
-        holder.nameIngredients.setText(item.getName());
-        holder.quantity.setText(String.valueOf(item.getQuantity()));
-        holder.unit.setText(item.getUnit());
+        if (swipeRemoveNeeded) {
+            if (mItemsPendingRemoval.contains(item)) {
+                holder.ingredientLayout.setVisibility(View.GONE);
+                holder.swipeLayout.setVisibility(View.VISIBLE);
+                holder.undo.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        undoOpt(item);
+                    }
+                });
+            } else {
+                /** {show regular layout} and {hide swipe layout} */
+                holder.ingredientLayout.setVisibility(View.VISIBLE);
+                holder.swipeLayout.setVisibility(View.GONE);
+                holder.nameIngredients.setText(item.getName());
+                holder.quantity.setText(String.valueOf(item.getQuantity()));
+                holder.unit.setText(item.getUnit());
+            }
+        } else {
+            holder.ingredientLayout.setVisibility(View.VISIBLE);
+            holder.swipeLayout.setVisibility(View.GONE);
+            holder.nameIngredients.setText(item.getName());
+            holder.quantity.setText(String.valueOf(item.getQuantity()));
+            holder.unit.setText(item.getUnit());
+        }
     }
 
     private void undoOpt(Ingredient item) {
@@ -99,13 +131,13 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
         if (mItems.contains(data)) {
             mItems.remove(position);
             notifyItemRemoved(position);
-            new FirebaseHelper().removeCategory(mContext, data.getName());
+//            new DataSourceSQLite(mContext).removeIngredient(mIdRecipe, data);
         }
     }
 
-    public boolean isPendingRemoval(int position, List<Ingredient> ingredients) {
+    public boolean isPendingRemoval(int position) {
         Ingredient data = mItems.get(position);
-        return ingredients.contains(data) || mItemsPendingRemoval.contains(data);
+        return mItemsPendingRemoval.contains(data);
     }
 
     @Override
@@ -116,10 +148,11 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
 
     static class CustomViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView quantity, unit, nameIngredients;
+        private TextView quantity, unit, nameIngredients, undo;
+        private LinearLayout swipeLayout, ingredientLayout;
 
         static CustomViewHolder create(LayoutInflater inflater, ViewGroup parent) {
-            return new CustomViewHolder(inflater.inflate(R.layout.item_ingredient, parent, false));
+            return new CustomViewHolder(inflater.inflate(R.layout.ingredient_with_swipe_remove, parent, false));
         }
 
         CustomViewHolder(View v) {
@@ -127,6 +160,13 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
             this.quantity = (TextView) v.findViewById(R.id.quantity);
             this.unit = (TextView) v.findViewById(R.id.unit);
             this.nameIngredients = (TextView) v.findViewById(R.id.nameIngredients);
+            this.swipeLayout = (LinearLayout) v.findViewById(R.id.swipeLayout);
+            this.ingredientLayout = (LinearLayout) v.findViewById(R.id.item_ingredient);
+            this.undo = (TextView) v.findViewById(R.id.undo);
         }
+    }
+
+    public List<Ingredient> getItems(){
+        return mItems;
     }
 }

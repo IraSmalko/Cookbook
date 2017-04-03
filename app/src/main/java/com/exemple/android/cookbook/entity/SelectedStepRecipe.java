@@ -7,6 +7,13 @@ public class SelectedStepRecipe extends StepRecipe {
 
     public SelectedStepRecipe (){}
 
+    public SelectedStepRecipe(StepRecipe stepRecipe, int idRecipe){
+        this.numberStep = stepRecipe.getNumberStep();
+        this.textStep = stepRecipe.getTextStep();
+        this.photoUrlStep = stepRecipe.getPhotoUrlStep();
+        this.idRecipe = idRecipe;
+    }
+
     public SelectedStepRecipe (String numberStep, String textStep, String photoUrlStep, int idRecipe){
         this.numberStep = numberStep;
         this.textStep = textStep;
