@@ -1,11 +1,14 @@
 package com.exemple.android.cookbook.activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
@@ -47,6 +50,7 @@ public class AuthenticationActivity extends AppCompatActivity implements
 
     private CallbackManager mCallbackManager;
 
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +59,10 @@ public class AuthenticationActivity extends AppCompatActivity implements
         FacebookSdk.sdkInitialize(getApplicationContext());
 
         setContentView(R.layout.activity_authentication);
+
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setTitle("Авторизація");
+        mProgressDialog.setMessage(getResources().getString(R.string.progress_vait));
 
         // Assign fields
         mSignInButton = (SignInButton) findViewById(R.id.signInButton);
@@ -91,16 +99,18 @@ public class AuthenticationActivity extends AppCompatActivity implements
             public void onCancel() {
                 Log.d(TAG, "facebook:onCancel");
                 // ...
+                mProgressDialog.dismiss();
             }
 
             @Override
             public void onError(FacebookException error) {
                 Log.d(TAG, "facebook:onError", error);
                 // ...
+                mProgressDialog.dismiss();
             }
         });
 
-        Log.d("FB",loginButton.getText().toString());
+        Log.d("FB", loginButton.getText().toString());
 
     }
 
@@ -128,8 +138,8 @@ public class AuthenticationActivity extends AppCompatActivity implements
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        mProgressDialog.show();
         super.onActivityResult(requestCode, resultCode, data);
-
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
@@ -138,6 +148,7 @@ public class AuthenticationActivity extends AppCompatActivity implements
                 GoogleSignInAccount account = result.getSignInAccount();
                 firebaseAuthWithGoogle(account);
             } else {
+                mProgressDialog.dismiss();
                 // Google Sign In failed
                 Log.e(TAG, "Google Sign In failed.");
             }
@@ -148,11 +159,14 @@ public class AuthenticationActivity extends AppCompatActivity implements
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGooogle:" + acct.getId());
+
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+
         mFirebaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+
                         Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
 
                         // If sign in fails, display a message to the user. If sign in succeeds
@@ -160,6 +174,7 @@ public class AuthenticationActivity extends AppCompatActivity implements
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
                             Log.w(TAG, "signInWithCredential", task.getException());
+                            mProgressDialog.dismiss();
                             Toast.makeText(AuthenticationActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         } else {
@@ -187,7 +202,7 @@ public class AuthenticationActivity extends AppCompatActivity implements
                             Log.w(TAG, "signInWithCredential", task.getException());
                             Toast.makeText(AuthenticationActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-                        }else {
+                        } else {
                             startActivity(new Intent(AuthenticationActivity.this, MainActivity.class));
                             finish();
                         }
