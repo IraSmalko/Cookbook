@@ -55,7 +55,8 @@
             android:layout_gravity="end"
             android:layout_weight="1"
             android:contentDescription="@string/add_photo_new_recipe"
-            ads:srcCompat="@android:drawable/ic_menu_gallery" />
+            ads:srcCompat="@android:drawable/ic_menu_gallery"
+            android:background="@android:drawable/dialog_holo_light_frame"/>
 
         <ImageButton
             android:id="@+id/categoryRecipesPhotoUrlCamera"
@@ -63,7 +64,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:contentDescription="@string/add_photo_new_recipe"
-            ads:srcCompat="@android:drawable/ic_menu_camera" />
+            ads:srcCompat="@android:drawable/ic_menu_camera"
+            android:background="@android:drawable/dialog_holo_light_frame"/>
 
     </LinearLayout>
 
@@ -133,7 +135,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:contentDescription="@string/add_photo_new_recipe"
-            ads:srcCompat="@android:drawable/ic_input_add" />
+            ads:srcCompat="@android:drawable/ic_input_add"
+            android:background="@android:drawable/dialog_holo_light_frame"/>
 
     </LinearLayout>
 
@@ -159,6 +162,7 @@
         android:background="@color/colorPrimary"
         android:text="@string/save_new_recipe"
         android:textColor="@android:color/white"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:shadowColor="@color/colorPrimary"/>
 
 </LinearLayout>

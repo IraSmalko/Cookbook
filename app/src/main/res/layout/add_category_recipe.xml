@@ -42,6 +42,7 @@
             android:id="@+id/categoryRecipesPhotoUrlGallery"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@android:drawable/dialog_holo_light_frame"
             android:contentDescription="@string/add_photo_new_recipe"
             ads:srcCompat="@android:drawable/ic_menu_gallery" />
 
@@ -49,6 +50,7 @@
             android:id="@+id/categoryRecipesPhotoUrlCamera"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@android:drawable/dialog_holo_light_frame"
             android:contentDescription="@string/add_photo_new_recipe"
             ads:srcCompat="@android:drawable/ic_menu_camera" />
 

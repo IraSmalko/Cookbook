@@ -45,7 +45,7 @@
             android:configChanges="orientation"
             android:parentActivityName=".activities.RecipeListActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".activities.StepRecipeActivity" />
+        <activity android:name=".activities.StepRecipeActivity"/>
         <activity
             android:name=".activities.AuthenticationActivity"
             android:exported="true">
@@ -70,8 +70,10 @@
         <activity
             android:name=".activities.InfoVRActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".activities.ShoppingBasketActivity" />
-        <activity android:name=".activities.ShoppingRecipeActivity" />
+        <activity android:name=".activities.ShoppingBasketActivity"
+            android:parentActivityName=".activities.MainActivity"/>
+        <activity android:name=".activities.ShoppingRecipeActivity"
+            android:parentActivityName=".activities.ShoppingBasketActivity"/>
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
@@ -97,7 +99,7 @@
             android:value="@string/fb_app_id" />
 
         <activity android:name=".activities.EditRecipeActivity" />
-        <activity android:name=".activities.EditRecipeStepActivity"></activity>
+        <activity android:name=".activities.EditRecipeStepActivity"/>
     </application>
 
 </manifest>

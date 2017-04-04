@@ -34,7 +34,7 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
     private static final String ID_RECIPE = "id_recipe";
 
     private List<SelectedStepRecipe> mSelectedStepRecipes = new ArrayList<>();
-    private int mIndex = 0;
+    private int mIterator = 0;
     private ActionBar mActionBar;
     private TextView mTxtStepRecipe;
     private ImageView mImgStepRecipe;
@@ -72,8 +72,8 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mIndex = ++mIndex;
-                updateData(mIndex);
+                mIterator = ++mIterator;
+                updateData(mIterator);
             }
         });
     }
@@ -108,5 +108,15 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
             startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mIterator == 0) {
+            IntentHelper.intentSelectedRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
+                    .getStringExtra(PHOTO), mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
+        } else {
+            updateData(--mIterator);
+        }
     }
 }

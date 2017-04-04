@@ -21,4 +21,9 @@
         <item name="android:textColorPrimary">@color/white</item>
         <item name="colorAccent">@color/white</item>
     </style>
+
+    <style name="RatingBar" parent="Theme.AppCompat">
+        <item name="colorControlNormal">#FFF59D</item>
+        <item name="colorControlActivated">#FFC107</item>
+    </style>
 </resources>

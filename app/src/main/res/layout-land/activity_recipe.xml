@@ -33,9 +33,10 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="64dp"
-                android:text="@string/detail" />
+                android:text="@string/detail"
+                android:background="@android:drawable/dialog_holo_light_frame"/>
 
-            <RatingBar
+            <me.zhanghai.android.materialratingbar.MaterialRatingBar
                 android:id="@+id/ratingBar"
                 android:layout_width="235dp"
                 android:layout_height="40dp"
@@ -43,14 +44,15 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginStart="22dp"
                 android:layout_marginTop="64dp"
-                android:numStars="5" />
+                android:numStars="5"
+                android:theme="@style/RatingBar"/>
 
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/commentsRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@+id/textInputLayout1"
+                android:layout_below="@+id/save_comments"
                 android:layout_centerHorizontal="true"
                 android:layout_marginBottom="16dp"/>
 
@@ -76,7 +78,8 @@
                 android:layout_alignRight="@+id/textInputLayout1"
                 android:layout_below="@+id/textInputLayout1"
                 android:layout_gravity="end"
-                android:text="@string/send" />
+                android:text="@string/send"
+                android:background="@android:drawable/dialog_holo_light_frame"/>
 
             <Button
                 android:id="@+id/edit_comments"
@@ -86,7 +89,8 @@
                 android:layout_below="@+id/imageView"
                 android:layout_gravity="end"
                 android:text="@string/edit"
-                android:visibility="invisible" />
+                android:visibility="invisible"
+                android:background="@android:drawable/dialog_holo_light_frame"/>
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/textInputLayout1"
