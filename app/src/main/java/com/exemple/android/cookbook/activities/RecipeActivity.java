@@ -263,7 +263,7 @@ public class RecipeActivity extends BaseActivity
                         mEditButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                showEditRatingDialog(comment, ref);
+                                showEditRatingDialog(ref, comment.getText(), comment.getRating());
                             }
                         });
 
@@ -368,7 +368,7 @@ public class RecipeActivity extends BaseActivity
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showRatingDialog();
+                showRatingDialog((float) 3.0);
             }
         });
 
@@ -424,25 +424,17 @@ public class RecipeActivity extends BaseActivity
             this.numberOfUsers = 0;
         }
 
-        public void addRating(float rating) {
-            this.rating = (this.rating * this.numberOfUsers + rating) / (this.numberOfUsers + 1);
-            this.numberOfUsers++;
-        }
-
         public float getRating() {
             return rating;
         }
 
-        public int getNumberOfUsers() {
-            return numberOfUsers;
-        }
 
-        public void editRating(float oldRating, float newRating) {
-            rating = (rating * numberOfUsers - oldRating + newRating) / numberOfUsers;
-        }
     }
 
-    public void showRatingDialog() {
+    AlertDialog mRatingDialog;
+    RatingBar ratingInDialog;
+
+    public void showRatingDialog(float startValue) {
 
         final AlertDialog.Builder ratingDialog = new AlertDialog.Builder(this);
         ratingDialog.setIcon(android.R.drawable.btn_star_big_on);
@@ -452,7 +444,8 @@ public class RecipeActivity extends BaseActivity
         View linearlayout = getLayoutInflater().inflate(R.layout.rating_dialog, null);
         ratingDialog.setView(linearlayout);
 
-        final RatingBar ratingInDialog = (RatingBar) linearlayout.findViewById(R.id.dialogRatingBar);
+        ratingInDialog = (RatingBar) linearlayout.findViewById(R.id.dialogRatingBar);
+        ratingInDialog.setRating(startValue);
 
         ratingDialog.setPositiveButton("Готово",
                 new DialogInterface.OnClickListener() {
@@ -464,51 +457,64 @@ public class RecipeActivity extends BaseActivity
                                 ratingInDialog.getRating(),
                                 mUserId);
                         mFirebaseDatabaseReference.child(MESSAGES_CHILD)
-                                .push().setValue(comment);
+                                .push().setValue(comment).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                updateRating();
+                            }
+                        });
                         mCommentEditText.setText("");
 
-                        mRecipeRating.addRating(ratingInDialog.getRating());
-                        mFirebaseDatabaseReference.child(RATING_CHILD).child("rating").setValue(mRecipeRating.getRating());
-                        mFirebaseDatabaseReference.child(RATING_CHILD).child("numberOfUsers").setValue(mRecipeRating.getNumberOfUsers());
+                        updateRating();
                         dialog.dismiss();
                     }
                 });
 
-        ratingDialog.create();
-        ratingDialog.show();
+        mRatingDialog = ratingDialog.create();
+        mRatingDialog.show();
     }
 
-    public void showEditRatingDialog(final Comment comment, final DatabaseReference ref) {
-        final AlertDialog.Builder ratingDialog = new AlertDialog.Builder(this);
-        ratingDialog.setIcon(android.R.drawable.btn_star_big_on);
-        ratingDialog.setTitle("Редагування оцінки");
-        ratingDialog.setCancelable(false);
+
+    AlertDialog mRatingEditDialog;
+    EditText editTextInEditDialog;
+    RatingBar ratingInEditDialog;
+    String referenceKey;
+
+    public void showEditRatingDialog(final DatabaseReference ref, final String commentText, final float commentRating) {
+        final AlertDialog.Builder ratingEditDialog = new AlertDialog.Builder(this);
+        ratingEditDialog.setIcon(android.R.drawable.btn_star_big_on);
+        ratingEditDialog.setTitle("Редагування оцінки");
+        ratingEditDialog.setCancelable(false);
 
         View linearlayout = getLayoutInflater().inflate(R.layout.edit_rating_dialog, null);
-        ratingDialog.setView(linearlayout);
+        ratingEditDialog.setView(linearlayout);
+        Log.d("refff", ref.toString());
+        Log.d("refff", ref.getKey());
+        referenceKey = ref.getKey();
+        ratingInEditDialog = (RatingBar) linearlayout.findViewById(R.id.editDialogRatingBar);
+        editTextInEditDialog = (EditText) linearlayout.findViewById(R.id.editTextComentInDialog);
 
-        final RatingBar ratingInEditDialog = (RatingBar) linearlayout.findViewById(R.id.editDialogRatingBar);
-        final EditText editTextInEditDialog = (EditText) linearlayout.findViewById(R.id.editTextComentInDialog);
+        ratingInEditDialog.setRating(commentRating);
+        editTextInEditDialog.setText(commentText);
 
-        ratingInEditDialog.setRating(comment.getRating());
-        editTextInEditDialog.setText(comment.getText());
-
-        ratingDialog.setPositiveButton("Готово",
+        ratingEditDialog.setPositiveButton("Готово",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
 
-                        mRecipeRating.editRating(comment.getRating(), ratingInEditDialog.getRating());
-                        mFirebaseDatabaseReference.child(RATING_CHILD).child("rating").setValue(mRecipeRating.getRating());
-                        mFirebaseDatabaseReference.child(RATING_CHILD).child("numberOfUsers").setValue(mRecipeRating.getNumberOfUsers());
-
                         ref.child("text").setValue(editTextInEditDialog.getText().toString());
-                        ref.child("rating").setValue(ratingInEditDialog.getRating());
+                        ref.child("rating").setValue(ratingInEditDialog.getRating()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                updateRating();
+                            }
+                        });
+
                         dialog.dismiss();
                     }
                 });
 
-        ratingDialog.create();
-        ratingDialog.show();
+        mRatingEditDialog = ratingEditDialog.create();
+        mRatingEditDialog.show();
     }
 
     public void setValueChangeListener() {
@@ -581,5 +587,56 @@ public class RecipeActivity extends BaseActivity
             Toast.makeText(RecipeActivity.this, getResources()
                     .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState.getBoolean("isEditRatingDialogShown")) {
+            showEditRatingDialog(mFirebaseDatabaseReference.child(MESSAGES_CHILD).child(savedInstanceState.getString("ref")),
+                    savedInstanceState.getString("text"),
+                    savedInstanceState.getFloat("ratingEdit"));
+        } else if (savedInstanceState.getBoolean("isRatingDialogShown")) {
+            showRatingDialog(savedInstanceState.getFloat("rating"));
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mRatingEditDialog != null) {
+            outState.putBoolean("isEditRatingDialogShown", mRatingEditDialog.isShowing());
+            outState.putString("ref", referenceKey);
+            outState.putString("text", editTextInEditDialog.getText().toString());
+            outState.putFloat("ratingEdit", ratingInEditDialog.getRating());
+        } else if (mRatingDialog != null) {
+            outState.putBoolean("isRatingDialogShown", mRatingDialog.isShowing());
+            outState.putFloat("rating", ratingInDialog.getRating());
+        }
+    }
+
+    public void updateRating() {
+
+        mFirebaseDatabaseReference.child(MESSAGES_CHILD).addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                float rating = 0;
+                int number = 0;
+                for (DataSnapshot data : dataSnapshot.getChildren()) {
+                    final Comment comment = data.getValue(Comment.class);
+                    rating += comment.getRating();
+                    number++;
+                }
+                rating = rating / number;
+                mFirebaseDatabaseReference.child(RATING_CHILD).child("rating").setValue(rating);
+                mFirebaseDatabaseReference.child(RATING_CHILD).child("numberOfUsers").setValue(number);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 }

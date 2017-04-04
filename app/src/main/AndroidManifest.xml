@@ -42,7 +42,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.RecipeActivity"
-            android:configChanges="orientation"
+            android:configChanges="orientation|keyboardHidden"
             android:parentActivityName=".activities.RecipeListActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".activities.StepRecipeActivity"/>
