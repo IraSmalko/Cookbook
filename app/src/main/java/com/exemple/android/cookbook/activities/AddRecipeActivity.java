@@ -119,6 +119,8 @@ public class AddRecipeActivity extends AppCompatActivity {
             }
         });
 
+        mIntent = getIntent();
+
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
@@ -127,7 +129,6 @@ public class AddRecipeActivity extends AppCompatActivity {
         if (firebaseUser != null) {
             String username = firebaseUser.getDisplayName();
 
-            mIntent = getIntent();
             mNameRecipesList = mIntent.getStringArrayListExtra(ARRAY_LIST_RECIPE);
             mDatabaseReference = mFirebaseDatabase.getReference().child(username + "/Recipe_lists/" + mIntent
                     .getStringExtra(RECIPE_LIST));
@@ -198,8 +199,8 @@ public class AddRecipeActivity extends AppCompatActivity {
                 case R.id.btnSave:
                     if (mInputNameRecipe.getText().toString().equals("")) {
                         Toast.makeText(mContext, getResources().getString(R.string.no_recipe_name), Toast.LENGTH_SHORT).show();
-                    } else if (mIngredients == null && mInputNameRecipe.getText().toString().equals("")
-                            || mQuantity.getText().toString().equals("") || mUnit.getText().toString().equals("")) {
+                    } else if (mIngredients == null && (mInputNameRecipe.getText().toString().equals("")
+                            || mQuantity.getText().toString().equals("") || mUnit.getText().toString().equals(""))) {
                         Toast.makeText(mContext, getResources().getString(R.string.no_ingredients), Toast.LENGTH_SHORT).show();
                     } else if (!mNameRecipesList.contains(mInputNameRecipe.getText().toString())) {
                         if (mDownloadUrlCamera != null) {
@@ -273,12 +274,12 @@ public class AddRecipeActivity extends AppCompatActivity {
             } else if (mBackPressed == backPressedTFalse) {
                 Toast.makeText(mContext, getResources().getString(R.string.input_will_lost), Toast.LENGTH_SHORT).show();
                 mBackPressed = backPressedTrue;
-            } else {
+            } else if (!mIntent.hasExtra(RECIPE_LIST)) {
                 IntentHelper.intentRecipeListActivity(mContext, mIntent.getStringExtra(RECIPE_LIST));
             }
-        } else if(mIntent.getStringExtra(RECIPE_LIST) == null){
+        } else if (!mIntent.hasExtra(RECIPE_LIST)) {
             startActivity(new Intent(this, MainActivity.class));
-        }else {
+        } else {
             IntentHelper.intentRecipeListActivity(mContext, mIntent.getStringExtra(RECIPE_LIST));
         }
     }
