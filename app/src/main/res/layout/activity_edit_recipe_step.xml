@@ -63,8 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:contentDescription="@string/add_photo_new_recipe"
-            ads:srcCompat="@android:drawable/ic_menu_camera"
-            android:background="@android:drawable/dialog_holo_light_frame"/>
+            ads:srcCompat="@android:drawable/ic_menu_camera" />
 
     </LinearLayout>
 

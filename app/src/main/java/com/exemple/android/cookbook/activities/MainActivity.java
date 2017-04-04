@@ -8,6 +8,11 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 import com.exemple.android.cookbook.R;
@@ -39,9 +44,12 @@ public class MainActivity extends BaseActivity {
 
     private RecyclerView mRecyclerView;
     private SwipeHelper mSwipeHelper;
+    private TextView mTextView;
+    private Button mButton;
     private CategoryRecipeRecyclerAdapter mRecyclerAdapter;
     private List<CategoryRecipes> mCategoryRecipesList = new ArrayList<>();
     private List<CategoryRecipes> mPublicCategoryRecipes = new ArrayList<>();
+    AlphaAnimation buttonClick;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +59,20 @@ public class MainActivity extends BaseActivity {
         mRecyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
         mSwipeHelper = new SwipeHelper(mRecyclerView, getApplicationContext());
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        mTextView = (TextView) findViewById(R.id.error_loading);
+        mButton = (Button) findViewById(R.id.btn_retry);
+        final Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.milkshake);
+        buttonClick = new AlphaAnimation(1F, 0.5F);
+        mButton.setAnimation(myAnim);
         setSupportActionBar(toolbar);
+
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setItemViewCacheSize(20);
+        mRecyclerView.setDrawingCacheEnabled(true);
+        mRecyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+        mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
+                .createRecyclerAdapter(mCategoryRecipesList);
+        mRecyclerView.setAdapter(mRecyclerAdapter);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -92,17 +113,18 @@ public class MainActivity extends BaseActivity {
                         @Override
                         public void OnGet(List<CategoryRecipes> category) {
                             category.addAll(mCategoryRecipesList);
-                            mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
-                                    .createRecyclerAdapter(category);
-                            mRecyclerView.setAdapter(mRecyclerAdapter);
+                            mRecyclerAdapter.updateAdapter(category);
                             mSwipeHelper.attachSwipeCategory(mPublicCategoryRecipes);
+
                         }
                     }).getUserCategoryRecipe(mUsername, mFirebaseDatabase);
                 } else {
-                    mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
-                            .createRecyclerAdapter(mCategoryRecipesList);
-                    mRecyclerView.setAdapter(mRecyclerAdapter);
+                    mRecyclerAdapter.updateAdapter(mCategoryRecipesList);
                     mSwipeHelper.attachSwipeCategory(mCategoryRecipesList);
+                }
+                if(mRecyclerAdapter.getItemCount() != 0){
+                    mTextView.setVisibility(View.INVISIBLE);
+                    mButton.setVisibility(View.INVISIBLE);
                 }
             }
 
@@ -110,7 +132,20 @@ public class MainActivity extends BaseActivity {
             public void onCancelled(DatabaseError databaseError) {
             }
         });
+
+        if(mRecyclerAdapter.getItemCount() == 0){
+            mTextView.setVisibility(View.VISIBLE);
+            mButton.setVisibility(View.VISIBLE);
+        }
     }
+
+    public void onClick(View view) {
+        mButton.setAnimation(buttonClick);
+        view.startAnimation(buttonClick);
+        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+
+    }
+
 
     @Override
     public int getLayoutResource() {

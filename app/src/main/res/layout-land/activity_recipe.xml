@@ -33,8 +33,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="64dp"
-                android:text="@string/detail"
-                android:background="@android:drawable/dialog_holo_light_frame"/>
+                android:text="@string/detail" />
 
             <me.zhanghai.android.materialratingbar.MaterialRatingBar
                 android:id="@+id/ratingBar"
@@ -78,8 +77,7 @@
                 android:layout_alignRight="@+id/textInputLayout1"
                 android:layout_below="@+id/textInputLayout1"
                 android:layout_gravity="end"
-                android:text="@string/send"
-                android:background="@android:drawable/dialog_holo_light_frame"/>
+                android:text="@string/send" />
 
             <Button
                 android:id="@+id/edit_comments"
@@ -89,8 +87,7 @@
                 android:layout_below="@+id/imageView"
                 android:layout_gravity="end"
                 android:text="@string/edit"
-                android:visibility="invisible"
-                android:background="@android:drawable/dialog_holo_light_frame"/>
+                android:visibility="invisible" />
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/textInputLayout1"
