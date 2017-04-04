@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.SelectedRecipeRecyclerListAdapter;
@@ -21,6 +22,11 @@ public class SelectedRecipeListActivity extends AppCompatActivity {
         setContentView(R.layout.selected_list_activity);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
+
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setItemViewCacheSize(20);
+        recyclerView.setDrawingCacheEnabled(true);
+        recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
         SelectedRecipeRecyclerListAdapter recipeRecyclerAdapter =
                 new SelectedRecipeRecyclerListAdapter(this,
