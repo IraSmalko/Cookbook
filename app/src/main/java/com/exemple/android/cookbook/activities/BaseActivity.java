@@ -1,6 +1,7 @@
 package com.exemple.android.cookbook.activities;
 
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -13,18 +14,21 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.helpers.VoiceRecognitionHelper;
+import com.exemple.android.cookbook.supporting.Comment;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -92,15 +96,7 @@ public abstract class BaseActivity extends AppCompatActivity
             Intent intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_sign_out) {
-            if (mFirebaseUser != null) {
-                Log.d("USER", mFirebaseUser.toString());
-                mFirebaseAuth.signOut();
-                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
-                Log.d("USER", mFirebaseUser.toString());
-                mUsername = ANONYMOUS;
-                mFirebaseUser = null;
-                userRefresh();
-            }
+            showSignOutDialog();
         } else if (id == R.id.nav_basket) {
             startActivity(new Intent(this, ShoppingBasketActivity.class));
         }
@@ -207,5 +203,37 @@ public abstract class BaseActivity extends AppCompatActivity
             new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data);
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void showSignOutDialog() {
+
+        final AlertDialog.Builder signOutDialog = new AlertDialog.Builder(this);
+        signOutDialog.setTitle("Sign out");
+        signOutDialog.setMessage("Ви впевнені?");
+        signOutDialog.setCancelable(true);
+
+        signOutDialog.setPositiveButton("Так",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (mFirebaseUser != null) {
+                            Log.d("USER", mFirebaseUser.toString());
+                            mFirebaseAuth.signOut();
+                            Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+                            Log.d("USER", mFirebaseUser.toString());
+                            mUsername = ANONYMOUS;
+                            mFirebaseUser = null;
+                            userRefresh();
+                        }
+                        dialog.dismiss();
+                    }
+                });
+        signOutDialog.setNegativeButton("Ні", new DialogInterface.OnClickListener(){
+            public void onClick(DialogInterface dialog, int which) {
+            dialog.dismiss();
+            }
+        });
+
+        signOutDialog.create();
+        signOutDialog.show();
     }
 }
