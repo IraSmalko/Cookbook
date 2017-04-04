@@ -59,8 +59,7 @@
                 android:layout_below="@+id/ratingBar"
                 android:layout_marginTop="63dp"
                 android:text="@string/detail"
-                android:backgroundTint="#1E9D96"
-                android:background="@android:drawable/dialog_holo_light_frame"/>
+                android:backgroundTint="#1E9D96" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recyclerIngredients"
@@ -80,8 +79,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_below="@+id/textInputLayout1"
-                android:text="@string/send"
-                android:background="@android:drawable/dialog_holo_light_frame"/>
+                android:text="@string/send" />
 
             <Button
                 android:id="@+id/edit_comments"
@@ -90,8 +88,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_below="@+id/textInputLayout1"
                 android:text="@string/edit"
-                android:visibility="invisible"
-                android:background="@android:drawable/dialog_holo_light_frame"/>
+                android:visibility="invisible" />
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/textInputLayout1"
