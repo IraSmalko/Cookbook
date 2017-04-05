@@ -5,10 +5,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -41,6 +39,7 @@ import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
+import com.exemple.android.cookbook.helpers.LocalSavingImagesHelper;
 import com.exemple.android.cookbook.helpers.PermissionsHelper;
 import com.exemple.android.cookbook.helpers.VoiceRecognitionHelper;
 import com.exemple.android.cookbook.helpers.WriterDAtaSQLiteAsyncTask;
@@ -541,29 +540,8 @@ public class RecipeActivity extends BaseActivity
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == WRITE_EXTERNAL_STORAGE_REQUEST) {
-            if (grantResults[0] == PERMISSION_GRANTED) {
-                saveRecipe(DataSourceSQLite.REQUEST_SAVED);
-            } else {
-                new PermissionsHelper(RecipeActivity.this).showExternalPermissionDialog();
-            }
-        }
-    }
-
     private void saveRecipe(int target) {
-        if (ActivityCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, WRITE_EXTERNAL_STORAGE)) {
-                new PermissionsHelper(RecipeActivity.this).showExternalPermissionDialog();
-            } else {
-                ActivityCompat.requestPermissions(RecipeActivity.this,
-                        new String[]{WRITE_EXTERNAL_STORAGE}, WRITE_EXTERNAL_STORAGE_REQUEST);
-            }
-        }
-        int inSaved = 0;
+                int inSaved = 0;
         int inBasket = 0;
         if (target == DataSourceSQLite.REQUEST_BASKET) {
             inBasket = 1;
@@ -572,8 +550,7 @@ public class RecipeActivity extends BaseActivity
         }
         boolean isOnline = new CheckOnlineHelper(this).isOnline();
         if (isOnline) {
-            String path = MediaStore.Images.Media.insertImage(getContentResolver(),
-                    mLoadPhotoStep, getApplicationContext().getCacheDir().getAbsolutePath(), null);
+            String path = LocalSavingImagesHelper.getPathForNewPhoto(mIntent.getStringExtra(RECIPE), mLoadPhotoStep, getApplicationContext());
             new WriterDAtaSQLiteAsyncTask.WriterRecipe(this, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
                 @Override
                 public void onDataReady(Integer integer) {

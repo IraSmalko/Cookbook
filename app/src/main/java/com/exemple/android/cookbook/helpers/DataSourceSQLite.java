@@ -10,6 +10,7 @@ import android.provider.MediaStore;
 import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
+import com.exemple.android.cookbook.activities.RecipeActivity;
 import com.exemple.android.cookbook.entity.ForWriterStepsRecipe;
 import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.entity.RecipeForSQLite;
@@ -150,8 +151,8 @@ public class DataSourceSQLite {
             new PhotoLoaderAsyncTask(mContext, new PhotoLoaderAsyncTask.PhotoLoadProcessed() {
                 @Override
                 public void onBitmapReady(Bitmap bitmap) {
-                    mPathPhotoStep = MediaStore.Images.Media.insertImage(mContext.getContentResolver(),
-                            bitmap, mContext.getCacheDir().getAbsolutePath(), null);
+                    mPathPhotoStep = LocalSavingImagesHelper.getPathForNewPhoto(
+                            "recipe_" + mWriterStepsRecipe.getIdRecipe() + "_step_" + mWriterStepsRecipe.getIterator(), bitmap, mContext);
                     mWriterStepsRecipe.setPathPhotoStep(mPathPhotoStep);
                     new WriterDAtaSQLiteAsyncTask.WriterStepsRecipe(mContext)
                             .execute(mWriterStepsRecipe);
