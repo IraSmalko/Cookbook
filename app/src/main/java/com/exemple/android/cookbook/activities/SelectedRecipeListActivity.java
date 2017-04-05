@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.SelectedRecipeRecyclerListAdapter;
@@ -22,6 +23,7 @@ public class SelectedRecipeListActivity extends AppCompatActivity {
         setContentView(R.layout.selected_list_activity);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
+        TextView textView = (TextView) findViewById(R.id.error_loading);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemViewCacheSize(20);
@@ -40,5 +42,9 @@ public class SelectedRecipeListActivity extends AppCompatActivity {
                         });
         recyclerView.setAdapter(recipeRecyclerAdapter);
         new SwipeHelper(recyclerView, getApplicationContext()).attachSwipeSelectedRecipe();
+
+        if(recipeRecyclerAdapter.getItemCount() == 0){
+            textView.setVisibility(View.VISIBLE);
+        }
     }
 }

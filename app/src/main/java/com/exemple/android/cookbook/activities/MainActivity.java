@@ -18,6 +18,7 @@ import com.crashlytics.android.Crashlytics;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.CategoryRecipeRecyclerAdapter;
 import com.exemple.android.cookbook.entity.CategoryRecipes;
+import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.CreaterRecyclerAdapter;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.SwipeHelper;
@@ -49,7 +50,6 @@ public class MainActivity extends BaseActivity {
     private CategoryRecipeRecyclerAdapter mRecyclerAdapter;
     private List<CategoryRecipes> mCategoryRecipesList = new ArrayList<>();
     private List<CategoryRecipes> mPublicCategoryRecipes = new ArrayList<>();
-    AlphaAnimation buttonClick;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,18 +61,13 @@ public class MainActivity extends BaseActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         mTextView = (TextView) findViewById(R.id.error_loading);
         mButton = (Button) findViewById(R.id.btn_retry);
-        final Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.milkshake);
-        buttonClick = new AlphaAnimation(1F, 0.5F);
-        mButton.setAnimation(myAnim);
+        final AlphaAnimation buttonClick = new AlphaAnimation(1F, 0.8F);
         setSupportActionBar(toolbar);
 
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemViewCacheSize(20);
         mRecyclerView.setDrawingCacheEnabled(true);
         mRecyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
-        mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
-                .createRecyclerAdapter(mCategoryRecipesList);
-        mRecyclerView.setAdapter(mRecyclerAdapter);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -113,19 +108,28 @@ public class MainActivity extends BaseActivity {
                         @Override
                         public void OnGet(List<CategoryRecipes> category) {
                             category.addAll(mCategoryRecipesList);
-                            mRecyclerAdapter.updateAdapter(category);
+                            mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
+                                    .createRecyclerAdapter(category);
+                            mRecyclerView.setAdapter(mRecyclerAdapter);
                             mSwipeHelper.attachSwipeCategory(mPublicCategoryRecipes);
+                            if(mRecyclerAdapter.getItemCount() != 0){
+                                mTextView.setVisibility(View.INVISIBLE);
+                                mButton.setVisibility(View.INVISIBLE);
+                            }
 
                         }
                     }).getUserCategoryRecipe(mUsername, mFirebaseDatabase);
                 } else {
-                    mRecyclerAdapter.updateAdapter(mCategoryRecipesList);
+                    mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
+                            .createRecyclerAdapter(mCategoryRecipesList);
+                    mRecyclerView.setAdapter(mRecyclerAdapter);
                     mSwipeHelper.attachSwipeCategory(mCategoryRecipesList);
+                    if(mRecyclerAdapter.getItemCount() != 0){
+                        mTextView.setVisibility(View.INVISIBLE);
+                        mButton.setVisibility(View.INVISIBLE);
+                    }
                 }
-                if(mRecyclerAdapter.getItemCount() != 0){
-                    mTextView.setVisibility(View.INVISIBLE);
-                    mButton.setVisibility(View.INVISIBLE);
-                }
+
             }
 
             @Override
@@ -133,17 +137,18 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        if(mRecyclerAdapter.getItemCount() == 0){
+        if(!new CheckOnlineHelper(this).isOnline() && mRecyclerView.getAdapter() == null){
             mTextView.setVisibility(View.VISIBLE);
             mButton.setVisibility(View.VISIBLE);
+            mButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mButton.setAnimation(buttonClick);
+                    view.startAnimation(buttonClick);
+                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                }
+            });
         }
-    }
-
-    public void onClick(View view) {
-        mButton.setAnimation(buttonClick);
-        view.startAnimation(buttonClick);
-        startActivity(new Intent(getApplicationContext(), MainActivity.class));
-
     }
 
 

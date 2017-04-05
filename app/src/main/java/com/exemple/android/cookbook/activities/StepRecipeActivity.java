@@ -12,7 +12,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -43,6 +42,7 @@ public class StepRecipeActivity extends AppCompatActivity
     private static final String RECIPE = "recipe";
     private static final String PHOTO = "photo";
     private static final String IS_PERSONAL = "isPersonal";
+    private static final String NUMBER_STEP = "numberStep";
     private static final int INT_EXTRA = 0;
     private static final int VOICE_REQUEST_CODE = 1234;
 
@@ -81,6 +81,9 @@ public class StepRecipeActivity extends AppCompatActivity
         mReference = "Step_recipe/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE);
         DatabaseReference databaseReference = firebaseDatabase.getReference().child(mReference);
 
+        if (savedInstanceState != null && savedInstanceState.containsKey(NUMBER_STEP)) {
+            mIterator = savedInstanceState.getInt(NUMBER_STEP);
+        }
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -95,10 +98,11 @@ public class StepRecipeActivity extends AppCompatActivity
                         @Override
                         public void OnGet(List<StepRecipe> stepRecipes) {
                             mStepRecipe.addAll(stepRecipes);
-                            updateData(mIterator);
                             if (mStepRecipe.isEmpty()) {
                                 Toast.makeText(mContext, getResources().getString(R
                                         .string.no_information_available), Toast.LENGTH_SHORT).show();
+                            } else {
+                                updateData(mIterator);
                             }
                         }
                     }).getStepsRecipe(mReference);
@@ -115,14 +119,18 @@ public class StepRecipeActivity extends AppCompatActivity
             }
         });
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_step);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateData(++mIterator);
-            }
-        });
+    FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_step);
+    fab.setOnClickListener(new View.OnClickListener()
+
+    {
+        @Override
+        public void onClick (View view){
+        updateData(++mIterator);
     }
+    }
+
+    );
+}
 
     public void updateData(int iterator) {
         if (iterator < mStepRecipe.size()) {
@@ -177,5 +185,13 @@ public class StepRecipeActivity extends AppCompatActivity
                     mIntent.getStringExtra(RECIPE_LIST), mIterator, mStepRecipe, mActionBar, mTxtStepRecipe, mImgStepRecipe);
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mIterator > 0) {
+            outState.putInt(NUMBER_STEP, mIterator);
+        }
     }
 }

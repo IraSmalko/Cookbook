@@ -80,5 +80,8 @@
     <string name="give_permission">Без цього дозволу функція не працюватиме!</string>
     <string name="error_loading">При завантаженні даних сталася помилка. Перевірте ваше підключення до менрежі.</string>
     <string name="retry">Повторити спробу</string>
+    <string name="no_saved_recipe">Ви ще не маєте збережених рецептів, спочатку додайте.</string>
+    <string name="no_category_recipe">Ви ще не маєте рецептів цієї категорії, спочатку додайте.</string>
+    <string name="no_basket_recipe">Ви ще не маєте рецептів в кошику, спочатку додайте.</string>
 </resources>
 

@@ -11,10 +11,14 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
 import com.exemple.android.cookbook.entity.Recipe;
+import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.helpers.SwipeHelper;
@@ -31,6 +35,8 @@ public class RecipeListActivity extends BaseActivity {
     private RecipeRecyclerListAdapter mRecipeRecyclerAdapter;
     private Intent mIntent;
     private String mUsername;
+    private Button mButton;
+    private TextView mTextView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,6 +45,9 @@ public class RecipeListActivity extends BaseActivity {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recipeListRecyclerView);
         SwipeHelper swipeHelper = new SwipeHelper(recyclerView, getApplicationContext());
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        mTextView = (TextView) findViewById(R.id.error_loading);
+        mButton = (Button) findViewById(R.id.btn_retry);
+        final AlphaAnimation buttonClick = new AlphaAnimation(1F, 0.8F);
         setSupportActionBar(toolbar);
 
         recyclerView.setHasFixedSize(true);
@@ -55,7 +64,7 @@ public class RecipeListActivity extends BaseActivity {
         mIntent = getIntent();
         final String recipeCategory = mIntent.getStringExtra(RECIPE_LIST);
 
-        if(recipeCategory == null){
+        if (recipeCategory == null) {
             startActivity(new Intent(this, MainActivity.class));
         }
 
@@ -89,9 +98,30 @@ public class RecipeListActivity extends BaseActivity {
             public void OnGet(RecipeRecyclerListAdapter recyclerListAdapter, List<Recipe> recipesList) {
                 mRecipeRecyclerAdapter = recyclerListAdapter;
                 mRecipesList = recipesList;
+                if(mRecipeRecyclerAdapter.getItemCount() != 0){
+                    mTextView.setVisibility(View.INVISIBLE);
+                    mButton.setVisibility(View.INVISIBLE);
+                }
             }
         }).getRecipeList(reference, getApplicationContext(), mUsername,
                 recipeCategory, recyclerView, swipeHelper);
+
+        if (!new CheckOnlineHelper(this).isOnline() && recyclerView.getAdapter() == null) {
+            mTextView.setVisibility(View.VISIBLE);
+            mButton.setVisibility(View.VISIBLE);
+            mButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mButton.setAnimation(buttonClick);
+                    view.startAnimation(buttonClick);
+                    IntentHelper.intentRecipeListActivity(getApplicationContext(), mIntent
+                            .getStringExtra(RECIPE_LIST));
+                }
+            });
+        }else {
+            mTextView.setVisibility(View.VISIBLE);
+            mTextView.setText(getResources().getString(R.string.no_category_recipe));
+        }
     }
 
     @Override

@@ -32,6 +32,7 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
     private static final String RECIPE = "recipe";
     private static final String PHOTO = "photo";
     private static final String ID_RECIPE = "id_recipe";
+    private static final String NUMBER_STEP = "numberStep";
 
     private List<SelectedStepRecipe> mSelectedStepRecipes = new ArrayList<>();
     private int mIterator = 0;
@@ -54,7 +55,10 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
         DataSourceSQLite dataSource = new DataSourceSQLite(this);
         mSelectedStepRecipes = dataSource.readStepRecipe(mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
 
-        if (mSelectedStepRecipes.isEmpty()) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(NUMBER_STEP)) {
+            mIterator = savedInstanceState.getInt(NUMBER_STEP);
+            updateData(mIterator);
+        } else if (mSelectedStepRecipes.isEmpty()) {
             Toast.makeText(mContext, getResources().getString(R.string
                     .no_information_available), Toast.LENGTH_SHORT).show();
         } else {
@@ -117,6 +121,14 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
                     .getStringExtra(PHOTO), mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
         } else {
             updateData(--mIterator);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mIterator > 0) {
+            outState.putInt(NUMBER_STEP, mIterator);
         }
     }
 }
