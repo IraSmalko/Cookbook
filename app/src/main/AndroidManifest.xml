@@ -65,7 +65,9 @@
             android:name=".activities.SelectedRecipeListActivity"
             android:configChanges="orientation"
             android:parentActivityName=".activities.MainActivity" />
-        <activity android:name=".activities.SelectedStepRecipeActivity" />
+        <activity android:name=".activities.SelectedStepRecipeActivity"
+            android:configChanges="orientation"
+            />
         <activity android:name="com.android.camera.CropImage" />
         <activity
             android:name=".activities.InfoVRActivity"
