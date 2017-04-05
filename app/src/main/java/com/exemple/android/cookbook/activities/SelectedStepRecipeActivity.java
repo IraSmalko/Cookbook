@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -62,14 +63,7 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
             Toast.makeText(mContext, getResources().getString(R.string
                     .no_information_available), Toast.LENGTH_SHORT).show();
         } else {
-            mActionBar.setTitle(mSelectedStepRecipes.get(0).getNumberStep());
-            mTxtStepRecipe.setText(mSelectedStepRecipes.get(0).getTextStep());
-            try {
-                mImgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(),
-                        Uri.parse(mSelectedStepRecipes.get(0).getPhotoUrlStep())));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            updateData(mIterator);
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_step);

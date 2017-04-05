@@ -205,6 +205,8 @@ public abstract class BaseActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    AlertDialog mSignOutDialog;
+
     public void showSignOutDialog() {
 
         final AlertDialog.Builder signOutDialog = new AlertDialog.Builder(this);
@@ -227,13 +229,29 @@ public abstract class BaseActivity extends AppCompatActivity
                         dialog.dismiss();
                     }
                 });
-        signOutDialog.setNegativeButton("Ні", new DialogInterface.OnClickListener(){
+        signOutDialog.setNegativeButton("Ні", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-            dialog.dismiss();
+                dialog.dismiss();
             }
         });
 
-        signOutDialog.create();
-        signOutDialog.show();
+        mSignOutDialog = signOutDialog.create();
+        mSignOutDialog.show();
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState.getBoolean("isSignOutDialogShown")) {
+           showSignOutDialog();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mSignOutDialog != null) {
+            outState.putBoolean("isSignOutDialogShown", mSignOutDialog.isShowing());
+        }
     }
 }
