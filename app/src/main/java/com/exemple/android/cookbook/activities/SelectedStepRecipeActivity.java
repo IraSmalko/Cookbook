@@ -74,6 +74,15 @@ public class SelectedStepRecipeActivity extends AppCompatActivity {
                 updateData(mIterator);
             }
         });
+
+        FloatingActionButton fabBack = (FloatingActionButton) findViewById(R.id.fab_step_back);
+        fabBack.setOnClickListener(new View.OnClickListener() {
+                                       @Override
+                                       public void onClick(View view) {
+                                           onBackPressed();
+                                       }
+                                   }
+        );
     }
 
     public void updateData(int i) {

@@ -179,6 +179,7 @@ public class AuthenticationActivity extends AppCompatActivity implements
                                     Toast.LENGTH_SHORT).show();
                         } else {
                             startActivity(new Intent(AuthenticationActivity.this, MainActivity.class));
+                            mProgressDialog.dismiss();
                             finish();
                         }
                     }
@@ -200,10 +201,12 @@ public class AuthenticationActivity extends AppCompatActivity implements
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
                             Log.w(TAG, "signInWithCredential", task.getException());
+                            mProgressDialog.dismiss();
                             Toast.makeText(AuthenticationActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         } else {
                             startActivity(new Intent(AuthenticationActivity.this, MainActivity.class));
+                            mProgressDialog.dismiss();
                             finish();
                         }
                     }

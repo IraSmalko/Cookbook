@@ -32,12 +32,13 @@ public class ShoppingBasketActivity extends AppCompatActivity {
                             public void onItemClick(SelectedRecipe item) {
                                 IntentHelper.intentShoppingBasketActivity(ShoppingBasketActivity.this, item.getName(), item.getIdRecipe());
                             }
-                        });
+                        },
+                        DataSourceSQLite.REQUEST_BASKET);
 
         recyclerView.setAdapter(recipeListAdapter);
         new SwipeHelper(recyclerView, getApplicationContext()).attachSwipeSelectedRecipe();
 
-        if(recipeListAdapter.getItemCount() == 0){
+        if (recipeListAdapter.getItemCount() == 0) {
             textView.setVisibility(View.VISIBLE);
         }
     }

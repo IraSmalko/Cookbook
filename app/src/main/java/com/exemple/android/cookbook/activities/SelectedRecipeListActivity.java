@@ -39,11 +39,12 @@ public class SelectedRecipeListActivity extends AppCompatActivity {
                                 IntentHelper.intentSelectedRecipeActivity(getApplicationContext(), item
                                         .getName(), item.getPhotoUrl(), item.getIdRecipe());
                             }
-                        });
+                        },
+                        DataSourceSQLite.REQUEST_SAVED);
         recyclerView.setAdapter(recipeRecyclerAdapter);
         new SwipeHelper(recyclerView, getApplicationContext()).attachSwipeSelectedRecipe();
 
-        if(recipeRecyclerAdapter.getItemCount() == 0){
+        if (recipeRecyclerAdapter.getItemCount() == 0) {
             textView.setVisibility(View.VISIBLE);
         }
     }
