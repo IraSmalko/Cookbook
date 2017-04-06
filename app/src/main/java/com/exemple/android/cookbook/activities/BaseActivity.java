@@ -45,6 +45,7 @@ public abstract class BaseActivity extends AppCompatActivity
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int VOICE_REQUEST_CODE = 1234;
+    private static final int SIGN_IN_REQUEST = 19901;
     public static final String ANONYMOUS = "anonymous";
 
     private FirebaseAuth mFirebaseAuth;
@@ -94,7 +95,7 @@ public abstract class BaseActivity extends AppCompatActivity
             startActivity(new Intent(getApplicationContext(), SelectedRecipeListActivity.class));
         } else if (id == R.id.nav_sign_in) {
             Intent intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, SIGN_IN_REQUEST);
         } else if (id == R.id.nav_sign_out) {
             showSignOutDialog();
         } else if (id == R.id.nav_basket) {
@@ -146,7 +147,7 @@ public abstract class BaseActivity extends AppCompatActivity
         super.onResume();
         mSensorManager.registerListener(this, mSensor,
                 SensorManager.SENSOR_DELAY_NORMAL);
-
+        userRefresh();
     }
 
     protected void onPause() {
@@ -202,6 +203,11 @@ public abstract class BaseActivity extends AppCompatActivity
         if (requestCode == VOICE_REQUEST_CODE) {
             new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data);
         }
+        if (requestCode ==SIGN_IN_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                userRefresh();
+            }
+        }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -243,7 +249,7 @@ public abstract class BaseActivity extends AppCompatActivity
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState.getBoolean("isSignOutDialogShown")) {
-           showSignOutDialog();
+            showSignOutDialog();
         }
     }
 

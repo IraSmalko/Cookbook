@@ -178,7 +178,7 @@ public class AuthenticationActivity extends AppCompatActivity implements
                             Toast.makeText(AuthenticationActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            startActivity(new Intent(AuthenticationActivity.this, MainActivity.class));
+                            setResult(RESULT_OK);
                             finish();
                         }
                     }
@@ -203,7 +203,7 @@ public class AuthenticationActivity extends AppCompatActivity implements
                             Toast.makeText(AuthenticationActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            startActivity(new Intent(AuthenticationActivity.this, MainActivity.class));
+                            setResult(RESULT_OK);
                             finish();
                         }
                     }
