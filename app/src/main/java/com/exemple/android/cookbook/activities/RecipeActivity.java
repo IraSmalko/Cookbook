@@ -387,13 +387,31 @@ public class RecipeActivity extends BaseActivity
         int id = item.getItemId();
 
         if (id == R.id.action_save) {
-            saveRecipe(DataSourceSQLite.REQUEST_SAVED);
+            if (new CheckOnlineHelper(this).isOnline()) {
+                if (mLoadPhotoStep != null) {
+                    saveRecipe(DataSourceSQLite.REQUEST_SAVED);
+                } else {
+                    Toast.makeText(this, "Будь ласка, дочекайтесь завантаження", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(RecipeActivity.this, getResources()
+                        .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+            }
             return true;
         } else if (id == android.R.id.home) {
             IntentHelper.intentRecipeListActivity(this, mIntent.getStringExtra(RECIPE_LIST));
             return true;
         } else if (id == R.id.action_basket) {
-            saveRecipe(DataSourceSQLite.REQUEST_BASKET);
+            if (new CheckOnlineHelper(this).isOnline()) {
+                if (mLoadPhotoStep != null) {
+                    saveRecipe(DataSourceSQLite.REQUEST_BASKET);
+                } else {
+                    Toast.makeText(this, "Будь ласка, дочекайтесь завантаження", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(RecipeActivity.this, getResources()
+                        .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);

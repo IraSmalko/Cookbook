@@ -93,8 +93,9 @@ public abstract class BaseActivity extends AppCompatActivity
         if (id == R.id.selected) {
             startActivity(new Intent(getApplicationContext(), SelectedRecipeListActivity.class));
         } else if (id == R.id.nav_sign_in) {
+            int SIGN_IN_REQUEST = 19009;
             Intent intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, SIGN_IN_REQUEST);
         } else if (id == R.id.nav_sign_out) {
             showSignOutDialog();
         } else if (id == R.id.nav_basket) {
