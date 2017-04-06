@@ -538,7 +538,7 @@ public class RecipeActivity extends BaseActivity
         if (requestCode == VOICE_REQUEST_CODE) {
             new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data,
                     new Recipe(mIntent.getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent
-                            .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST));
+                            .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST), 0);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

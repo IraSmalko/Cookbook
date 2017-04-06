@@ -55,7 +55,6 @@ public class StepRecipeActivity extends AppCompatActivity
     private int mIterator = 0;
     private String mReference;
     private String mUsername;
-
     private FirebaseUser mFirebaseUser;
 
     private SensorManager mSensorManager;
@@ -161,6 +160,7 @@ public class StepRecipeActivity extends AppCompatActivity
         }
     }
 
+    @Override
     protected void onResume() {
         super.onResume();
         mSensorManager.registerListener(this, mSensor,
@@ -168,6 +168,7 @@ public class StepRecipeActivity extends AppCompatActivity
 
     }
 
+    @Override
     protected void onPause() {
         super.onPause();
         mSensorManager.unregisterListener(this);
@@ -186,9 +187,10 @@ public class StepRecipeActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == VOICE_REQUEST_CODE) {
-            mIterator = new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data, new Recipe(mIntent
-                            .getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent.getIntExtra(IS_PERSONAL, INT_EXTRA)),
-                    mIntent.getStringExtra(RECIPE_LIST), mIterator, mStepRecipe, mActionBar, mTxtStepRecipe, mImgStepRecipe);
+            mIterator = new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode,
+                    data, new Recipe(mIntent.getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent
+                            .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST),
+                    mIterator, mStepRecipe, mActionBar, mTxtStepRecipe, mImgStepRecipe);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

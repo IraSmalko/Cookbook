@@ -4,12 +4,12 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -26,7 +26,6 @@ import com.exemple.android.cookbook.entity.ImageCard;
 import com.exemple.android.cookbook.entity.Ingredient;
 import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.entity.RecipeForSQLite;
-import com.exemple.android.cookbook.entity.SelectedRecipe;
 import com.exemple.android.cookbook.entity.SelectedStepRecipe;
 import com.exemple.android.cookbook.helpers.CropHelper;
 import com.exemple.android.cookbook.helpers.DataSourceSQLite;
@@ -250,21 +249,8 @@ public class EditRecipeActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (!mInputNameRecipe.getText().toString().equals("") || mDownloadUrlCamera != null
-                || !mInputIngredients.getText().toString().equals("")) {
-            int backPressedTrue = 1;
-            int backPressedTFalse = 0;
-            if (mBackPressed == backPressedTrue) {
-                IntentHelper.intentRecipeListActivity(mContext, mIntent.getStringExtra(RECIPE_LIST));
-            } else if (mBackPressed == backPressedTFalse) {
-                Toast.makeText(mContext, getResources().getString(R.string.input_will_lost), Toast.LENGTH_SHORT).show();
-                mBackPressed = backPressedTrue;
-            } else {
-                IntentHelper.intentRecipeListActivity(mContext, mIntent.getStringExtra(RECIPE_LIST));
-            }
-        } else {
-            IntentHelper.intentRecipeListActivity(mContext, mIntent.getStringExtra(RECIPE_LIST));
-        }
+        IntentHelper.intentSelectedRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
+                .getStringExtra(PHOTO), mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
     }
 
     @Override
