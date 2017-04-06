@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,11 +24,13 @@ import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.IngredientsAdapter;
 import com.exemple.android.cookbook.entity.ImageCard;
 import com.exemple.android.cookbook.entity.Ingredient;
+import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.entity.RecipeForSQLite;
 import com.exemple.android.cookbook.entity.SelectedStepRecipe;
 import com.exemple.android.cookbook.helpers.CropHelper;
 import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.helpers.IntentHelper;
+import com.exemple.android.cookbook.helpers.PermissionsHelper;
 import com.exemple.android.cookbook.helpers.PhotoFromCameraHelper;
 import com.exemple.android.cookbook.helpers.ProcessPhotoAsyncTask;
 import com.exemple.android.cookbook.helpers.SwipeHelper;
@@ -35,11 +39,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.Manifest.permission.CAMERA;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
 public class EditRecipeActivity extends AppCompatActivity {
     private static final int REQUEST_CROP_PICTURE = 2;
     private static final int REQUEST_IMAGE_CAPTURE = 22;
     private static final int GALLERY_REQUEST = 13;
     private static final String RECIPE_LIST = "recipeList";
+    private final int CAMERA_PERMISSION_REQUEST = 14;
+    private final int READ_EXTERNAL_STORAGE_REQUEST = 15;
 
     private static final String RECIPE = "recipe";
     private static final String PHOTO = "photo";
@@ -152,10 +162,31 @@ public class EditRecipeActivity extends AppCompatActivity {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.categoryRecipesPhotoUrlGallery:
-                    mPhotoFromCameraHelper.pickPhoto();
+                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), READ_EXTERNAL_STORAGE)
+                            != PERMISSION_GRANTED) {
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(EditRecipeActivity
+                                .this, READ_EXTERNAL_STORAGE)) {
+                            new PermissionsHelper(EditRecipeActivity.this).showExternalPermissionDialog();
+                        } else {
+                            ActivityCompat.requestPermissions(EditRecipeActivity.this,
+                                    new String[]{READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_REQUEST);
+                        }
+                    } else {
+                        mPhotoFromCameraHelper.pickPhoto();
+                    }
                     break;
                 case R.id.categoryRecipesPhotoUrlCamera:
-                    mPhotoFromCameraHelper.takePhoto();
+                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), CAMERA)
+                            != PERMISSION_GRANTED) {
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(EditRecipeActivity.this, CAMERA)) {
+                            new PermissionsHelper(EditRecipeActivity.this).showExternalPermissionDialog();
+                        } else {
+                            ActivityCompat.requestPermissions(EditRecipeActivity.this,
+                                    new String[]{CAMERA}, CAMERA_PERMISSION_REQUEST);
+                        }
+                    } else {
+                        mPhotoFromCameraHelper.takePhoto();
+                    }
                     break;
                 case R.id.plus:
                     if (mInputIngredients.getText().toString().equals("") || mQuantity.getText()
@@ -173,13 +204,26 @@ public class EditRecipeActivity extends AppCompatActivity {
                     break;
                 case R.id.btnSave:
                     DataSourceSQLite dataSource = new DataSourceSQLite(mContext);
+                    if (dataSource.checkSaveTarget(Long.valueOf(mIdRecipe), DataSourceSQLite.REQUEST_BASKET) == 1) {
+                        int oldRecipeId = dataSource.saveRecipe(new RecipeForSQLite(
+                                mIntent.getStringExtra(RECIPE),
+                                mIntent.getStringExtra(PHOTO),
+                                0,
+                                mIngredients,
+                                0,
+                                1,
+                                0));
+                        dataSource.saveIngredient(mIngredients,oldRecipeId);
+                        dataSource.copyStepsSQLite(oldRecipeId,mSelectedStepsRecipe);
+                    }
                     dataSource.replaceRecipe(new RecipeForSQLite(
                             mInputNameRecipe.getText().toString(),
                             newPhotoPath,
                             0,
                             mIngredientsAdapter.getItems(),
                             1,
-                            0), mIdRecipe);
+                            0,
+                            1), mIdRecipe);
                     Toast.makeText(mContext, getResources()
                             .getString(R.string.data_save), Toast.LENGTH_SHORT).show();
                     new IntentHelper().intentEditRecipeStepActivity(mContext,
@@ -207,5 +251,24 @@ public class EditRecipeActivity extends AppCompatActivity {
     public void onBackPressed() {
         IntentHelper.intentSelectedRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
                 .getStringExtra(PHOTO), mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == CAMERA_PERMISSION_REQUEST) {
+            if (grantResults[0] == PERMISSION_GRANTED) {
+                mPhotoFromCameraHelper.takePhoto();
+            } else {
+                new PermissionsHelper(EditRecipeActivity.this).showExternalPermissionDialog();
+            }
+        } else if (requestCode == READ_EXTERNAL_STORAGE_REQUEST) {
+            if (grantResults[0] == PERMISSION_GRANTED) {
+                mPhotoFromCameraHelper.pickPhoto();
+            } else {
+                new PermissionsHelper(EditRecipeActivity.this).showExternalPermissionDialog();
+            }
+        }
     }
 }

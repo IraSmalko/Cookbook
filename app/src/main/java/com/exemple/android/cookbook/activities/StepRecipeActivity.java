@@ -118,18 +118,24 @@ public class StepRecipeActivity extends AppCompatActivity
             }
         });
 
-    FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_step);
-    fab.setOnClickListener(new View.OnClickListener()
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_step);
+        fab.setOnClickListener(new View.OnClickListener() {
+                                   @Override
+                                   public void onClick(View view) {
+                                       updateData(++mIterator);
+                                   }
+                               }
+        );
 
-    {
-        @Override
-        public void onClick (View view){
-        updateData(++mIterator);
+        FloatingActionButton fabBack = (FloatingActionButton) findViewById(R.id.fab_step_back);
+        fabBack.setOnClickListener(new View.OnClickListener() {
+                                   @Override
+                                   public void onClick(View view) {
+                                       onBackPressed();
+                                   }
+                               }
+        );
     }
-    }
-
-    );
-}
 
     public void updateData(int iterator) {
         if (iterator < mStepRecipe.size()) {

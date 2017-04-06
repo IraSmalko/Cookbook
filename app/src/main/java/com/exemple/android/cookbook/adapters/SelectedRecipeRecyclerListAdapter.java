@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,8 @@ public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<Sele
     private List<SelectedRecipe> mItemsPendingRemoval;
     private SelectedRecipeRecyclerListAdapter.ItemClickListener mClickListener;
 
+    private int mTarget;
+
     private static final int PENDING_REMOVAL_TIMEOUT = 3000;
     private Handler mHandler = new Handler();
     private HashMap<SelectedRecipe, Runnable> mPendingRunnables = new HashMap<>();
@@ -41,6 +44,15 @@ public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<Sele
         mContext = context;
         mClickListener = clickListener;
         mItemsPendingRemoval = new ArrayList<>();
+    }
+
+    public SelectedRecipeRecyclerListAdapter(Context context, List<SelectedRecipe> items,
+                                             SelectedRecipeRecyclerListAdapter.ItemClickListener clickListener, int target) {
+        updateAdapter(items);
+        mContext = context;
+        mClickListener = clickListener;
+        mItemsPendingRemoval = new ArrayList<>();
+        mTarget = target;
     }
 
     public void updateAdapter(@Nullable List<SelectedRecipe> selectedRecipe) {
@@ -120,13 +132,31 @@ public class SelectedRecipeRecyclerListAdapter extends RecyclerView.Adapter<Sele
 
     private void remove(int position) {
         SelectedRecipe data = mItems.get(position);
+        int idData = data.getIdRecipe();
         if (mItemsPendingRemoval.contains(data)) {
             mItemsPendingRemoval.remove(data);
         }
         if (mItems.contains(data)) {
             mItems.remove(position);
             notifyItemRemoved(position);
-            new DataSourceSQLite(mContext).removeRecipe(data.getIdRecipe());
+            DataSourceSQLite dataSource = new DataSourceSQLite(mContext);
+            if (mTarget == DataSourceSQLite.REQUEST_BASKET) {
+                if (dataSource.checkSaveTarget((long) idData, DataSourceSQLite.REQUEST_SAVED) == 0) {
+                    dataSource.removeRecipe(idData);
+                } else {
+                    dataSource.updateSaveTarget((long) idData, DataSourceSQLite.REQUEST_BASKET, 0);
+                }
+            } else if (mTarget == DataSourceSQLite.REQUEST_SAVED) {
+                if (dataSource.checkSaveTarget((long) idData, DataSourceSQLite.REQUEST_BASKET) != null) {
+                    if (dataSource.checkSaveTarget((long) idData, DataSourceSQLite.REQUEST_BASKET) == 0) {
+                        dataSource.removeRecipe(idData);
+                    } else {
+                        dataSource.updateSaveTarget((long) idData, DataSourceSQLite.REQUEST_SAVED, 0);
+                    }
+                } else {
+                    dataSource.removeRecipe(idData);
+                }
+            }
         }
     }
 

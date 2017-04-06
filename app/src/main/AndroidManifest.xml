@@ -50,7 +50,8 @@
         <activity android:name=".activities.StepRecipeActivity"/>
         <activity
             android:name=".activities.AuthenticationActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="userPortrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 

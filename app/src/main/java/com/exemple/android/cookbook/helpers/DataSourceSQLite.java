@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
@@ -20,6 +21,8 @@ import com.exemple.android.cookbook.entity.StepRecipe;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.exemple.android.cookbook.helpers.DBHelper.TABLE_RECIPE;
 
 public class DataSourceSQLite {
 
@@ -35,6 +38,7 @@ public class DataSourceSQLite {
     private static final String INGREDIENT_UNIT = "ingredient_unit";
     private static final String IN_BASKET = "in_basket";
     private static final String IN_SAVED = "in_saved";
+    private static final String IS_EDITED = "is_edited";
 
     public static final int REQUEST_BASKET = 117;
     public static final int REQUEST_SAVED = 127;
@@ -69,7 +73,8 @@ public class DataSourceSQLite {
         cvRecipe.put(PHOTO, recipe.getPhotoUrl());
         cvRecipe.put(IN_SAVED, recipe.getIsInSaved());
         cvRecipe.put(IN_BASKET, recipe.getIsInBasket());
-        long rowID = mDatabase.insertOrThrow(DBHelper.TABLE_RECIPE, null, cvRecipe);
+        cvRecipe.put(IS_EDITED, recipe.getIsEdited());
+        long rowID = mDatabase.insertOrThrow(TABLE_RECIPE, null, cvRecipe);
         close();
         return (int) rowID;
     }
@@ -82,8 +87,9 @@ public class DataSourceSQLite {
         cvRecipe.put(PHOTO, recipe.getPhotoUrl());
         cvRecipe.put(IN_SAVED, recipe.getIsInSaved());
         cvRecipe.put(IN_BASKET, recipe.getIsInBasket());
+        cvRecipe.put(IS_EDITED, recipe.getIsEdited());
 
-        mDatabase.update(DBHelper.TABLE_RECIPE, cvRecipe, ID + "=?", new String[]{"" + idRecipe});
+        mDatabase.update(TABLE_RECIPE, cvRecipe, ID + "=?", new String[]{"" + idRecipe});
         mDatabase.delete(DBHelper.TABLE_INGREDIENTS_RECIPE, ID_RECIPE + "=?", new String[]{"" + idRecipe});
         saveIngredient(recipe.getIngredients(), idRecipe);
         close();
@@ -214,7 +220,7 @@ public class DataSourceSQLite {
 
     public void removeRecipe(int id) {
         open();
-        mDatabase.delete(DBHelper.TABLE_RECIPE, "id = " + id, null);
+        mDatabase.delete(TABLE_RECIPE, "id = " + id, null);
         mDatabase.delete(DBHelper.TABLE_INGREDIENTS_RECIPE, "id_recipe = " + id, null);
         mDatabase.delete(DBHelper.TABLE_STEP_RECIPE, "id_recipe = " + id, null);
         close();
@@ -279,6 +285,60 @@ public class DataSourceSQLite {
         }
         close();
         return recipesList;
+    }
+
+    public Long findRecipe(String nameRecipe) {
+        open();
+        Long idRecipe = null;
+        String fields = RECIPE + "=? AND " + IS_EDITED + "=?";
+        String[] fieldsArgs = new String[]{nameRecipe, "" + 0};
+        Cursor c = mDatabase.query(DBHelper.TABLE_RECIPE, new String[]{ID}, fields, fieldsArgs, null, null, null);
+        if (c.moveToFirst()) {
+            idRecipe = c.getLong(c.getColumnIndex(ID));
+        } else {
+            c.close();
+        }
+        close();
+        return idRecipe;
+    }
+
+    public void updateSaveTarget(Long idRecipe, int target, int value) {
+        open();
+        ContentValues cvSaveTarget = new ContentValues();
+        if (target == REQUEST_SAVED) {
+            cvSaveTarget.put(IN_SAVED, value);
+            mDatabase.update(DBHelper.TABLE_RECIPE,
+                    cvSaveTarget,
+                    ID + "=?" + " AND " + IS_EDITED + "=?",
+                    new String[]{"" + idRecipe, "" + 0});
+        } else if (target == REQUEST_BASKET) {
+            cvSaveTarget.put(IN_BASKET, value);
+            mDatabase.update(DBHelper.TABLE_RECIPE,
+                    cvSaveTarget,
+                    ID + "=?" + " AND " + IS_EDITED + "=?",
+                    new String[]{"" + idRecipe, "" + 0});
+        }
+        close();
+    }
+
+    public Integer checkSaveTarget(Long idRecipe, int target) {
+        String checkTarget = "";
+        if (target == REQUEST_SAVED) {
+            checkTarget = IN_SAVED;
+        } else if (target == REQUEST_BASKET) {
+            checkTarget = IN_BASKET;
+        }
+        String fields = ID + "=? AND " + IS_EDITED + "=?";
+        String[] fieldsArgs = new String[]{"" + idRecipe, "" + 0};
+        open();
+        Cursor c = mDatabase.query(DBHelper.TABLE_RECIPE, new String[]{checkTarget}, fields, fieldsArgs, null, null, null);
+        if (c.moveToFirst()) {
+            return c.getInt(c.getColumnIndex(checkTarget));
+        } else {
+            c.close();
+        }
+        close();
+        return null;
     }
 
 }
