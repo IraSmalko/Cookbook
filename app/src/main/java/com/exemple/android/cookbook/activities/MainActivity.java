@@ -6,7 +6,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -116,10 +115,12 @@ public class MainActivity extends BaseActivity {
                                 mTextView.setVisibility(View.INVISIBLE);
                                 mButton.setVisibility(View.INVISIBLE);
                             }
+
                         }
                     }).getUserCategoryRecipe(mUsername, mFirebaseDatabase);
                 } else {
                     mRecyclerAdapter.updateAdapter(mCategoryRecipesList);
+                    mRecyclerView.setAdapter(mRecyclerAdapter);
                     mSwipeHelper.attachSwipeCategory(mCategoryRecipesList);
                     if (mRecyclerAdapter.getItemCount() != 0) {
                         mTextView.setVisibility(View.INVISIBLE);
@@ -134,7 +135,7 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        if (!new CheckOnlineHelper(this).isOnline() && mRecyclerView.getAdapter() == null) {
+        if (!new CheckOnlineHelper(this).isOnline() && mRecyclerAdapter.getItemCount() == 0) {
             mTextView.setVisibility(View.VISIBLE);
             mButton.setVisibility(View.VISIBLE);
             mButton.setOnClickListener(new View.OnClickListener() {
@@ -159,17 +160,22 @@ public class MainActivity extends BaseActivity {
         newText = newText.toLowerCase();
         ArrayList<CategoryRecipes> newList = new ArrayList<>();
         mTextView.setVisibility(View.INVISIBLE);
-        for (CategoryRecipes categoryRecipes : mCategoryRecipesList) {
-            String name = categoryRecipes.getName().toLowerCase();
-            if (name.contains(newText)) {
-                newList.add(categoryRecipes);
-            }
-        }
-        if (newList.isEmpty()) {
+        if (mCategoryRecipesList.isEmpty()) {
             mTextView.setVisibility(View.VISIBLE);
             mTextView.setText(getResources().getString(R.string.not_found));
+        } else {
+            for (CategoryRecipes categoryRecipes : mCategoryRecipesList) {
+                String name = categoryRecipes.getName().toLowerCase();
+                if (name.contains(newText)) {
+                    newList.add(categoryRecipes);
+                }
+            }
+            if (newList.isEmpty()) {
+                mTextView.setVisibility(View.VISIBLE);
+                mTextView.setText(getResources().getString(R.string.not_found));
+            }
+            mRecyclerAdapter.updateAdapter(newList);
         }
-        mRecyclerAdapter.updateAdapter(newList);
         return true;
     }
 }

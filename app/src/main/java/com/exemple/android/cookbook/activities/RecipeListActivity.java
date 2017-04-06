@@ -98,7 +98,7 @@ public class RecipeListActivity extends BaseActivity {
             public void OnGet(RecipeRecyclerListAdapter recyclerListAdapter, List<Recipe> recipesList) {
                 mRecipeRecyclerAdapter = recyclerListAdapter;
                 mRecipesList = recipesList;
-                if(mRecipeRecyclerAdapter.getItemCount() != 0){
+                if (mRecipeRecyclerAdapter.getItemCount() != 0) {
                     mTextView.setVisibility(View.INVISIBLE);
                     mButton.setVisibility(View.INVISIBLE);
                 }
@@ -118,7 +118,7 @@ public class RecipeListActivity extends BaseActivity {
                             .getStringExtra(RECIPE_LIST));
                 }
             });
-        }else {
+        } else {
             mTextView.setVisibility(View.VISIBLE);
             mTextView.setText(getResources().getString(R.string.no_category_recipe));
         }
@@ -129,16 +129,21 @@ public class RecipeListActivity extends BaseActivity {
         newText = newText.toLowerCase();
         ArrayList<Recipe> newList = new ArrayList<>();
         mTextView.setVisibility(View.INVISIBLE);
-        for (Recipe recipes : mRecipesList) {
-            String name = recipes.getName().toLowerCase();
-            if (name.contains(newText))
-                newList.add(recipes);
-        }
-        if (newList.isEmpty()) {
+        if (mRecipesList.isEmpty()) {
             mTextView.setVisibility(View.VISIBLE);
             mTextView.setText(getResources().getString(R.string.not_found));
+        } else {
+            for (Recipe recipes : mRecipesList) {
+                String name = recipes.getName().toLowerCase();
+                if (name.contains(newText))
+                    newList.add(recipes);
+            }
+            if (newList.isEmpty()) {
+                mTextView.setVisibility(View.VISIBLE);
+                mTextView.setText(getResources().getString(R.string.not_found));
+            }
+            mRecipeRecyclerAdapter.updateAdapter(newList);
         }
-        mRecipeRecyclerAdapter.updateAdapter(newList);
         return true;
     }
 
