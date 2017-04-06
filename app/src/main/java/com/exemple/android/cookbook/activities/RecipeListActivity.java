@@ -128,11 +128,15 @@ public class RecipeListActivity extends BaseActivity {
     public boolean onQueryTextChange(String newText) {
         newText = newText.toLowerCase();
         ArrayList<Recipe> newList = new ArrayList<>();
-
+        mTextView.setVisibility(View.INVISIBLE);
         for (Recipe recipes : mRecipesList) {
             String name = recipes.getName().toLowerCase();
             if (name.contains(newText))
                 newList.add(recipes);
+        }
+        if (newList.isEmpty()) {
+            mTextView.setVisibility(View.VISIBLE);
+            mTextView.setText(getResources().getString(R.string.not_found));
         }
         mRecipeRecyclerAdapter.updateAdapter(newList);
         return true;

@@ -6,11 +6,10 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -68,6 +67,9 @@ public class MainActivity extends BaseActivity {
         mRecyclerView.setItemViewCacheSize(20);
         mRecyclerView.setDrawingCacheEnabled(true);
         mRecyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+        mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
+                .createRecyclerAdapter(mCategoryRecipesList);
+        mRecyclerView.setAdapter(mRecyclerAdapter);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -108,23 +110,18 @@ public class MainActivity extends BaseActivity {
                         @Override
                         public void OnGet(List<CategoryRecipes> category) {
                             category.addAll(mCategoryRecipesList);
-                            mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
-                                    .createRecyclerAdapter(category);
-                            mRecyclerView.setAdapter(mRecyclerAdapter);
+                            mRecyclerAdapter.updateAdapter(category);
                             mSwipeHelper.attachSwipeCategory(mPublicCategoryRecipes);
-                            if(mRecyclerAdapter.getItemCount() != 0){
+                            if (mRecyclerAdapter.getItemCount() != 0) {
                                 mTextView.setVisibility(View.INVISIBLE);
                                 mButton.setVisibility(View.INVISIBLE);
                             }
-
                         }
                     }).getUserCategoryRecipe(mUsername, mFirebaseDatabase);
                 } else {
-                    mRecyclerAdapter = new CreaterRecyclerAdapter(getApplicationContext())
-                            .createRecyclerAdapter(mCategoryRecipesList);
-                    mRecyclerView.setAdapter(mRecyclerAdapter);
+                    mRecyclerAdapter.updateAdapter(mCategoryRecipesList);
                     mSwipeHelper.attachSwipeCategory(mCategoryRecipesList);
-                    if(mRecyclerAdapter.getItemCount() != 0){
+                    if (mRecyclerAdapter.getItemCount() != 0) {
                         mTextView.setVisibility(View.INVISIBLE);
                         mButton.setVisibility(View.INVISIBLE);
                     }
@@ -137,7 +134,7 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        if(!new CheckOnlineHelper(this).isOnline() && mRecyclerView.getAdapter() == null){
+        if (!new CheckOnlineHelper(this).isOnline() && mRecyclerView.getAdapter() == null) {
             mTextView.setVisibility(View.VISIBLE);
             mButton.setVisibility(View.VISIBLE);
             mButton.setOnClickListener(new View.OnClickListener() {
@@ -161,11 +158,16 @@ public class MainActivity extends BaseActivity {
     public boolean onQueryTextChange(String newText) {
         newText = newText.toLowerCase();
         ArrayList<CategoryRecipes> newList = new ArrayList<>();
-
+        mTextView.setVisibility(View.INVISIBLE);
         for (CategoryRecipes categoryRecipes : mCategoryRecipesList) {
             String name = categoryRecipes.getName().toLowerCase();
-            if (name.contains(newText))
+            if (name.contains(newText)) {
                 newList.add(categoryRecipes);
+            }
+        }
+        if (newList.isEmpty()) {
+            mTextView.setVisibility(View.VISIBLE);
+            mTextView.setText(getResources().getString(R.string.not_found));
         }
         mRecyclerAdapter.updateAdapter(newList);
         return true;
