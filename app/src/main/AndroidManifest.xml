@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.exemple.android.cookbook">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -48,7 +50,8 @@
         <activity android:name=".activities.StepRecipeActivity"/>
         <activity
             android:name=".activities.AuthenticationActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="userPortrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -100,8 +103,10 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/fb_app_id" />
 
-        <activity android:name=".activities.EditRecipeActivity" />
-        <activity android:name=".activities.EditRecipeStepActivity"/>
+        <activity android:name=".activities.EditRecipeActivity"
+            android:screenOrientation="userPortrait"/>
+        <activity android:name=".activities.EditRecipeStepActivity"
+            android:screenOrientation="userPortrait"/>
     </application>
 
 </manifest>

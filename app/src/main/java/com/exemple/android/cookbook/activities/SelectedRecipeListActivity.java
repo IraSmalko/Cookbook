@@ -1,6 +1,7 @@
 package com.exemple.android.cookbook.activities;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -39,12 +40,18 @@ public class SelectedRecipeListActivity extends AppCompatActivity {
                                 IntentHelper.intentSelectedRecipeActivity(getApplicationContext(), item
                                         .getName(), item.getPhotoUrl(), item.getIdRecipe());
                             }
-                        });
+                        },
+                        DataSourceSQLite.REQUEST_SAVED);
         recyclerView.setAdapter(recipeRecyclerAdapter);
         new SwipeHelper(recyclerView, getApplicationContext()).attachSwipeSelectedRecipe();
 
-        if(recipeRecyclerAdapter.getItemCount() == 0){
+        if (recipeRecyclerAdapter.getItemCount() == 0) {
             textView.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(this, MainActivity.class));
     }
 }

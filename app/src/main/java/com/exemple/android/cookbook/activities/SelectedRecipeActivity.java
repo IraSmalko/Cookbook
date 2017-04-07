@@ -2,6 +2,10 @@ package com.exemple.android.cookbook.activities;
 
 
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -14,22 +18,24 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.IngredientsAdapter;
 import com.exemple.android.cookbook.entity.Ingredient;
+import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.helpers.IntentHelper;
-import com.exemple.android.cookbook.helpers.SwipeHelper;
+import com.exemple.android.cookbook.helpers.VoiceRecognitionHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SelectedRecipeActivity extends AppCompatActivity {
+public class SelectedRecipeActivity extends AppCompatActivity
+        implements SensorEventListener {
 
     private static final int INT_EXTRA = 0;
+    private static final int VOICE_REQUEST_CODE = 1234;
     private static final String RECIPE = "recipe";
     private static final String DESCRIPTION = "description";
     private static final String PHOTO = "photo";
@@ -37,12 +43,16 @@ public class SelectedRecipeActivity extends AppCompatActivity {
 
     private List<Ingredient> mRecipeIngredients = new ArrayList<>();
     private Intent mIntent;
+    private SensorManager mSensorManager;
+    private Sensor mSensor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.selected_activity);
 
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
         ImageView imageView = (ImageView) findViewById(R.id.imageView);
         Button btnDetailRecipe = (Button) findViewById(R.id.btnDetailRecipe);
         ActionBar actionBar = getSupportActionBar();
@@ -88,6 +98,40 @@ public class SelectedRecipeActivity extends AppCompatActivity {
             startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(this, mSensor,
+                SensorManager.SENSOR_DELAY_NORMAL);
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mSensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if (sensorEvent.values[0] == 0) {
+            new VoiceRecognitionHelper(this).startVoiceRecognition();
+        }
+    }
+
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == VOICE_REQUEST_CODE) {
+            new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data,
+                    new Recipe(mIntent.getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), 0),
+                    null, mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override

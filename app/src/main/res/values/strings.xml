@@ -83,5 +83,6 @@
     <string name="no_saved_recipe">Ви ще не маєте збережених рецептів, спочатку додайте.</string>
     <string name="no_category_recipe">Ви ще не маєте рецептів цієї категорії, спочатку додайте.</string>
     <string name="no_basket_recipe">Ви ще не маєте рецептів в кошику, спочатку додайте.</string>
+    <string name="not_found">По запиту нічого не знайдено.</string>
 </resources>
 

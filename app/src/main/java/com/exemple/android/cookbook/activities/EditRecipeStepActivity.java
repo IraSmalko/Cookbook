@@ -196,7 +196,8 @@ public class EditRecipeStepActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        IntentHelper.intentRecipeListActivity(mContext, mIntent.getStringExtra(RECIPE_LIST));
+        IntentHelper.intentSelectedRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
+                .getStringExtra(PHOTO), mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
     }
 
     public void updateData(int i) {

@@ -123,6 +123,8 @@ public class RecipeActivity extends BaseActivity
     private IngredientsAdapter mIngredientsAdapter;
     private RecyclerView mRecyclerView;
 
+    private DataSourceSQLite mDataSourceSQLite;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -336,6 +338,7 @@ public class RecipeActivity extends BaseActivity
             }
         });
 
+        mDataSourceSQLite = new DataSourceSQLite(getApplicationContext());
     }
 
     @Override
@@ -349,13 +352,31 @@ public class RecipeActivity extends BaseActivity
         int id = item.getItemId();
 
         if (id == R.id.action_save) {
-            saveRecipe(DataSourceSQLite.REQUEST_SAVED);
+            if (new CheckOnlineHelper(this).isOnline()) {
+                if (mLoadPhotoStep != null) {
+                    saveRecipe(DataSourceSQLite.REQUEST_SAVED);
+                } else {
+                    Toast.makeText(this, "Будь ласка, дочекайтесь завантаження", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(RecipeActivity.this, getResources()
+                        .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+            }
             return true;
         } else if (id == android.R.id.home) {
             IntentHelper.intentRecipeListActivity(this, mIntent.getStringExtra(RECIPE_LIST));
             return true;
         } else if (id == R.id.action_basket) {
-            saveRecipe(DataSourceSQLite.REQUEST_BASKET);
+            if (new CheckOnlineHelper(this).isOnline()) {
+                if (mLoadPhotoStep != null) {
+                    saveRecipe(DataSourceSQLite.REQUEST_BASKET);
+                } else {
+                    Toast.makeText(this, "Будь ласка, дочекайтесь завантаження", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(RecipeActivity.this, getResources()
+                        .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -500,35 +521,64 @@ public class RecipeActivity extends BaseActivity
         if (requestCode == VOICE_REQUEST_CODE) {
             new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data,
                     new Recipe(mIntent.getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent
-                            .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST));
+                            .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST), 0);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void saveRecipe(int target) {
-        int inSaved = 0;
-        int inBasket = 0;
-        if (target == DataSourceSQLite.REQUEST_BASKET) {
-            inBasket = 1;
-        } else if (target == DataSourceSQLite.REQUEST_SAVED) {
-            inSaved = 1;
-        }
-        boolean isOnline = new CheckOnlineHelper(this).isOnline();
-        if (isOnline) {
-            String path = LocalSavingImagesHelper.getPathForNewPhoto(mIntent.getStringExtra(RECIPE), mLoadPhotoStep, getApplicationContext());
-            new WriterDAtaSQLiteAsyncTask.WriterRecipe(this, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
-                @Override
-                public void onDataReady(Integer integer) {
-                    new FirebaseHelper().getStepsRecipe(getApplicationContext(), integer, mIntent
-                            .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST), mIntent
-                            .getStringExtra(RECIPE), mIntent.getStringExtra(USERNAME));
-                }
-            }).execute(new RecipeForSQLite(mIntent.getStringExtra(RECIPE), path, 0, mIngredients, inSaved, inBasket));
-
+        Long idRecipe = isRecipeInDB(mIntent.getStringExtra(RECIPE));
+        if (idRecipe == null) {
+            int inSaved = 0;
+            int inBasket = 0;
+            String message = "";
+            if (target == DataSourceSQLite.REQUEST_BASKET) {
+                inBasket = 1;
+                message = "Додано в кошик";
+            } else if (target == DataSourceSQLite.REQUEST_SAVED) {
+                inSaved = 1;
+                message = "Рецепт збережено";
+            }
+            boolean isOnline = new CheckOnlineHelper(this).isOnline();
+            if (isOnline) {
+                String path = LocalSavingImagesHelper.getPathForNewPhoto(mIntent.getStringExtra(RECIPE), mLoadPhotoStep, getApplicationContext());
+                new WriterDAtaSQLiteAsyncTask.WriterRecipe(this, new WriterDAtaSQLiteAsyncTask.WriterRecipe.OnWriterSQLite() {
+                    @Override
+                    public void onDataReady(Integer integer) {
+                        new FirebaseHelper().getStepsRecipe(getApplicationContext(), integer, mIntent
+                                .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST), mIntent
+                                .getStringExtra(RECIPE), mIntent.getStringExtra(USERNAME));
+                    }
+                }).execute(new RecipeForSQLite(mIntent.getStringExtra(RECIPE), path, 0, mIngredients, inSaved, inBasket));
+                Toast.makeText(RecipeActivity.this, message, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(RecipeActivity.this, getResources()
+                        .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+            }
         } else {
-            Toast.makeText(RecipeActivity.this, getResources()
-                    .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+            String message = "";
+            if (target == DataSourceSQLite.REQUEST_BASKET) {
+                if (mDataSourceSQLite.checkSaveTarget(idRecipe, DataSourceSQLite.REQUEST_BASKET) == 0) {
+                    mDataSourceSQLite.updateSaveTarget(idRecipe, DataSourceSQLite.REQUEST_BASKET, 1);
+                    message = "Додано в кошик";
+                } else if (mDataSourceSQLite.checkSaveTarget(idRecipe, DataSourceSQLite.REQUEST_BASKET) == 1) {
+                    message = "Вже в кошику";
+                }
+            } else if (target == DataSourceSQLite.REQUEST_SAVED) {
+                if (mDataSourceSQLite.checkSaveTarget(idRecipe, DataSourceSQLite.REQUEST_SAVED) == 0) {
+                    mDataSourceSQLite.updateSaveTarget(idRecipe, DataSourceSQLite.REQUEST_SAVED, 1);
+                    message = "Рецепт збережено";
+                } else if (mDataSourceSQLite.checkSaveTarget(idRecipe, DataSourceSQLite.REQUEST_SAVED) == 1) {
+                    message = "Вже в збережених";
+                }
+            }
+            Toast.makeText(RecipeActivity.this, message, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public Long isRecipeInDB(String recipeName) {
+        Long idRecipe = mDataSourceSQLite.findRecipe(recipeName);
+        return idRecipe;
     }
 
     @Override
