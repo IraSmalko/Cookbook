@@ -518,12 +518,18 @@ public class RecipeActivity extends BaseActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == VOICE_REQUEST_CODE) {
             new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data,
                     new Recipe(mIntent.getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent
                             .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST), 0);
         }
-        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == BaseActivity.SIGN_IN_REQUEST){
+            if(resultCode == RESULT_OK){
+                Log.d("FFF","result");
+                layoutRefreshLogIn();
+            }
+        }
     }
 
     private void saveRecipe(int target) {
@@ -577,8 +583,7 @@ public class RecipeActivity extends BaseActivity
     }
 
     public Long isRecipeInDB(String recipeName) {
-        Long idRecipe = mDataSourceSQLite.findRecipe(recipeName);
-        return idRecipe;
+        return mDataSourceSQLite.findRecipe(recipeName);
     }
 
     @Override
@@ -639,45 +644,50 @@ public class RecipeActivity extends BaseActivity
         mEditButton.setVisibility(View.INVISIBLE);
     }
 
-    @Override
     public void layoutRefreshLogIn() {
+        Log.d("FFF", "aa" + mFirebaseUser);
 
-        mUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        if (mFirebaseUser != null) {
+            mUserId = mFirebaseUser.getUid();
 
-        mFirebaseDatabaseReference.child(MESSAGES_CHILD).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                int counter = 0;
-                for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    final Comment comment = data.getValue(Comment.class);
-                    final DatabaseReference ref = data.getRef();
-                    if (comment.getUserId().equals(mUserId)) {
-                        mSendButton.setVisibility(View.INVISIBLE);
-                        mTextInputLayout.setVisibility(View.INVISIBLE);
-                        mEditButton.setVisibility(View.VISIBLE);
+            mFirebaseDatabaseReference.child(MESSAGES_CHILD).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    int counter = 0;
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        final Comment comment = data.getValue(Comment.class);
+                        final DatabaseReference ref = data.getRef();
+                        if (comment.getUserId().equals(mUserId)) {
+                            mSendButton.setVisibility(View.INVISIBLE);
+                            mTextInputLayout.setVisibility(View.INVISIBLE);
+                            mEditButton.setVisibility(View.VISIBLE);
 
-                        mEditButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                showEditRatingDialog(ref, comment.getText(), comment.getRating());
-                            }
-                        });
-                        counter++;
-                        break;
+                            mEditButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    showEditRatingDialog(ref, comment.getText(), comment.getRating());
+                                }
+                            });
+                            counter++;
+                            break;
+                        }
+                    }
+                    if (counter == 0) {
+                        mSendButton.setVisibility(View.VISIBLE);
+                        mTextInputLayout.setVisibility(View.VISIBLE);
+                        mEditButton.setVisibility(View.INVISIBLE);
                     }
                 }
-                if (counter == 0) {
-                    mSendButton.setVisibility(View.VISIBLE);
-                    mTextInputLayout.setVisibility(View.VISIBLE);
-                    mEditButton.setVisibility(View.INVISIBLE);
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
                 }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+            });
+        } else {
+            mSendButton.setVisibility(View.INVISIBLE);
+            mTextInputLayout.setVisibility(View.INVISIBLE);
+            mEditButton.setVisibility(View.INVISIBLE);
+        }
     }
 }

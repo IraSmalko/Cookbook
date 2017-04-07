@@ -43,7 +43,7 @@ public abstract class BaseActivity extends AppCompatActivity
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int VOICE_REQUEST_CODE = 1234;
-    private static final int SIGN_IN_REQUEST = 19901;
+    public static final int SIGN_IN_REQUEST = 19901;
     public static final String ANONYMOUS = "anonymous";
 
     private FirebaseAuth mFirebaseAuth;
@@ -92,7 +92,6 @@ public abstract class BaseActivity extends AppCompatActivity
         if (id == R.id.selected) {
             startActivity(new Intent(getApplicationContext(), SelectedRecipeListActivity.class));
         } else if (id == R.id.nav_sign_in) {
-            int SIGN_IN_REQUEST = 19009;
             Intent intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
             startActivityForResult(intent, SIGN_IN_REQUEST);
         } else if (id == R.id.nav_sign_out) {
@@ -106,6 +105,7 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     public void userRefresh() {
+        mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (mFirebaseUser == null) {
             mNavigationView.getMenu().findItem(R.id.nav_sign_in).setVisible(true);
             mNavigationView.getMenu().findItem(R.id.nav_sign_out).setVisible(false);
@@ -202,11 +202,10 @@ public abstract class BaseActivity extends AppCompatActivity
         if (requestCode == VOICE_REQUEST_CODE) {
             new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data);
         }
-        if (resultCode == RESULT_OK) {
-            if (requestCode == SIGN_IN_REQUEST) {
-                mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (requestCode == SIGN_IN_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Log.d("FFF","userRefresh");
                 userRefresh();
-                layoutRefreshLogIn();
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -264,11 +263,7 @@ public abstract class BaseActivity extends AppCompatActivity
         }
     }
 
-    public void layoutRefreshLogOut(){
-
-    }
-
-    public void layoutRefreshLogIn() {
+    public void layoutRefreshLogOut() {
 
     }
 
