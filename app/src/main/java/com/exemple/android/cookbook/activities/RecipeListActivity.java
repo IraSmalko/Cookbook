@@ -34,7 +34,7 @@ public class RecipeListActivity extends BaseActivity {
     private List<Recipe> mRecipesList = new ArrayList<>();
     private RecipeRecyclerListAdapter mRecipeRecyclerAdapter;
     private Intent mIntent;
-    private String mUsername;
+    private String mUserId;
     private Button mButton;
     private TextView mTextView;
 
@@ -90,7 +90,7 @@ public class RecipeListActivity extends BaseActivity {
 
         String reference = "Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST);
         if (firebaseUser != null) {
-            mUsername = firebaseUser.getDisplayName();
+            mUserId = firebaseUser.getUid();
         }
 
         new FirebaseHelper(new FirebaseHelper.OnGetRecipeList() {
@@ -103,7 +103,7 @@ public class RecipeListActivity extends BaseActivity {
                     mButton.setVisibility(View.INVISIBLE);
                 }
             }
-        }).getRecipeList(reference, getApplicationContext(), mUsername,
+        }).getRecipeList(reference, getApplicationContext(), mUserId,
                 recipeCategory, recyclerView, swipeHelper);
 
         if (!new CheckOnlineHelper(this).isOnline() && recyclerView.getAdapter() == null) {

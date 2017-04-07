@@ -35,10 +35,7 @@ import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends BaseActivity {
 
-    public static final String ANONYMOUS = "anonymous";
-
     private FirebaseDatabase mFirebaseDatabase;
-    private String mUsername;
     private FirebaseUser mFirebaseUser;
 
     private RecyclerView mRecyclerView;
@@ -87,12 +84,6 @@ public class MainActivity extends BaseActivity {
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = firebaseAuth.getCurrentUser();
 
-        if (mFirebaseUser == null) {
-            mUsername = ANONYMOUS;
-        } else {
-            mUsername = mFirebaseUser.getDisplayName();
-        }
-
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = mFirebaseDatabase.getReference("Сategory_Recipes");
 
@@ -117,7 +108,7 @@ public class MainActivity extends BaseActivity {
                             }
 
                         }
-                    }).getUserCategoryRecipe(mUsername, mFirebaseDatabase);
+                    }).getUserCategoryRecipe(mFirebaseUser.getUid(), mFirebaseDatabase);
                 } else {
                     mRecyclerAdapter.updateAdapter(mCategoryRecipesList);
                     mRecyclerView.setAdapter(mRecyclerAdapter);

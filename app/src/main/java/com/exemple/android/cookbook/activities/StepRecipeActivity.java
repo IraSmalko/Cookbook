@@ -54,7 +54,7 @@ public class StepRecipeActivity extends AppCompatActivity
     private Context mContext = StepRecipeActivity.this;
     private int mIterator = 0;
     private String mReference;
-    private String mUsername;
+    private String mUserId;
     private FirebaseUser mFirebaseUser;
 
     private SensorManager mSensorManager;
@@ -91,8 +91,8 @@ public class StepRecipeActivity extends AppCompatActivity
                     mStepRecipe.add(step);
                 }
                 if (mStepRecipe.isEmpty() && mFirebaseUser != null) {
-                    mUsername = mFirebaseUser.getDisplayName();
-                    mReference = mUsername + "/" + mReference;
+                    mUserId = mFirebaseUser.getUid();
+                    mReference = mUserId + "/" + mReference;
                     new FirebaseHelper(new FirebaseHelper.OnStepRecipes() {
                         @Override
                         public void OnGet(List<StepRecipe> stepRecipes) {
@@ -145,7 +145,7 @@ public class StepRecipeActivity extends AppCompatActivity
         } else {
             IntentHelper.intentRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
                     .getStringExtra(PHOTO), mIntent.getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent
-                    .getStringExtra(RECIPE_LIST), mUsername);
+                    .getStringExtra(RECIPE_LIST), mUserId);
         }
     }
 
@@ -154,7 +154,7 @@ public class StepRecipeActivity extends AppCompatActivity
         if (mIterator == 0) {
             IntentHelper.intentRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
                     .getStringExtra(PHOTO), mIntent.getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent
-                    .getStringExtra(RECIPE_LIST), mUsername);
+                    .getStringExtra(RECIPE_LIST), mUserId);
         } else {
             updateData(--mIterator);
         }

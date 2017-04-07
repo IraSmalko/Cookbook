@@ -71,7 +71,7 @@ public class RecipeActivity extends BaseActivity
     private static final String RECIPE_LIST = "recipeList";
     private static final String RECIPE = "recipe";
     private static final String PHOTO = "photo";
-    private static final String USERNAME = "username";
+    private static final String USER = "userId";
     private static final String IS_PERSONAL = "isPersonal";
     private static final int INT_EXTRA = 0;
     private static final int VOICE_REQUEST_CODE = 1234;
@@ -207,13 +207,6 @@ public class RecipeActivity extends BaseActivity
 
         MESSAGES_CHILD = "Support/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/comments";
         RATING_CHILD = "Support/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE) + "/recipeRating";
-
-        //        Rating
-
-        //        final LayerDrawable stars = (LayerDrawable) ratingBar.getProgressDrawable();
-        //        stars.getDrawable(2).setColorFilter(ContextCompat.getColor(this, R.color.starFullySelected), PorterDuff.Mode.SRC_ATOP);
-        //        stars.getDrawable(1).setColorFilter(ContextCompat.getColor(this, R.color.starPartiallySelected), PorterDuff.Mode.SRC_ATOP);
-        //        stars.getDrawable(0).setColorFilter(ContextCompat.getColor(this, R.color.starNotSelected), PorterDuff.Mode.SRC_ATOP);
 
         mFirebaseDatabaseReference.child(RATING_CHILD).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -582,7 +575,7 @@ public class RecipeActivity extends BaseActivity
                     public void onDataReady(Integer integer) {
                         new FirebaseHelper().getStepsRecipe(getApplicationContext(), integer, mIntent
                                 .getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent.getStringExtra(RECIPE_LIST), mIntent
-                                .getStringExtra(RECIPE), mIntent.getStringExtra(USERNAME));
+                                .getStringExtra(RECIPE), mIntent.getStringExtra(USER));
                     }
                 }).execute(new RecipeForSQLite(mIntent.getStringExtra(RECIPE), path, 0, mIngredients, inSaved, inBasket));
                 Toast.makeText(RecipeActivity.this, message, Toast.LENGTH_SHORT).show();

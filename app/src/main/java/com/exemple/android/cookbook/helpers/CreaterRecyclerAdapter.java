@@ -21,8 +21,8 @@ public class CreaterRecyclerAdapter {
     }
 
     public RecipeRecyclerListAdapter createRecyclerAdapter(List<Recipe> recipesList,
-                                                           String recipesListIntent, String username) {
-        mUser = username;
+                                                           String recipesListIntent, String userId) {
+        mUser = userId;
         mRecipes = recipesListIntent;
         return new RecipeRecyclerListAdapter(mContext, recipesList, recipesListIntent,
                 new RecipeRecyclerListAdapter.ItemClickListener() {

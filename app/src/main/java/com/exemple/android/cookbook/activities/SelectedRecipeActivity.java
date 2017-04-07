@@ -37,7 +37,6 @@ public class SelectedRecipeActivity extends AppCompatActivity
     private static final int INT_EXTRA = 0;
     private static final int VOICE_REQUEST_CODE = 1234;
     private static final String RECIPE = "recipe";
-    private static final String DESCRIPTION = "description";
     private static final String PHOTO = "photo";
     private static final String ID_RECIPE = "id_recipe";
 
