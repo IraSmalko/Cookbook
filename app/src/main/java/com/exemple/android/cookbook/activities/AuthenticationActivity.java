@@ -33,6 +33,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 public class AuthenticationActivity extends AppCompatActivity implements
@@ -51,6 +52,8 @@ public class AuthenticationActivity extends AppCompatActivity implements
     private CallbackManager mCallbackManager;
 
     private ProgressDialog mProgressDialog;
+
+    private Intent mIntentResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,7 +160,7 @@ public class AuthenticationActivity extends AppCompatActivity implements
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+    private void firebaseAuthWithGoogle(final GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGooogle:" + acct.getId());
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
