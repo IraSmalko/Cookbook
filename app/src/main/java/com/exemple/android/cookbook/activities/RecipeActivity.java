@@ -526,7 +526,6 @@ public class RecipeActivity extends BaseActivity
         }
         if (requestCode == BaseActivity.SIGN_IN_REQUEST){
             if(resultCode == RESULT_OK){
-                Log.d("FFF","result");
                 layoutRefreshLogIn();
             }
         }
@@ -645,7 +644,7 @@ public class RecipeActivity extends BaseActivity
     }
 
     public void layoutRefreshLogIn() {
-        Log.d("FFF", "aa" + mFirebaseUser);
+        mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         if (mFirebaseUser != null) {
             mUserId = mFirebaseUser.getUid();

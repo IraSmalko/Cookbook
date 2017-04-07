@@ -204,7 +204,6 @@ public abstract class BaseActivity extends AppCompatActivity
         }
         if (requestCode == SIGN_IN_REQUEST) {
             if (resultCode == RESULT_OK) {
-                Log.d("FFF","userRefresh");
                 userRefresh();
             }
         }
