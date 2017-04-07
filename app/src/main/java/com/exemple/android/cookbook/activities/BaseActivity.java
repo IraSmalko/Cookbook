@@ -21,14 +21,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.helpers.VoiceRecognitionHelper;
-import com.exemple.android.cookbook.supporting.Comment;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -203,13 +201,16 @@ public abstract class BaseActivity extends AppCompatActivity
         if (requestCode == VOICE_REQUEST_CODE) {
             new VoiceRecognitionHelper(getApplicationContext()).onActivityResult(resultCode, data);
         }
-        if (requestCode ==SIGN_IN_REQUEST) {
-            if (resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == SIGN_IN_REQUEST) {
+                mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                 userRefresh();
+                layoutRefreshLogIn();
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
+
 
     AlertDialog mSignOutDialog;
 
@@ -231,6 +232,7 @@ public abstract class BaseActivity extends AppCompatActivity
                             mUsername = ANONYMOUS;
                             mFirebaseUser = null;
                             userRefresh();
+                            layoutRefreshLogOut();
                         }
                         dialog.dismiss();
                     }
@@ -260,4 +262,13 @@ public abstract class BaseActivity extends AppCompatActivity
             outState.putBoolean("isSignOutDialogShown", mSignOutDialog.isShowing());
         }
     }
+
+    public void layoutRefreshLogOut(){
+
+    }
+
+    public void layoutRefreshLogIn() {
+
+    }
+
 }

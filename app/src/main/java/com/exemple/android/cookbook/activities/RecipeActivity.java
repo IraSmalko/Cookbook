@@ -240,42 +240,7 @@ public class RecipeActivity extends BaseActivity
             }
         });
 
-
-        mFirebaseDatabaseReference.child(MESSAGES_CHILD).addValueEventListener(new ValueEventListener() {
-
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    final Comment comment = data.getValue(Comment.class);
-                    final DatabaseReference ref = data.getRef();
-                    if (comment.getUserId().equals(mUserId)) {
-                        if (mSendButton.getVisibility() == View.VISIBLE) {
-                            mSendButton.setVisibility(View.INVISIBLE);
-                        }
-                        if (mTextInputLayout.getVisibility() == View.VISIBLE) {
-                            mTextInputLayout.setVisibility(View.INVISIBLE);
-                        }
-                        if (mEditButton.getVisibility() == View.INVISIBLE) {
-                            mEditButton.setVisibility(View.VISIBLE);
-                        }
-
-                        mEditButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                showEditRatingDialog(ref, comment.getText(), comment.getRating());
-                            }
-                        });
-
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        layoutRefreshLogIn();
 
         //        Comments
 
@@ -541,7 +506,7 @@ public class RecipeActivity extends BaseActivity
     }
 
     private void saveRecipe(int target) {
-                int inSaved = 0;
+        int inSaved = 0;
         int inBasket = 0;
         if (target == DataSourceSQLite.REQUEST_BASKET) {
             inBasket = 1;
@@ -608,6 +573,55 @@ public class RecipeActivity extends BaseActivity
                 rating = rating / number;
                 mFirebaseDatabaseReference.child(RATING_CHILD).child("rating").setValue(rating);
                 mFirebaseDatabaseReference.child(RATING_CHILD).child("numberOfUsers").setValue(number);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    @Override
+    public void layoutRefreshLogOut() {
+        mTextInputLayout.setVisibility(View.INVISIBLE);
+        mSendButton.setVisibility(View.INVISIBLE);
+        mEditButton.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void layoutRefreshLogIn() {
+
+        mUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        mFirebaseDatabaseReference.child(MESSAGES_CHILD).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                int counter = 0;
+                for (DataSnapshot data : dataSnapshot.getChildren()) {
+                    final Comment comment = data.getValue(Comment.class);
+                    final DatabaseReference ref = data.getRef();
+                    if (comment.getUserId().equals(mUserId)) {
+                        mSendButton.setVisibility(View.INVISIBLE);
+                        mTextInputLayout.setVisibility(View.INVISIBLE);
+                        mEditButton.setVisibility(View.VISIBLE);
+
+                        mEditButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                showEditRatingDialog(ref, comment.getText(), comment.getRating());
+                            }
+                        });
+                        counter++;
+                        break;
+                    }
+                }
+                if (counter == 0) {
+                    mSendButton.setVisibility(View.VISIBLE);
+                    mTextInputLayout.setVisibility(View.VISIBLE);
+                    mEditButton.setVisibility(View.INVISIBLE);
+
+                }
             }
 
             @Override
