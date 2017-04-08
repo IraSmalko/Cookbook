@@ -101,7 +101,7 @@ public class RecipeListActivity extends BaseActivity {
                 if (mRecipeRecyclerAdapter.getItemCount() != 0) {
                     mTextView.setVisibility(View.INVISIBLE);
                     mButton.setVisibility(View.INVISIBLE);
-                } else {
+                } else if (new CheckOnlineHelper(getApplicationContext()).isOnline()) {
                     mTextView.setVisibility(View.VISIBLE);
                     mTextView.setText(getResources().getString(R.string.no_category_recipe));
                 }
