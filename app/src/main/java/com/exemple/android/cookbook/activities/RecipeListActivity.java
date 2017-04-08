@@ -101,6 +101,9 @@ public class RecipeListActivity extends BaseActivity {
                 if (mRecipeRecyclerAdapter.getItemCount() != 0) {
                     mTextView.setVisibility(View.INVISIBLE);
                     mButton.setVisibility(View.INVISIBLE);
+                } else {
+                    mTextView.setVisibility(View.VISIBLE);
+                    mTextView.setText(getResources().getString(R.string.no_category_recipe));
                 }
             }
         }).getRecipeList(reference, getApplicationContext(), mUserId,
@@ -118,9 +121,6 @@ public class RecipeListActivity extends BaseActivity {
                             .getStringExtra(RECIPE_LIST));
                 }
             });
-        } else {
-            mTextView.setVisibility(View.VISIBLE);
-            mTextView.setText(getResources().getString(R.string.no_category_recipe));
         }
     }
 
