@@ -111,6 +111,7 @@ public class RecipeListActivity extends BaseActivity {
 
         if (!new CheckOnlineHelper(this).isOnline() && recyclerView.getAdapter() == null) {
             mTextView.setVisibility(View.VISIBLE);
+            mTextView.setText(getResources().getString(R.string.error_loading));
             mButton.setVisibility(View.VISIBLE);
             mButton.setOnClickListener(new View.OnClickListener() {
                 @Override
