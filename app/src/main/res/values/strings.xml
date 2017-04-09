@@ -45,6 +45,7 @@
 
     <string name="fb_login_protocol_scheme">fb1224969314223075</string>
 
+    <integer name="com_vk_sdk_AppId">5972669</integer>
     <string name="fb_app_id">1224969314223075</string>
     <string name="send">Надіслати</string>
     <string name="edit">Редагувати відгук</string>
@@ -84,5 +85,7 @@
     <string name="no_category_recipe">Ви ще не маєте рецептів цієї категорії, спочатку додайте.</string>
     <string name="no_basket_recipe">Ви ще не маєте рецептів в кошику, спочатку додайте.</string>
     <string name="not_found">По запиту нічого не знайдено.</string>
+
+    <string name="share">share</string>
 </resources>
 

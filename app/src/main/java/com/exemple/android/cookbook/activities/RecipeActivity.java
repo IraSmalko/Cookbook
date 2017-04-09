@@ -3,11 +3,16 @@ package com.exemple.android.cookbook.activities;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
@@ -40,7 +45,6 @@ import com.exemple.android.cookbook.helpers.DataSourceSQLite;
 import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.helpers.LocalSavingImagesHelper;
-import com.exemple.android.cookbook.helpers.PermissionsHelper;
 import com.exemple.android.cookbook.helpers.VoiceRecognitionHelper;
 import com.exemple.android.cookbook.helpers.WriterDAtaSQLiteAsyncTask;
 import com.exemple.android.cookbook.supporting.Comment;
@@ -57,13 +61,17 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 public class RecipeActivity extends BaseActivity
         implements GoogleApiClient.OnConnectionFailedListener {
@@ -76,6 +84,7 @@ public class RecipeActivity extends BaseActivity
     private static final int INT_EXTRA = 0;
     private static final int VOICE_REQUEST_CODE = 1234;
     private final int WRITE_EXTERNAL_STORAGE_REQUEST = 12;
+    private static final int REQUEST_SHARE = 8874;
 
     private Intent mIntent;
     private ImageView mImageView;
@@ -378,6 +387,18 @@ public class RecipeActivity extends BaseActivity
                         .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
             }
             return true;
+        } else if (id == R.id.action_share) {
+            if (new CheckOnlineHelper(this).isOnline()) {
+                if (mLoadPhotoStep != null) {
+                    shareRecipe();
+                } else {
+                    Toast.makeText(this, "Будь ласка, дочекайтесь завантаження", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(RecipeActivity.this, getResources()
+                        .getString(R.string.not_online), Toast.LENGTH_SHORT).show();
+            }
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -524,8 +545,8 @@ public class RecipeActivity extends BaseActivity
                     new Recipe(mIntent.getStringExtra(RECIPE), mIntent.getStringExtra(PHOTO), mIntent
                             .getIntExtra(IS_PERSONAL, INT_EXTRA)), mIntent.getStringExtra(RECIPE_LIST), 0);
         }
-        if (requestCode == BaseActivity.SIGN_IN_REQUEST){
-            if(resultCode == RESULT_OK){
+        if (requestCode == BaseActivity.SIGN_IN_REQUEST) {
+            if (resultCode == RESULT_OK) {
                 layoutRefreshLogIn();
             }
         }
@@ -689,4 +710,91 @@ public class RecipeActivity extends BaseActivity
             mEditButton.setVisibility(View.INVISIBLE);
         }
     }
+
+    public void shareRecipe() {
+        try {
+            File cachePath = new File(this.getCacheDir(), "images");
+            cachePath.mkdirs(); // don't forget to make the directory
+            FileOutputStream stream = new FileOutputStream(cachePath + "/image.png"); // overwrites this image every time
+            mLoadPhotoStep.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            stream.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        File imagePath = new File(this.getCacheDir(), "images");
+        File newFile = new File(imagePath, "image.png");
+        final Uri contentUri = FileProvider.getUriForFile(this, "com.exemple.android.cookbook", newFile);
+
+        if (contentUri != null) {
+            final Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // temp permission for receiving app to read this file
+//            shareIntent.setDataAndType(contentUri, getContentResolver().getType(contentUri));
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, mIntent.getStringExtra(RECIPE));
+            shareIntent.putExtra(Intent.EXTRA_TEXT, LocalSavingImagesHelper
+                    .getDescriptionOfRecipeToShare(mIntent.getStringExtra(RECIPE), mIngredients));
+            shareIntent.putExtra(Intent.EXTRA_TITLE, mIntent.getStringExtra(RECIPE));
+            shareIntent.setType("image/*");
+            shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+
+            String[] whiteList = new String[]{"com.whatsapp", "org.telegram.messenger", "com.twitter.android", "com.google.android.gm", "com.facebook.katana"};
+            startActivityForResult(generateCustomChooserIntent(shareIntent, whiteList), REQUEST_SHARE);
+//            List<ResolveInfo> shareActivityList = getPackageManager().queryIntentActivities(shareIntent, PackageManager.MATCH_DEFAULT_ONLY);
+//            List<Intent> shareIntents = new ArrayList<>();
+//            for (ResolveInfo resInfo : shareActivityList) {
+//                Log.d("NNN", resInfo.activityInfo.packageName);
+//            }
+        }
+    }
+
+    private Intent generateCustomChooserIntent(Intent prototype, String[] forbiddenChoices) {
+        List<Intent> targetedShareIntents = new ArrayList<>();
+        List<HashMap<String, String>> intentMetaInfo = new ArrayList<>();
+        Intent chooserIntent;
+
+        Intent dummy = new Intent(prototype.getAction());
+        dummy.setType(prototype.getType());
+        List<ResolveInfo> resInfo = getPackageManager().queryIntentActivities(dummy, 0);
+
+        if (!resInfo.isEmpty()) {
+            for (ResolveInfo resolveInfo : resInfo) {
+                if (resolveInfo.activityInfo == null)
+                    continue;
+                if (!Arrays.asList(forbiddenChoices).contains(resolveInfo.activityInfo.packageName))
+                    continue;
+
+                HashMap<String, String> info = new HashMap<>();
+                info.put("packageName", resolveInfo.activityInfo.packageName);
+                info.put("className", resolveInfo.activityInfo.name);
+                info.put("simpleName", String.valueOf(resolveInfo.activityInfo.loadLabel(getPackageManager())));
+                intentMetaInfo.add(info);
+            }
+
+            if (!intentMetaInfo.isEmpty()) {
+                // sorting for nice readability
+                Collections.sort(intentMetaInfo, new Comparator<HashMap<String, String>>() {
+                    @Override
+                    public int compare(HashMap<String, String> map, HashMap<String, String> map2) {
+                        return map.get("simpleName").compareTo(map2.get("simpleName"));
+                    }
+                });
+
+                // create the custom intent list
+                for (HashMap<String, String> metaInfo : intentMetaInfo) {
+                    Intent targetedShareIntent = (Intent) prototype.clone();
+                    targetedShareIntent.setPackage(metaInfo.get("packageName"));
+                    targetedShareIntent.setClassName(metaInfo.get("packageName"), metaInfo.get("className"));
+                    targetedShareIntents.add(targetedShareIntent);
+                }
+
+                chooserIntent = Intent.createChooser(targetedShareIntents.remove(targetedShareIntents.size() - 1), getString(R.string.share));
+                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetedShareIntents.toArray(new Parcelable[]{}));
+                return chooserIntent;
+            }
+        }
+
+        return Intent.createChooser(prototype, getString(R.string.share));
+    }
 }
+

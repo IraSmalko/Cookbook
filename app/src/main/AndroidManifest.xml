@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.exemple.android.cookbook">
 
     <uses-permission
@@ -98,6 +100,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/photo_provider_path" />
         </provider>
+
+        <provider android:authorities="com.facebook.app.FacebookContentProvider1224969314223075"
+            android:name="com.facebook.FacebookContentProvider"
+            android:exported="true"/>
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"

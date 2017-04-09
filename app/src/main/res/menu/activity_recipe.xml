@@ -12,5 +12,10 @@
         android:icon="@drawable/icon_shop"
         android:title="@string/save"
         yourapp:showAsAction="always" />
+    <item
+        android:id="@+id/action_share"
+        android:icon="@drawable/icon_share"
+        android:title="@string/share"
+        yourapp:showAsAction="always" />
 
 </menu>
