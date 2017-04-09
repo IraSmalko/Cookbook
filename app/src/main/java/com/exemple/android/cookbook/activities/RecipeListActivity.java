@@ -34,7 +34,7 @@ public class RecipeListActivity extends BaseActivity {
     private List<Recipe> mRecipesList = new ArrayList<>();
     private RecipeRecyclerListAdapter mRecipeRecyclerAdapter;
     private Intent mIntent;
-    private String mUsername;
+    private String mUserId;
     private Button mButton;
     private TextView mTextView;
 
@@ -90,7 +90,7 @@ public class RecipeListActivity extends BaseActivity {
 
         String reference = "Recipe_lists/" + mIntent.getStringExtra(RECIPE_LIST);
         if (firebaseUser != null) {
-            mUsername = firebaseUser.getDisplayName();
+            mUserId = firebaseUser.getUid();
         }
 
         new FirebaseHelper(new FirebaseHelper.OnGetRecipeList() {
@@ -101,13 +101,17 @@ public class RecipeListActivity extends BaseActivity {
                 if (mRecipeRecyclerAdapter.getItemCount() != 0) {
                     mTextView.setVisibility(View.INVISIBLE);
                     mButton.setVisibility(View.INVISIBLE);
+                } else if (new CheckOnlineHelper(getApplicationContext()).isOnline()) {
+                    mTextView.setVisibility(View.VISIBLE);
+                    mTextView.setText(getResources().getString(R.string.no_category_recipe));
                 }
             }
-        }).getRecipeList(reference, getApplicationContext(), mUsername,
+        }).getRecipeList(reference, getApplicationContext(), mUserId,
                 recipeCategory, recyclerView, swipeHelper);
 
         if (!new CheckOnlineHelper(this).isOnline() && recyclerView.getAdapter() == null) {
             mTextView.setVisibility(View.VISIBLE);
+            mTextView.setText(getResources().getString(R.string.error_loading));
             mButton.setVisibility(View.VISIBLE);
             mButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -118,9 +122,6 @@ public class RecipeListActivity extends BaseActivity {
                             .getStringExtra(RECIPE_LIST));
                 }
             });
-        } else {
-            mTextView.setVisibility(View.VISIBLE);
-            mTextView.setText(getResources().getString(R.string.no_category_recipe));
         }
     }
 

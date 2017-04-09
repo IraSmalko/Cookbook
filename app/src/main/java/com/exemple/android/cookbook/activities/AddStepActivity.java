@@ -76,12 +76,12 @@ public class AddStepActivity extends AppCompatActivity {
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
         if (firebaseUser != null) {
-            String username = firebaseUser.getDisplayName();
+            String userId = firebaseUser.getUid();
 
             mIntent = getIntent();
-            mDatabaseReference = firebaseDatabase.getReference().child(username + "/Step_recipe/" + mIntent
+            mDatabaseReference = firebaseDatabase.getReference().child(userId + "/Step_recipe/" + mIntent
                     .getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE));
-            mStorageReference = firebaseStorage.getReference().child(username + "/Step_Recipes" + "/" + mIntent
+            mStorageReference = firebaseStorage.getReference().child(userId + "/Step_Recipes" + "/" + mIntent
                     .getStringExtra(RECIPE_LIST) + "/" + mIntent.getStringExtra(RECIPE));
 
             mActionBar = getSupportActionBar();

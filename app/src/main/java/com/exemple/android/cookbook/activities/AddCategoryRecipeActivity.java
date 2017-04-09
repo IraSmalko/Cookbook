@@ -78,10 +78,10 @@ public class AddCategoryRecipeActivity extends AppCompatActivity {
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
         if (firebaseUser != null) {
-            String username = firebaseUser.getDisplayName();
+            String userId = firebaseUser.getUid();
 
-            mDatabaseReference = firebaseDatabase.getReference(username + "/Сategory_Recipes");
-            mStorageReference = firebaseStorage.getReference().child(username + "/Photo_Сategory_Recipes");
+            mDatabaseReference = firebaseDatabase.getReference(userId + "/Сategory_Recipes");
+            mStorageReference = firebaseStorage.getReference().child(userId + "/Photo_Сategory_Recipes");
 
             mCropHelper = new CropHelper(mContext, new CropHelper.OnCrop() {
                 @Override

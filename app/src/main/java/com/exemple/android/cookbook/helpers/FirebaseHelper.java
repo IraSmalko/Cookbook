@@ -53,7 +53,7 @@ public class FirebaseHelper {
     private List<Recipe> mPublicListRecipes = new ArrayList<>();
     private RecipeRecyclerListAdapter mRecipeRecyclerAdapter;
     private SwipeHelper mSwipeHelper;
-    private String mUsername;
+    private String mUserId;
     private String mRecipeCategory;
     private RecyclerView mRecyclerView;
     private String mReference;
@@ -94,21 +94,21 @@ public class FirebaseHelper {
         mOnIngredientsRecipe = onIngredientsRecipe;
     }
 
-    public String getUsername() {
+    public String getUserId() {
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-        return firebaseUser != null ? firebaseUser.getDisplayName() : null;
+        return firebaseUser != null ? firebaseUser.getUid() : null;
     }
 
     public void getStepsRecipe(Context context, int idRecipe, int isPersonal, String recipeList,
-                               String recipe, String username) {
+                               String recipe, String userId) {
         mContext = context;
         mIdRecipe = idRecipe;
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference;
         if (isPersonal == 1) {
             databaseReference = firebaseDatabase.getReference()
-                    .child(username + "/Step_recipe/" + recipeList + "/" + recipe);
+                    .child(userId + "/Step_recipe/" + recipeList + "/" + recipe);
         } else {
             databaseReference = firebaseDatabase.getReference()
                     .child("Step_recipe/" + recipeList + "/" + recipe);
@@ -151,9 +151,9 @@ public class FirebaseHelper {
         });
     }
 
-    public void getUserCategoryRecipe(String username,
+    public void getUserCategoryRecipe(String userId,
                                       FirebaseDatabase firebaseDatabase) {
-        DatabaseReference databaseUserReference = firebaseDatabase.getReference(username + "/Сategory_Recipes");
+        DatabaseReference databaseUserReference = firebaseDatabase.getReference(userId + "/Сategory_Recipes");
         databaseUserReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -226,9 +226,9 @@ public class FirebaseHelper {
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         if (firebaseUser != null) {
-            String username = firebaseUser.getDisplayName();
+            String userId = firebaseUser.getUid();
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-            Query applesQuery = ref.child(username + "/Сategory_Recipes").orderByChild("name").equalTo(item);
+            Query applesQuery = ref.child(userId + "/Сategory_Recipes").orderByChild("name").equalTo(item);
 
             applesQuery.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -250,9 +250,9 @@ public class FirebaseHelper {
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         if (firebaseUser != null) {
-            String username = firebaseUser.getDisplayName();
+            String userId = firebaseUser.getUid();
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-            Query applesQuery = ref.child(username + "/Recipe_lists/" + nameRecipeList).orderByChild("name").equalTo(item);
+            Query applesQuery = ref.child(userId + "/Recipe_lists/" + nameRecipeList).orderByChild("name").equalTo(item);
 
             applesQuery.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -266,14 +266,14 @@ public class FirebaseHelper {
                 public void onCancelled(DatabaseError databaseError) {
                 }
             });
-            removeSteps(item, username, nameRecipeList);
+            removeSteps(item, userId, nameRecipeList);
         }
     }
 
-    private void removeSteps(String item, String username, String nameRecipeList) {
+    private void removeSteps(String item, String userId, String nameRecipeList) {
 
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-        Query applesQuery = ref.child(username + "/Step_recipe/" + nameRecipeList).child(item);
+        Query applesQuery = ref.child(userId + "/Step_recipe/" + nameRecipeList).child(item);
 
         applesQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -290,10 +290,10 @@ public class FirebaseHelper {
 
     }
 
-    public void getRecipeList(String reference, Context context, String username,
+    public void getRecipeList(String reference, Context context, String userId,
                               String recipeCategory, RecyclerView recyclerView, SwipeHelper swipeHelper) {
         mContext = context;
-        mUsername = username;
+        mUserId = userId;
         mReference = reference;
         mSwipeHelper = swipeHelper;
         mRecipeCategory = recipeCategory;
@@ -302,8 +302,8 @@ public class FirebaseHelper {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = mFirebaseDatabase.getReference().child(mReference);
 
-        if (mUsername != null) {
-            mReference = mUsername + "/" + mReference;
+        if (mUserId != null) {
+            mReference = mUserId + "/" + mReference;
         }
         mDatabaseReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -314,13 +314,13 @@ public class FirebaseHelper {
                     mRecipesList.add(recipes);
                 }
                 mPublicListRecipes = mRecipesList;
-                if (mUsername != null) {
+                if (mUserId != null) {
                     new FirebaseHelper(new FirebaseHelper.OnUserRecipes() {
                         @Override
                         public void OnGet(List<Recipe> recipes) {
                             recipes.addAll(mRecipesList);
                             mRecipeRecyclerAdapter = new CreaterRecyclerAdapter(mContext)
-                                    .createRecyclerAdapter(recipes, mRecipeCategory, mUsername);
+                                    .createRecyclerAdapter(recipes, mRecipeCategory, mUserId);
                             mRecyclerView.setAdapter(mRecipeRecyclerAdapter);
                             mSwipeHelper.attachSwipeRecipe(mPublicListRecipes);
                             mOnGetRecipeList.OnGet(mRecipeRecyclerAdapter, recipes);
@@ -328,7 +328,7 @@ public class FirebaseHelper {
                     }).getUserRecipe(mFirebaseDatabase, mReference);
                 } else {
                     mRecipeRecyclerAdapter = new CreaterRecyclerAdapter(mContext)
-                            .createRecyclerAdapter(mRecipesList, mRecipeCategory, mUsername);
+                            .createRecyclerAdapter(mRecipesList, mRecipeCategory, mUserId);
                     mRecyclerView.setAdapter(mRecipeRecyclerAdapter);
                     mSwipeHelper.attachSwipeRecipe(mPublicListRecipes);
                     mOnGetRecipeList.OnGet(mRecipeRecyclerAdapter, mRecipesList);
@@ -349,9 +349,9 @@ public class FirebaseHelper {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = mFirebaseDatabase.getReference().child(mReference);
 
-        mUsername = getUsername();
-        if (mUsername != null) {
-            mReference = mUsername + "/" + mReference;
+        mUserId = getUserId();
+        if (mUserId != null) {
+            mReference = mUserId + "/" + mReference;
         }
         mDatabaseReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -362,7 +362,7 @@ public class FirebaseHelper {
                     mRecipesList.add(recipes);
                 }
                 mPublicListRecipes = mRecipesList;
-                if (mUsername != null) {
+                if (mUserId != null) {
                     new FirebaseHelper(new FirebaseHelper.OnUserRecipes() {
                         @Override
                         public void OnGet(List<Recipe> recipes) {
@@ -392,14 +392,14 @@ public class FirebaseHelper {
                     CategoryRecipes categoryRecipes = postSnapshot.getValue(CategoryRecipes.class);
                     mCategoryRecipesList.add(categoryRecipes);
                 }
-                if (getUsername() != null) {
+                if (getUserId() != null) {
                     new FirebaseHelper(new FirebaseHelper.OnUserCategoryRecipe() {
                         @Override
                         public void OnGet(List<CategoryRecipes> category) {
                             category.addAll(mCategoryRecipesList);
                             mOnGetCategoryListForVR.OnGet(category);
                         }
-                    }).getUserCategoryRecipe(getUsername(), mFirebaseDatabase);
+                    }).getUserCategoryRecipe(getUserId(), mFirebaseDatabase);
                 } else {
                     mOnGetCategoryListForVR.OnGet(mCategoryRecipesList);
                 }
@@ -417,7 +417,7 @@ public class FirebaseHelper {
         DatabaseReference databaseReference;
         if (isPersonal == 1) {
             databaseReference = firebaseDatabase.getReference()
-                    .child(getUsername() + "/Ingredient/" + recipeList + "/" + recipe);
+                    .child(getUserId() + "/Ingredient/" + recipeList + "/" + recipe);
         } else {
             databaseReference = firebaseDatabase.getReference()
                     .child("Ingredient/" + recipeList + "/" + recipe);

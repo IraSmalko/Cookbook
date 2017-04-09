@@ -127,12 +127,12 @@ public class AddRecipeActivity extends AppCompatActivity {
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
         if (firebaseUser != null) {
-            String username = firebaseUser.getDisplayName();
+            String userId = firebaseUser.getUid();
 
             mNameRecipesList = mIntent.getStringArrayListExtra(ARRAY_LIST_RECIPE);
-            mDatabaseReference = mFirebaseDatabase.getReference().child(username + "/Recipe_lists/" + mIntent
+            mDatabaseReference = mFirebaseDatabase.getReference().child(userId + "/Recipe_lists/" + mIntent
                     .getStringExtra(RECIPE_LIST));
-            mStorageReference = firebaseStorage.getReference().child(username + "/Recipe" + "/" + mIntent
+            mStorageReference = firebaseStorage.getReference().child(userId + "/Recipe" + "/" + mIntent
                     .getStringExtra(RECIPE_LIST));
 
             boolean isOnline = new CheckOnlineHelper(mContext).isOnline();
@@ -207,7 +207,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                             Recipe recipes = new Recipe(mInputNameRecipe.getText().toString(),
                                     mDownloadUrlCamera.toString(), 0);
                             mDatabaseReferenceIngredients = mFirebaseDatabase.getReference().child(new FirebaseHelper()
-                                    .getUsername() + "/Ingredient/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mInputNameRecipe
+                                    .getUserId() + "/Ingredient/" + mIntent.getStringExtra(RECIPE_LIST) + "/" + mInputNameRecipe
                                     .getText().toString());
                             if (!mInputIngredients.getText().toString().equals("") && !mQuantity.getText()
                                     .toString().equals("") && !mUnit.getText().toString().equals("")) {

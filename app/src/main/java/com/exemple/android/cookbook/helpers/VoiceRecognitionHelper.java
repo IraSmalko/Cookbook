@@ -123,7 +123,7 @@ public class VoiceRecognitionHelper {
                                     if (mVRResult.contains(recipe.getName().toLowerCase())) {
                                         IntentHelper.intentRecipeActivity(mContext, recipe.getName(), recipe
                                                         .getPhotoUrl(), recipe.getIsPersonal(), recipeList,
-                                                new FirebaseHelper().getUsername());
+                                                new FirebaseHelper().getUserId());
                                     }
                                 }
                             }
@@ -159,7 +159,7 @@ public class VoiceRecognitionHelper {
             Glide.with(mContext).load(stepRecipe.get(iterator).getPhotoUrlStep()).into(imageView);
         } else {
             IntentHelper.intentRecipeActivity(mContext, recipe.getName(), recipe.getPhotoUrl(), recipe
-                    .getIsPersonal(), recipeList, new FirebaseHelper().getUsername());
+                    .getIsPersonal(), recipeList, new FirebaseHelper().getUserId());
         }
         return iterator;
     }
