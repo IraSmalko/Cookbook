@@ -24,7 +24,6 @@ import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.IngredientsAdapter;
 import com.exemple.android.cookbook.entity.ImageCard;
 import com.exemple.android.cookbook.entity.Ingredient;
-import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.entity.RecipeForSQLite;
 import com.exemple.android.cookbook.entity.SelectedStepRecipe;
 import com.exemple.android.cookbook.helpers.CropHelper;
@@ -166,7 +165,8 @@ public class EditRecipeActivity extends AppCompatActivity {
                             != PERMISSION_GRANTED) {
                         if (ActivityCompat.shouldShowRequestPermissionRationale(EditRecipeActivity
                                 .this, READ_EXTERNAL_STORAGE)) {
-                            new PermissionsHelper(EditRecipeActivity.this).showExternalPermissionDialog();
+                            new PermissionsHelper(EditRecipeActivity.this)
+                                    .showPermissionDialog(READ_EXTERNAL_STORAGE_REQUEST);
                         } else {
                             ActivityCompat.requestPermissions(EditRecipeActivity.this,
                                     new String[]{READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_REQUEST);
@@ -179,7 +179,8 @@ public class EditRecipeActivity extends AppCompatActivity {
                     if (ActivityCompat.checkSelfPermission(getApplicationContext(), CAMERA)
                             != PERMISSION_GRANTED) {
                         if (ActivityCompat.shouldShowRequestPermissionRationale(EditRecipeActivity.this, CAMERA)) {
-                            new PermissionsHelper(EditRecipeActivity.this).showExternalPermissionDialog();
+                            new PermissionsHelper(EditRecipeActivity.this)
+                                    .showPermissionDialog(CAMERA_PERMISSION_REQUEST);
                         } else {
                             ActivityCompat.requestPermissions(EditRecipeActivity.this,
                                     new String[]{CAMERA}, CAMERA_PERMISSION_REQUEST);
@@ -261,13 +262,15 @@ public class EditRecipeActivity extends AppCompatActivity {
             if (grantResults[0] == PERMISSION_GRANTED) {
                 mPhotoFromCameraHelper.takePhoto();
             } else {
-                new PermissionsHelper(EditRecipeActivity.this).showExternalPermissionDialog();
+                new PermissionsHelper(EditRecipeActivity.this)
+                        .showPermissionDialog(CAMERA_PERMISSION_REQUEST);
             }
         } else if (requestCode == READ_EXTERNAL_STORAGE_REQUEST) {
             if (grantResults[0] == PERMISSION_GRANTED) {
                 mPhotoFromCameraHelper.pickPhoto();
             } else {
-                new PermissionsHelper(EditRecipeActivity.this).showExternalPermissionDialog();
+                new PermissionsHelper(EditRecipeActivity.this)
+                        .showPermissionDialog(READ_EXTERNAL_STORAGE_REQUEST);
             }
         }
     }

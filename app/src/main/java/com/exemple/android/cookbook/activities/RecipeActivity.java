@@ -83,7 +83,6 @@ public class RecipeActivity extends BaseActivity
     private static final String IS_PERSONAL = "isPersonal";
     private static final int INT_EXTRA = 0;
     private static final int VOICE_REQUEST_CODE = 1234;
-    private final int WRITE_EXTERNAL_STORAGE_REQUEST = 12;
     private static final int REQUEST_SHARE = 8874;
 
     private Intent mIntent;

@@ -160,7 +160,8 @@ public class AddRecipeActivity extends AppCompatActivity {
                             != PERMISSION_GRANTED) {
                         if (ActivityCompat.shouldShowRequestPermissionRationale(AddRecipeActivity
                                 .this, READ_EXTERNAL_STORAGE)) {
-                            new PermissionsHelper(AddRecipeActivity.this).showExternalPermissionDialog();
+                            new PermissionsHelper(AddRecipeActivity.this)
+                                    .showPermissionDialog(READ_EXTERNAL_STORAGE_REQUEST);
                         } else {
                             ActivityCompat.requestPermissions(AddRecipeActivity.this,
                                     new String[]{READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_REQUEST);
@@ -174,7 +175,8 @@ public class AddRecipeActivity extends AppCompatActivity {
                             != PERMISSION_GRANTED) {
                         if (ActivityCompat.shouldShowRequestPermissionRationale(AddRecipeActivity
                                 .this, CAMERA)) {
-                            new PermissionsHelper(AddRecipeActivity.this).showExternalPermissionDialog();
+                            new PermissionsHelper(AddRecipeActivity.this)
+                                    .showPermissionDialog(CAMERA_PERMISSION_REQUEST);
                         } else {
                             ActivityCompat.requestPermissions(AddRecipeActivity.this,
                                     new String[]{CAMERA}, CAMERA_PERMISSION_REQUEST);
@@ -292,13 +294,15 @@ public class AddRecipeActivity extends AppCompatActivity {
             if (grantResults[0] == PERMISSION_GRANTED) {
                 mPhotoFromCameraHelper.takePhoto();
             } else {
-                new PermissionsHelper(AddRecipeActivity.this).showExternalPermissionDialog();
+                new PermissionsHelper(AddRecipeActivity.this)
+                        .showPermissionDialog(CAMERA_PERMISSION_REQUEST);
             }
         } else if (requestCode == READ_EXTERNAL_STORAGE_REQUEST) {
             if (grantResults[0] == PERMISSION_GRANTED) {
                 mPhotoFromCameraHelper.pickPhoto();
             } else {
-                new PermissionsHelper(AddRecipeActivity.this).showExternalPermissionDialog();
+                new PermissionsHelper(AddRecipeActivity.this)
+                        .showPermissionDialog(READ_EXTERNAL_STORAGE_REQUEST);
             }
         }
     }

@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -21,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.Recipe;
 import com.exemple.android.cookbook.entity.SelectedStepRecipe;
@@ -102,12 +104,8 @@ public class SelectedStepRecipeActivity extends AppCompatActivity
         if (i < mSelectedStepRecipes.size()) {
             mActionBar.setTitle(mSelectedStepRecipes.get(i).getNumberStep());
             mTxtStepRecipe.setText(mSelectedStepRecipes.get(i).getTextStep());
-            try {
-                mImgStepRecipe.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri
-                        .parse(mSelectedStepRecipes.get(i).getPhotoUrlStep())));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Glide.with(mContext).load(mSelectedStepRecipes.get(i).getPhotoUrlStep()).placeholder(ContextCompat
+                    .getDrawable(mContext, R.drawable.step_image)).dontTransform().into(mImgStepRecipe);
         } else {
             IntentHelper.intentSelectedRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
                     .getStringExtra(PHOTO), mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));

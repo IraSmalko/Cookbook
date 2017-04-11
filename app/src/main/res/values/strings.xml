@@ -78,7 +78,7 @@
     <string name="unit">од.</string>
     <string name="quantity">к-сть</string>
 
-    <string name="give_permission">Без цього дозволу функція не працюватиме!</string>
+    <string name="give_permission">Без цього дозволу функція не працюватиме! Дозволити?</string>
     <string name="error_loading">При завантаженні даних сталася помилка. Перевірте ваше підключення до менрежі.</string>
     <string name="retry">Повторити спробу</string>
     <string name="no_saved_recipe">Ви ще не маєте збережених рецептів, спочатку додайте.</string>

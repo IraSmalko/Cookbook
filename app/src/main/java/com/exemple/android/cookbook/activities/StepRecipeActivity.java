@@ -10,6 +10,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -141,7 +142,8 @@ public class StepRecipeActivity extends AppCompatActivity
         if (iterator < mStepRecipe.size()) {
             mActionBar.setTitle(mStepRecipe.get(iterator).getNumberStep());
             mTxtStepRecipe.setText(mStepRecipe.get(iterator).getTextStep());
-            Glide.with(mContext).load(mStepRecipe.get(iterator).getPhotoUrlStep()).into(mImgStepRecipe);
+            Glide.with(mContext).load(mStepRecipe.get(iterator).getPhotoUrlStep()).placeholder(ContextCompat
+                    .getDrawable(mContext, R.drawable.step_image)).dontTransform().crossFade().into(mImgStepRecipe);
         } else {
             IntentHelper.intentRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
                     .getStringExtra(PHOTO), mIntent.getIntExtra(IS_PERSONAL, INT_EXTRA), mIntent

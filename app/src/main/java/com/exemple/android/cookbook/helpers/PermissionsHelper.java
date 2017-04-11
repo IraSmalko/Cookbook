@@ -14,9 +14,12 @@ import android.support.v4.app.ActivityCompat;
 import com.exemple.android.cookbook.R;
 
 public class PermissionsHelper {
-    private final int WRITE_EXTERNAL_STORAGE_REQUEST = 12;
+    private final int READ_EXTERNAL_STORAGE_REQUEST = 15;
+    private static final int CAMERA_PERMISSION_REQUEST = 14;
 
     private Context mContext;
+    private int mPermissionRequest;
+    private String mPermission;
 
     public PermissionsHelper() {
     }
@@ -25,14 +28,18 @@ public class PermissionsHelper {
         mContext = context;
     }
 
-    public void showExternalPermissionDialog() {
+    public void showPermissionDialog(int request) {
+        mPermissionRequest = request == READ_EXTERNAL_STORAGE_REQUEST ? READ_EXTERNAL_STORAGE_REQUEST
+                : CAMERA_PERMISSION_REQUEST;
+        mPermission = mPermissionRequest == READ_EXTERNAL_STORAGE_REQUEST ? Manifest.permission.CAMERA
+                : Manifest.permission.READ_EXTERNAL_STORAGE;
         new AlertDialog.Builder(mContext)
                 .setMessage(mContext.getResources().getString(R.string.give_permission))
                 .setPositiveButton(R.string.positive_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        ActivityCompat.requestPermissions((Activity) mContext, new String[]{Manifest
-                                .permission.WRITE_EXTERNAL_STORAGE}, WRITE_EXTERNAL_STORAGE_REQUEST);
+                        ActivityCompat.requestPermissions((Activity) mContext,
+                                new String[]{mPermission}, mPermissionRequest);
                     }
                 })
                 .setNegativeButton(R.string.negative_button, new DialogInterface.OnClickListener() {

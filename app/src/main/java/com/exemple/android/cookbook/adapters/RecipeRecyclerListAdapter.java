@@ -4,6 +4,7 @@ package com.exemple.android.cookbook.adapters;
 import android.content.Context;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -73,7 +74,8 @@ public class RecipeRecyclerListAdapter extends RecyclerView.Adapter<RecipeRecycl
             holder.regularLayout.setVisibility(View.VISIBLE);
             holder.swipeLayout.setVisibility(View.GONE);
             holder.textView.setText(item.getName());
-            Glide.with(mContext).load(item.getPhotoUrl()).into(holder.imageView);
+            Glide.with(mContext).load(item.getPhotoUrl()).placeholder(ContextCompat
+                    .getDrawable(mContext, R.drawable.background_land)).centerCrop().into(holder.imageView);
         }
         holder.undo.setOnClickListener(new View.OnClickListener() {
             @Override
