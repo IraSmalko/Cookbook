@@ -78,7 +78,6 @@ dependencies {
     compile 'me.villani.lorenzo.android:android-cropimage:1.1.0'
     compile 'me.zhanghai.android.materialratingbar:library:1.0.2'
     compile 'com.facebook.android:facebook-android-sdk:4.5.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha7'
     testCompile 'junit:junit:4.12'
 }
 apply plugin: 'com.google.gms.google-services'

@@ -46,10 +46,11 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="68dp"
+                android:background="#99ECEFF1"
                 android:isIndicator="true"
                 android:numStars="5"
                 android:stepSize="0.01"
-                android:theme="@style/RatingBar"/>
+                android:theme="@style/RatingBar" />
 
             <Button
                 android:id="@+id/btnDetailRecipe"
@@ -58,8 +59,8 @@
                 android:layout_alignParentEnd="true"
                 android:layout_below="@+id/ratingBar"
                 android:layout_marginTop="63dp"
-                android:text="@string/detail"
-                android:backgroundTint="#1E9D96" />
+                android:backgroundTint="#1E9D96"
+                android:text="@string/detail" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recyclerIngredients"
