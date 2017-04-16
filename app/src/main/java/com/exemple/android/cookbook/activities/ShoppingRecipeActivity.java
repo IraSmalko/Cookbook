@@ -52,15 +52,12 @@ public class ShoppingRecipeActivity extends AppCompatActivity {
 
         mIngredientsShop = new DataSourceSQLite(this).readRecipeIngredients(mIntent.getIntExtra(ID_RECIPE, 0));
 
-        Log.d("Lop", "" +" mIngredientsShop.get(0).getName()");
-
         mShopIngredientsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mBasketIngredientsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        (new ShoppingAdapters(mIngredientsShop, mIngredientsBasket))
+        (new ShoppingAdapters(this, mIngredientsShop, mIngredientsBasket))
                 .setShoppingAdaptersToRecyclers(mShopIngredientsRecyclerView, mBasketIngredientsRecyclerView);
 
     }
-
 
 }

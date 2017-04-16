@@ -86,6 +86,14 @@
     <string name="no_basket_recipe">Ви ще не маєте рецептів в кошику, спочатку додайте.</string>
     <string name="not_found">По запиту нічого не знайдено.</string>
 
-    <string name="share">share</string>
+    <string name="share">Виберіть додаток</string>
+    <string name="wait_for_download_picture">Будь ласка, дочекайтесь завантаження</string>
+    <string name="make_rate_of_recipe">Будь ласка, оцініть рецепт!</string>
+    <string name="editing_rate_of_recipe">Редагування оцінки</string>
+    <string name="done">Готово</string>
+    <string name="added_to_basket">Додано в кошик</string>
+    <string name="recipe_saved">Рецепт збережено</string>
+    <string name="already_in_basket">Вже в кошику</string>
+    <string name="already_in_saved">Вже в збережених</string>
 </resources>
 

@@ -26,7 +26,6 @@
             android:id="@+id/name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/add_description"
             android:inputType="textCapWords"
             android:maxLines="1" />
 
@@ -43,7 +42,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="5"
-            android:text="@string/add_photo_step"
+            android:text="Виберіть фото кроку"
             android:textColor="#000"
             android:textSize="12sp" />
 
