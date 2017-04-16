@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.exemple.android.cookbook.R;
@@ -77,7 +78,11 @@ public class MainActivity extends BaseActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), AddCategoryRecipeActivity.class));
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    startActivity(new Intent(getApplicationContext(), AddCategoryRecipeActivity.class));
+                } else {
+                    Toast.makeText(MainActivity.this, getResources().getString(R.string.unauthorized_user), Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

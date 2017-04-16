@@ -9,7 +9,7 @@
     <string name="add_name_recipe">Добавьте название рецепта</string>
     <string name="add_photo_step">Добавьте фото шага</string>
     <string name="add_recipe_vr">добавьте рецепт</string>
-    <string name="added_to_basket">добавлено в корзину</string>
+    <string name="added_to_basket">Добавлено в корзину</string>
     <string name="already_in_basket">уже в корзине</string>
     <string name="already_in_saved">уже в сохраненных</string>
     <string name="auth_exit">Выход</string>
@@ -64,7 +64,7 @@
     <string name="not_found">По запросу ничего не найдено</string>
     <string name="not_online">Отсутствует доступ к интернету!</string>
     <string name="not_so_quick">Не так быстро, пожалуйста!</string>
-    <string name="off_voice_alert_message">Виключить голосовое управление?</string>
+    <string name="off_voice_alert_message">Выключить голосовое управление?</string>
     <string name="on_voice_alert_message">Включить голосовое управление?</string>
     <string name="positive_button">да</string>
     <string name="previous_step">предыдущий шаг</string>

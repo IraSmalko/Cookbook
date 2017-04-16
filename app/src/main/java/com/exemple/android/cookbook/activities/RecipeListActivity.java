@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.adapters.RecipeRecyclerListAdapter;
@@ -79,12 +80,17 @@ public class RecipeListActivity extends BaseActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ArrayList<String> nameRecipesList = new ArrayList<>();
-                for (int i = 0; i < mRecipesList.size(); i++) {
-                    nameRecipesList.add(mRecipesList.get(i).getName());
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    ArrayList<String> nameRecipesList = new ArrayList<>();
+                    for (int i = 0; i < mRecipesList.size(); i++) {
+                        nameRecipesList.add(mRecipesList.get(i).getName());
+                    }
+                    IntentHelper.intentAddRecipeActivity(RecipeListActivity.this, nameRecipesList, mIntent
+                            .getStringExtra(RECIPE_LIST));
+                } else {
+                    Toast.makeText(RecipeListActivity.this, getResources().getString(R.string.unauthorized_user), Toast.LENGTH_SHORT).show();
                 }
-                IntentHelper.intentAddRecipeActivity(RecipeListActivity.this, nameRecipesList, mIntent
-                        .getStringExtra(RECIPE_LIST));
+
             }
         });
 
