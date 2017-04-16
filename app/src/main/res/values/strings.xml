@@ -95,5 +95,21 @@
     <string name="recipe_saved">Рецепт збережено</string>
     <string name="already_in_basket">Вже в кошику</string>
     <string name="already_in_saved">Вже в збережених</string>
+    <string name="menu_button_main">Головна</string>
+    <string name="menu_button_local">Локально</string>
+    <string name="menu_button_saved">Збережені</string>
+    <string name="menu_button_basket">Кошик</string>
+    <string name="menu_button_auth">Авторизація</string>
+    <string name="menu_button_sign_in">Увійти</string>
+    <string name="menu_button_sign_out">Вийти</string>
+
+    <string name="auth_exit">Вихід</string>
+    <string name="auth_sure">Ви впевнені?</string>
+    <string name="yes">Так</string>
+    <string name="no">Ні</string>
+    <string name="step_saved">Крок збережено</string>
+    <string name="not_so_quick">Не так швидко, будь ласка!</string>
+
+    <string name="ingredients">Інгредієнти</string>
 </resources>
 

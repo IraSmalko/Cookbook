@@ -18,25 +18,15 @@ import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.ImageCard;
-import com.exemple.android.cookbook.entity.SelectedRecipe;
 import com.exemple.android.cookbook.entity.SelectedStepRecipe;
 import com.exemple.android.cookbook.entity.StepRecipe;
-import com.exemple.android.cookbook.helpers.CheckOnlineHelper;
 import com.exemple.android.cookbook.helpers.CropHelper;
 import com.exemple.android.cookbook.helpers.DataSourceSQLite;
-import com.exemple.android.cookbook.helpers.FirebaseHelper;
 import com.exemple.android.cookbook.helpers.IntentHelper;
 import com.exemple.android.cookbook.helpers.PhotoFromCameraHelper;
 import com.exemple.android.cookbook.helpers.ProcessPhotoAsyncTask;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class EditRecipeStepActivity extends AppCompatActivity {
@@ -163,7 +153,7 @@ public class EditRecipeStepActivity extends AppCompatActivity {
                         new DataSourceSQLite(mContext).replaceStepSQlite(mIntent.getIntExtra(ID_RECIPE, INT_EXTRA), stepRecipe);
                         mNumberStep = ++mNumberStep;
                         if (mNumberStep < mSelectedStepRecipes.size()) {
-                            Toast.makeText(mContext, "Крок збережено", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContext, getResources().getString(R.string.step_saved), Toast.LENGTH_SHORT).show();
                         }
                         updateData(mNumberStep);
                     }
@@ -212,7 +202,7 @@ public class EditRecipeStepActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         } else {
-            Toast.makeText(mContext, "Рецепт збережено", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, getResources().getString(R.string.recipe_saved), Toast.LENGTH_SHORT).show();
             IntentHelper.intentSelectedRecipeActivity(mContext, mIntent.getStringExtra(RECIPE), mIntent
                     .getStringExtra(PHOTO), mIntent.getIntExtra(ID_RECIPE, INT_EXTRA));
         }

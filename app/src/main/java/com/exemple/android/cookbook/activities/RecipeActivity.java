@@ -441,7 +441,7 @@ public class RecipeActivity extends BaseActivity
         ratingInDialog = (RatingBar) linearLayout.findViewById(R.id.dialogRatingBar);
         ratingInDialog.setRating(startValue);
 
-        ratingDialog.setPositiveButton("Готово",
+        ratingDialog.setPositiveButton(getResources().getString(R.string.done),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         Comment comment = new

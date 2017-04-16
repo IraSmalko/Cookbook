@@ -73,7 +73,7 @@ public class ShoppingAdapters {
                                     mShopDataset.remove(getAdapterPosition());
                                     notifyDataSetChanged();
                                 } catch (ArrayIndexOutOfBoundsException e) {
-                                    Toast.makeText(mContext, "Не так швидко, будь ласка!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(mContext, mContext.getResources().getString(R.string.not_so_quick), Toast.LENGTH_SHORT).show();
                                 }
                             }
                         },
@@ -145,7 +145,7 @@ public class ShoppingAdapters {
                             notifyDataSetChanged();
                             mAdapter.notifyDataSetChanged();
                         } catch (ArrayIndexOutOfBoundsException e) {
-                            Toast.makeText(mContext, "Не так швидко, будь ласка!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContext, mContext.getResources().getString(R.string.not_so_quick), Toast.LENGTH_SHORT).show();
                         }
                     }
                 }, ANIMATION_DELAY);
