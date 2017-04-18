@@ -88,5 +88,5 @@
     <string name="give_permission">Without this permission feature does not work! Allow?</string>
     <string name="error_loading">Check your network connection.</string>
     <string name="info_vr1">To activate the \"Voice Control\", follow the movement of the hand shown in the figure.</string>
-    <string name="info_vr2">For management application available following commands: recipe name, category name, authorization, saved recipes, add a category, save the recipe to keep detailed, the next step, a preliminary step, a step back.</string>
+    <string name="info_vr2">For management application available following commands: recipe name, category name, authorization, saved recipes, add a category, detailed, the next step, a preliminary step, a step back.</string>
 </resources>
