@@ -14,7 +14,7 @@ import android.support.v4.app.ActivityCompat;
 import com.exemple.android.cookbook.R;
 
 public class PermissionsHelper {
-    private final int READ_EXTERNAL_STORAGE_REQUEST = 15;
+    private static final int READ_EXTERNAL_STORAGE_REQUEST = 15;
     private static final int CAMERA_PERMISSION_REQUEST = 14;
 
     private Context mContext;
@@ -31,8 +31,8 @@ public class PermissionsHelper {
     public void showPermissionDialog(int request) {
         mPermissionRequest = request == READ_EXTERNAL_STORAGE_REQUEST ? READ_EXTERNAL_STORAGE_REQUEST
                 : CAMERA_PERMISSION_REQUEST;
-        mPermission = mPermissionRequest == READ_EXTERNAL_STORAGE_REQUEST ? Manifest.permission.CAMERA
-                : Manifest.permission.READ_EXTERNAL_STORAGE;
+        mPermission = mPermissionRequest == READ_EXTERNAL_STORAGE_REQUEST ? Manifest.permission.READ_EXTERNAL_STORAGE
+                : Manifest.permission.CAMERA;
         new AlertDialog.Builder(mContext)
                 .setMessage(mContext.getResources().getString(R.string.give_permission))
                 .setPositiveButton(R.string.positive_button, new DialogInterface.OnClickListener() {
