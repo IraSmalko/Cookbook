@@ -64,7 +64,7 @@ public class AuthenticationActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_authentication);
 
         mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setTitle("Авторизація");
+        mProgressDialog.setTitle(getResources().getString(R.string.menu_button_auth));
         mProgressDialog.setMessage(getResources().getString(R.string.progress_vait));
 
         // Assign fields
@@ -112,8 +112,6 @@ public class AuthenticationActivity extends AppCompatActivity implements
                 mProgressDialog.dismiss();
             }
         });
-
-        Log.d("FB", loginButton.getText().toString());
 
     }
 

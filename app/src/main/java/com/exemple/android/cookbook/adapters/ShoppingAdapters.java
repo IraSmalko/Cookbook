@@ -1,58 +1,56 @@
 package com.exemple.android.cookbook.adapters;
 
+import android.content.Context;
+import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.exemple.android.cookbook.R;
 import com.exemple.android.cookbook.entity.Ingredient;
 
 import java.util.List;
 
-/**
- * Created by Sakurov on 13.03.2017.
- */
-
 public class ShoppingAdapters {
 
-    private static final Long ANIMATION_DELAY = 700L;
+    private static final Long ANIMATION_DELAY = 600L;
 
     private List<Ingredient> mShopDataset;
     private List<Ingredient> mBasketDataset;
 
-    public ShoppingAdapters(List<Ingredient> shopDataset, List<Ingredient> basketDataset) {
+    private Context mContext;
+
+    public ShoppingAdapters(Context context, List<Ingredient> shopDataset, List<Ingredient> basketDataset) {
+        mContext = context;
         mShopDataset = shopDataset;
         mBasketDataset = basketDataset;
     }
 
-    public class ShopRecyclerAdapter extends RecyclerView.Adapter<ShopRecyclerAdapter.ViewHolder> {
+    private class ShopRecyclerAdapter extends RecyclerView.Adapter<ShopRecyclerAdapter.ViewHolder> {
 
         BasketRecyclerAdapter mAdapter;
 
-        public ShopRecyclerAdapter() {
+        private ShopRecyclerAdapter() {
 
         }
 
-        public ShopRecyclerAdapter(BasketRecyclerAdapter adapter) {
-            mAdapter = adapter;
-        }
-
-        public void setmAdapter(BasketRecyclerAdapter adapter) {
+        private void setmAdapter(BasketRecyclerAdapter adapter) {
             mAdapter = adapter;
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder implements
                 View.OnClickListener {
 
-            public TextView ingredientNameTextView;
-            public TextView ingredientQuantityTextView;
-            public TextView ingredientUnitTextView;
-            public CheckBox shopCheckBox;
+            private TextView ingredientNameTextView;
+            private TextView ingredientQuantityTextView;
+            private TextView ingredientUnitTextView;
+            private CheckBox shopCheckBox;
 
-            public ViewHolder(View v) {
+            private ViewHolder(View v) {
 
                 super(v);
                 ingredientNameTextView = (TextView) itemView.findViewById(R.id.ingredient_name);
@@ -64,18 +62,22 @@ public class ShoppingAdapters {
 
             @Override
             public void onClick(View v) {
-                shopCheckBox.postOnAnimationDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (getAdapterPosition() != -1) {
-                            mBasketDataset.add(mShopDataset.get(getAdapterPosition()));
-                            mShopDataset.remove(getAdapterPosition());
-                            shopCheckBox.setChecked(false);
-                            notifyDataSetChanged();
-                            mAdapter.notifyDataSetChanged();
-                        }
-                    }
-                }, ANIMATION_DELAY);
+                shopCheckBox.postOnAnimationDelayed(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    shopCheckBox.setChecked(false);
+                                    mBasketDataset.add(mShopDataset.get(getAdapterPosition()));
+                                    mAdapter.notifyDataSetChanged();
+                                    mShopDataset.remove(getAdapterPosition());
+                                    notifyDataSetChanged();
+                                } catch (ArrayIndexOutOfBoundsException e) {
+                                    Toast.makeText(mContext, mContext.getResources().getString(R.string.not_so_quick), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        },
+                        ANIMATION_DELAY);
             }
         }
 
@@ -88,8 +90,7 @@ public class ShoppingAdapters {
 
             // тут можно программно менять атрибуты лэйаута (size, margins, paddings и др.)
 
-            ViewHolder vh = new ViewHolder(v);
-            return vh;
+            return new ViewHolder(v);
         }
 
         @Override
@@ -105,23 +106,23 @@ public class ShoppingAdapters {
         }
     }
 
-    public class BasketRecyclerAdapter extends RecyclerView.Adapter<BasketRecyclerAdapter.ViewHolder> {
+    private class BasketRecyclerAdapter extends RecyclerView.Adapter<BasketRecyclerAdapter.ViewHolder> {
 
         ShopRecyclerAdapter mAdapter;
 
-        public BasketRecyclerAdapter(ShopRecyclerAdapter adapter) {
+        private BasketRecyclerAdapter(ShopRecyclerAdapter adapter) {
             mAdapter = adapter;
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder implements
                 View.OnClickListener {
 
-            public TextView ingredientNameTextView;
-            public TextView ingredientQuantityTextView;
-            public TextView ingredientUnitTextView;
-            public CheckBox basketCheckBox;
+            private TextView ingredientNameTextView;
+            private TextView ingredientQuantityTextView;
+            private TextView ingredientUnitTextView;
+            private CheckBox basketCheckBox;
 
-            public ViewHolder(View v) {
+            private ViewHolder(View v) {
 
                 super(v);
                 ingredientNameTextView = (TextView) itemView.findViewById(R.id.ingredient_name);
@@ -137,12 +138,14 @@ public class ShoppingAdapters {
                 basketCheckBox.postOnAnimationDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if (mBasketDataset.size() != -1) {
+                        try {
                             mShopDataset.add(mBasketDataset.get(getAdapterPosition()));
                             mBasketDataset.remove(getAdapterPosition());
                             basketCheckBox.setChecked(true);
                             notifyDataSetChanged();
                             mAdapter.notifyDataSetChanged();
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            Toast.makeText(mContext, mContext.getResources().getString(R.string.not_so_quick), Toast.LENGTH_SHORT).show();
                         }
                     }
                 }, ANIMATION_DELAY);
@@ -156,8 +159,8 @@ public class ShoppingAdapters {
                     .inflate(R.layout.item_shopping, parent, false);
 
             // тут можно программно менять атрибуты лэйаута (size, margins, paddings и др.)
-
             ViewHolder vh = new ViewHolder(v);
+            vh.basketCheckBox.setChecked(true);
             return vh;
         }
 
@@ -172,6 +175,7 @@ public class ShoppingAdapters {
         public int getItemCount() {
             return mBasketDataset.size();
         }
+
     }
 
     public void setShoppingAdaptersToRecyclers(RecyclerView shopRecycler, RecyclerView basketRecycler) {

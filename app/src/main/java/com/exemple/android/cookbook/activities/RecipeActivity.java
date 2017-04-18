@@ -3,7 +3,6 @@ package com.exemple.android.cookbook.activities;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -285,14 +284,11 @@ public class RecipeActivity extends BaseActivity
             }
         };
 
-        Log.d("LLL", "" + mFirebaseAdapter.getItemCount());
-
         mFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
                 int commentCount = mFirebaseAdapter.getItemCount();
-                Log.d("LLLLL", "" + mFirebaseAdapter.getItemCount());
                 int lastVisiblePosition =
                         mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
                 // If the recycler view is initially being loaded or the
@@ -310,7 +306,6 @@ public class RecipeActivity extends BaseActivity
 
         mCommentsRecyclerView.setLayoutManager(mLinearLayoutManager);
         mCommentsRecyclerView.setAdapter(mFirebaseAdapter);
-        Log.d("LLL3", "" + mCommentsRecyclerView.getAdapter().getItemCount());
 
         mSendButton.setEnabled(false);
         mCommentEditText.addTextChangedListener(new TextWatcher() {
@@ -357,7 +352,8 @@ public class RecipeActivity extends BaseActivity
                 if (mLoadPhotoStep != null) {
                     saveRecipe(DataSourceSQLite.REQUEST_SAVED);
                 } else {
-                    Toast.makeText(this, "Будь ласка, дочекайтесь завантаження", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this,getResources()
+                            .getString(R.string.wait_for_download_picture), Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Toast.makeText(RecipeActivity.this, getResources()
@@ -372,7 +368,8 @@ public class RecipeActivity extends BaseActivity
                 if (mLoadPhotoStep != null) {
                     saveRecipe(DataSourceSQLite.REQUEST_BASKET);
                 } else {
-                    Toast.makeText(this, "Будь ласка, дочекайтесь завантаження", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getResources()
+                            .getString(R.string.wait_for_download_picture), Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Toast.makeText(RecipeActivity.this, getResources()
@@ -384,7 +381,8 @@ public class RecipeActivity extends BaseActivity
                 if (mLoadPhotoStep != null) {
                     shareRecipe();
                 } else {
-                    Toast.makeText(this, "Будь ласка, дочекайтесь завантаження", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getResources()
+                            .getString(R.string.wait_for_download_picture), Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Toast.makeText(RecipeActivity.this, getResources()
@@ -407,9 +405,6 @@ public class RecipeActivity extends BaseActivity
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        // An unresolvable error has occurred and Google APIs (including Sign-In) will not
-        // be available.
-        Log.d(TAG, "onConnectionFailed:" + connectionResult);
         Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
     }
 
@@ -436,16 +431,17 @@ public class RecipeActivity extends BaseActivity
 
         final AlertDialog.Builder ratingDialog = new AlertDialog.Builder(this);
         ratingDialog.setIcon(android.R.drawable.btn_star_big_on);
-        ratingDialog.setTitle("Будь ласка, оцініть рецепт!");
+        ratingDialog.setTitle(getResources()
+                .getString(R.string.make_rate_of_recipe));
         ratingDialog.setCancelable(false);
 
-        View linearlayout = getLayoutInflater().inflate(R.layout.rating_dialog, null);
-        ratingDialog.setView(linearlayout);
+        View linearLayout = getLayoutInflater().inflate(R.layout.rating_dialog, null);
+        ratingDialog.setView(linearLayout);
 
-        ratingInDialog = (RatingBar) linearlayout.findViewById(R.id.dialogRatingBar);
+        ratingInDialog = (RatingBar) linearLayout.findViewById(R.id.dialogRatingBar);
         ratingInDialog.setRating(startValue);
 
-        ratingDialog.setPositiveButton("Готово",
+        ratingDialog.setPositiveButton(getResources().getString(R.string.done),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         Comment comment = new
@@ -481,21 +477,21 @@ public class RecipeActivity extends BaseActivity
     public void showEditRatingDialog(final DatabaseReference ref, final String commentText, final float commentRating) {
         final AlertDialog.Builder ratingEditDialog = new AlertDialog.Builder(this);
         ratingEditDialog.setIcon(android.R.drawable.btn_star_big_on);
-        ratingEditDialog.setTitle("Редагування оцінки");
+        ratingEditDialog.setTitle(getResources()
+                .getString(R.string.editing_rate_of_recipe));
         ratingEditDialog.setCancelable(false);
 
-        View linearlayout = getLayoutInflater().inflate(R.layout.edit_rating_dialog, null);
-        ratingEditDialog.setView(linearlayout);
-        Log.d("refff", ref.toString());
-        Log.d("refff", ref.getKey());
+        View linearLayout = getLayoutInflater().inflate(R.layout.edit_rating_dialog, null);
+        ratingEditDialog.setView(linearLayout);
         referenceKey = ref.getKey();
-        ratingInEditDialog = (RatingBar) linearlayout.findViewById(R.id.editDialogRatingBar);
-        editTextInEditDialog = (EditText) linearlayout.findViewById(R.id.editTextComentInDialog);
+        ratingInEditDialog = (RatingBar) linearLayout.findViewById(R.id.editDialogRatingBar);
+        editTextInEditDialog = (EditText) linearLayout.findViewById(R.id.editTextComentInDialog);
 
         ratingInEditDialog.setRating(commentRating);
         editTextInEditDialog.setText(commentText);
 
-        ratingEditDialog.setPositiveButton("Готово",
+        ratingEditDialog.setPositiveButton(getResources()
+                .getString(R.string.done),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -552,10 +548,10 @@ public class RecipeActivity extends BaseActivity
             String message = "";
             if (target == DataSourceSQLite.REQUEST_BASKET) {
                 inBasket = 1;
-                message = "Додано в кошик";
+                message = getResources().getString(R.string.added_to_basket);
             } else if (target == DataSourceSQLite.REQUEST_SAVED) {
                 inSaved = 1;
-                message = "Рецепт збережено";
+                message = getResources().getString(R.string.recipe_saved);
             }
             boolean isOnline = new CheckOnlineHelper(this).isOnline();
             if (isOnline) {
@@ -578,16 +574,18 @@ public class RecipeActivity extends BaseActivity
             if (target == DataSourceSQLite.REQUEST_BASKET) {
                 if (mDataSourceSQLite.checkSaveTarget(idRecipe, DataSourceSQLite.REQUEST_BASKET) == 0) {
                     mDataSourceSQLite.updateSaveTarget(idRecipe, DataSourceSQLite.REQUEST_BASKET, 1);
-                    message = "Додано в кошик";
+                    message = getResources()
+                            .getString(R.string.added_to_basket);
                 } else if (mDataSourceSQLite.checkSaveTarget(idRecipe, DataSourceSQLite.REQUEST_BASKET) == 1) {
-                    message = "Вже в кошику";
+                    message =getResources().getString(R.string.already_in_basket);
                 }
             } else if (target == DataSourceSQLite.REQUEST_SAVED) {
                 if (mDataSourceSQLite.checkSaveTarget(idRecipe, DataSourceSQLite.REQUEST_SAVED) == 0) {
                     mDataSourceSQLite.updateSaveTarget(idRecipe, DataSourceSQLite.REQUEST_SAVED, 1);
-                    message = "Рецепт збережено";
+                    message = getResources()
+                            .getString(R.string.recipe_saved);
                 } else if (mDataSourceSQLite.checkSaveTarget(idRecipe, DataSourceSQLite.REQUEST_SAVED) == 1) {
-                    message = "Вже в збережених";
+                    message = getResources().getString(R.string.already_in_saved);
                 }
             }
             Toast.makeText(RecipeActivity.this, message, Toast.LENGTH_SHORT).show();
@@ -721,8 +719,7 @@ public class RecipeActivity extends BaseActivity
         if (contentUri != null) {
             final Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // temp permission for receiving app to read this file
-//            shareIntent.setDataAndType(contentUri, getContentResolver().getType(contentUri));
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, mIntent.getStringExtra(RECIPE));
             shareIntent.putExtra(Intent.EXTRA_TEXT, LocalSavingImagesHelper
                     .getDescriptionOfRecipeToShare(mIntent.getStringExtra(RECIPE), mIngredients));
@@ -730,10 +727,13 @@ public class RecipeActivity extends BaseActivity
             shareIntent.setType("image/*");
             shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
 
-            String[] whiteList = new String[]{"com.whatsapp", "org.telegram.messenger", "com.twitter.android", "com.google.android.gm", "com.facebook.katana"};
+            String[] whiteList = new String[]{
+                    "com.whatsapp", "org.telegram.messenger",
+                    "com.twitter.android", "com.google.android.gm",
+                    "com.facebook.katana", "com.google.android.apps.plus"};
+
             startActivityForResult(generateCustomChooserIntent(shareIntent, whiteList), REQUEST_SHARE);
 //            List<ResolveInfo> shareActivityList = getPackageManager().queryIntentActivities(shareIntent, PackageManager.MATCH_DEFAULT_ONLY);
-//            List<Intent> shareIntents = new ArrayList<>();
 //            for (ResolveInfo resInfo : shareActivityList) {
 //                Log.d("NNN", resInfo.activityInfo.packageName);
 //            }

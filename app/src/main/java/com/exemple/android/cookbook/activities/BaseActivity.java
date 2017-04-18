@@ -98,6 +98,8 @@ public abstract class BaseActivity extends AppCompatActivity
             showSignOutDialog();
         } else if (id == R.id.nav_basket) {
             startActivity(new Intent(this, ShoppingBasketActivity.class));
+        } else if (id == R.id.main) {
+            startActivity(new Intent(this, MainActivity.class));
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);
         drawer.closeDrawer(GravityCompat.START);
@@ -216,11 +218,11 @@ public abstract class BaseActivity extends AppCompatActivity
     public void showSignOutDialog() {
 
         final AlertDialog.Builder signOutDialog = new AlertDialog.Builder(this);
-        signOutDialog.setTitle("Sign out");
-        signOutDialog.setMessage("Ви впевнені?");
+        signOutDialog.setTitle(getResources().getString(R.string.auth_exit));
+        signOutDialog.setMessage(getResources().getString(R.string.auth_sure));
         signOutDialog.setCancelable(true);
 
-        signOutDialog.setPositiveButton("Так",
+        signOutDialog.setPositiveButton(getResources().getString(R.string.yes),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         if (mFirebaseUser != null) {
@@ -236,7 +238,7 @@ public abstract class BaseActivity extends AppCompatActivity
                         dialog.dismiss();
                     }
                 });
-        signOutDialog.setNegativeButton("Ні", new DialogInterface.OnClickListener() {
+        signOutDialog.setNegativeButton(getResources().getString(R.string.no), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }

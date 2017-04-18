@@ -2,32 +2,38 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-    <group android:checkableBehavior="single">
+    <item android:title="">
+        <menu>
+            <item
+                android:id="@+id/main"
+                android:icon="@drawable/icon_home"
+                android:title="@string/menu_button_main" />
+        </menu>
+    </item>
 
-        <item android:title="">
-            <menu>
-                <item
-                    android:id="@+id/selected"
-                    android:icon="@drawable/save_dark"
-                    android:title="Збережені" />
-                <item
-                    android:id="@+id/nav_basket"
-                    android:icon="@drawable/icon_shop"
-                    android:title="Кошик" />
-            </menu>
-        </item>
-    </group>
+    <item android:title="@string/menu_button_local">
+        <menu>
+            <item
+                android:id="@+id/selected"
+                android:icon="@drawable/save_dark"
+                android:title="@string/menu_button_saved" />
+            <item
+                android:id="@+id/nav_basket"
+                android:icon="@drawable/icon_shop"
+                android:title="@string/menu_button_basket" />
+        </menu>
+    </item>
 
-    <item android:title="Authentication">
+    <item android:title="@string/menu_button_auth">
         <menu>
             <item
                 android:id="@+id/nav_sign_in"
                 android:icon="@drawable/sign_in"
-                android:title="Sign In" />
+                android:title="@string/menu_button_sign_in" />
             <item
                 android:id="@+id/nav_sign_out"
                 android:icon="@drawable/exit"
-                android:title="Sign Out" />
+                android:title="@string/menu_button_sign_out" />
         </menu>
     </item>
 

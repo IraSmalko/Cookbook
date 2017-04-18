@@ -12,10 +12,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
 
-/**
- * Created by Sakurov on 05.04.2017.
- */
-
 public abstract class LocalSavingImagesHelper {
 
     public static String getPathForNewPhoto(String name, Bitmap photo, Context context) {
